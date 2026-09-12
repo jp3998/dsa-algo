@@ -1,6 +1,9 @@
 **Platform:** NeetCode
+
 **Problem:** Max Consecutive Ones
+
 **Problem Link:** https://neetcode.io/problems/max-consecutive-ones/question
+
 **Submission History:** https://neetcode.io/problems/max-consecutive-ones/history
 
 ---
