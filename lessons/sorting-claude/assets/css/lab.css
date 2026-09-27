@@ -357,8 +357,8 @@ button.primary:hover:not(:disabled) {
 
 .lab-legend i {
   display: inline-block;
-  width: 0.8em;
-  height: 0.8em;
+  width: 0.95em;
+  height: 0.95em;
   border: 1.5px solid;
   border-radius: 2px;
   font-style: normal;

@@ -3,7 +3,7 @@
 How a lesson page is built. Companion documents: `sorting-voice-and-pedagogy.md` (how to write),
 `sorting-curriculum.md` (what to write, in what order).
 
-**Status:** covers everything built so far (lessons 00–06). The step-through player for animated
+**Status:** covers everything built so far (lessons 00–07). The step-through player for animated
 algorithm traces is specified in the phase that first needs it (Part II), not speculatively.
 
 ---

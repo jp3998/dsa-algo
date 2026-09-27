@@ -1,6 +1,6 @@
 # Sorting — Curriculum
 
-**Status:** Part I detailed; lessons 00–06 written. Lessons 07–08 remain. Parts II–XII are one-line
+**Status:** Part I detailed; lessons 00–07 written. Lesson 08 remains. Parts II–XII are one-line
 placeholders and get expanded one part at a time, just ahead of production.
 
 Companion documents: `sorting-voice-and-pedagogy.md` (how to write),
@@ -296,7 +296,7 @@ is.
 
 ---
 
-### Lesson 07 — How big is $\log_2(n!)$?
+### Lesson 07 — How big is the bound?
 
 ```
 assumes:    leaf-count-bound, tree-height, factorial
