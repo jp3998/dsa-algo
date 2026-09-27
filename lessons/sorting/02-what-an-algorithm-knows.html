@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chapter 2: What Does an Algorithm Actually Know? — Theoretical Foundations</title>
+
+  <!-- Local KaTeX Distribution (100% Offline, Publication-Grade Typesetting) -->
+  <link rel="stylesheet" href="assets/vendor/katex/katex.min.css">
+  
+  <!-- Academic Monograph Stylesheet -->
+  <link rel="stylesheet" href="assets/css/lesson-theme.css">
+  <link rel="stylesheet" href="assets/css/visualizer.css">
+</head>
+<body>
+
+  <article class="article-container">
+
+    <!-- CHAPTER HEADER -->
+    <header class="monograph-header">
+      <div class="header-series">Part I: Information, Order, and Computational Limits • Chapter 2</div>
+      <h1 class="monograph-title">What Does an Algorithm Actually Know?</h1>
+      <div class="monograph-epigraph">
+        "An algorithm does not possess an omniscient bird's-eye view of memory. It begins in total ignorance, acquiring clues one comparison at a time. To understand sorting, we must track what an algorithm knows, what it can deduce for free, and what remains unknown."
+      </div>
+    </header>
+
+    <!-- SECTION 2.1 -->
+    <section>
+      <h2 class="section-title">2.1 The Computational Model: The Comparison Oracle</h2>
+      <p class="lead">
+        When humans look at a short list of numbers printed on paper—such as $[14, 4, 29, 9]$—our eyes take in the entire page at once. We immediately spot that $4$ is the smallest and $29$ is the largest.
+      </p>
+      <p>
+        Because of this human intuition, beginners often misunderstand how algorithms operate. A computer program does not have human vision. It cannot "glance" at an entire array and absorb its order.
+      </p>
+      <p>
+        In theoretical computer science, we formalize this reality using a <strong>computational model</strong> called the <strong>Comparison Model</strong>:
+      </p>
+      <ul>
+        <li>The elements in the array are treated as opaque, black-box items.</li>
+        <li>The algorithm cannot inspect their internal bit patterns or guess their magnitudes directly.</li>
+        <li>The <strong>only operation</strong> the algorithm is allowed to perform is asking:
+          $$\text{Is } A[i] < A[j]?$$
+        </li>
+      </ul>
+      <p>
+        We can think of this operation as querying a <strong>Comparison Oracle</strong>. You hand the oracle two indices, $i$ and $j$, and the oracle hands back a single boolean answer: <strong>True</strong> or <strong>False</strong>.
+      </p>
+
+      <div class="formal-env definition">
+        <div class="env-label oxford">Definition 2.1 (The Comparison Model)</div>
+        <div class="env-body">
+          <p>
+            In the <strong>comparison model of computation</strong>, an algorithm accesses input data exclusively through a pairwise comparison predicate:
+            $$\text{Compare}(x, y) \longrightarrow \{<, >, =\}$$
+            All data movement and state transitions must be determined solely by the history of answers returned by this predicate. The computational cost of the algorithm is measured primarily by the total number of queries made to the oracle.
+          </p>
+        </div>
+      </div>
+
+      <!-- FIGURE 2.1: THE COMPARISON ORACLE PROTOCOL -->
+      <figure class="academic-figure">
+        <div class="matrix-row-title">Figure 2.1: The Comparison Oracle Protocol</div>
+        <div class="scientific-canvas" style="padding: 16px 8px;">
+          <svg viewBox="0 0 680 150" style="width: 100%; max-width: 680px; height: auto; display: block; margin: 0 auto;">
+            <defs>
+              <marker id="oracle-arrow-right" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                <path d="M 0 1 L 10 5 L 0 9 z" fill="#1e3a8a" />
+              </marker>
+              <marker id="oracle-arrow-left" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                <path d="M 0 1 L 10 5 L 0 9 z" fill="#065f46" />
+              </marker>
+            </defs>
+
+            <!-- Left Box: Algorithm Logic & State -->
+            <g transform="translate(30, 15)">
+              <rect x="0" y="0" width="200" height="120" fill="#f8fafc" stroke="#111827" stroke-width="1.2" rx="2" />
+              <text x="100" y="24" font-family="var(--font-sans)" font-size="11" font-weight="700" fill="#111827" text-anchor="middle">SORTING ALGORITHM</text>
+              <text x="100" y="42" font-family="var(--font-sans)" font-size="10.5" fill="#64748b" text-anchor="middle">(Program Memory &amp; State)</text>
+              <line x1="20" y1="52" x2="180" y2="52" stroke="#e2e8f0" stroke-width="1" />
+              <text x="100" y="72" font-family="var(--font-mono)" font-size="10.5" fill="#334155" text-anchor="middle">• Accumulates Poset Graph</text>
+              <text x="100" y="90" font-family="var(--font-mono)" font-size="10.5" fill="#334155" text-anchor="middle">• Transitive Deduction</text>
+              <text x="100" y="108" font-family="var(--font-mono)" font-size="10.5" fill="#991b1b" text-anchor="middle">• Cannot read raw elements</text>
+            </g>
+
+            <!-- Middle Communication Channel -->
+            <g transform="translate(230, 15)">
+              <!-- Query Arrow (Top) -->
+              <path d="M 15 35 L 205 35" fill="none" stroke="#1e3a8a" stroke-width="1.6" marker-end="url(#oracle-arrow-right)" />
+              <text x="110" y="28" font-family="var(--font-mono)" font-size="11" font-weight="700" fill="#1e3a8a" text-anchor="middle">Query: Compare(A[i], A[j])</text>
+
+              <!-- Isolation Barrier (Dashed Line) -->
+              <line x1="110" y1="46" x2="110" y2="76" stroke="#94a3b8" stroke-dasharray="3,3" stroke-width="1.2" />
+              <text x="110" y="66" font-family="var(--font-sans)" font-size="9" font-weight="700" fill="#94a3b8" text-anchor="middle">ISOLATION</text>
+
+              <!-- Answer Arrow (Bottom) -->
+              <path d="M 205 85 L 15 85" fill="none" stroke="#065f46" stroke-width="1.6" marker-end="url(#oracle-arrow-left)" />
+              <text x="110" y="104" font-family="var(--font-mono)" font-size="11" font-weight="700" fill="#065f46" text-anchor="middle">Response: True / False (1 bit)</text>
+            </g>
+
+            <!-- Right Box: Comparison Oracle & Opaque Data -->
+            <g transform="translate(450, 15)">
+              <rect x="0" y="0" width="200" height="120" fill="#ffffff" stroke="#1e3a8a" stroke-width="1.4" rx="2" />
+              <text x="100" y="24" font-family="var(--font-sans)" font-size="11" font-weight="700" fill="#1e3a8a" text-anchor="middle">COMPARISON ORACLE</text>
+              <text x="100" y="42" font-family="var(--font-sans)" font-size="10.5" fill="#64748b" text-anchor="middle">(Black-Box Data Storage)</text>
+              <line x1="20" y1="52" x2="180" y2="52" stroke="#e2e8f0" stroke-width="1" />
+              <!-- Array Elements Boxed -->
+              <g transform="translate(25, 66)">
+                <rect x="0" y="0" width="32" height="30" fill="#f8fafc" stroke="#94a3b8" rx="2" />
+                <text x="16" y="20" font-family="var(--font-mono)" font-size="12" font-weight="700" fill="#475569" text-anchor="middle">A₀</text>
+
+                <rect x="40" y="0" width="32" height="30" fill="#f8fafc" stroke="#94a3b8" rx="2" />
+                <text x="56" y="20" font-family="var(--font-mono)" font-size="12" font-weight="700" fill="#475569" text-anchor="middle">A₁</text>
+
+                <rect x="80" y="0" width="32" height="30" fill="#f8fafc" stroke="#94a3b8" rx="2" />
+                <text x="96" y="20" font-family="var(--font-mono)" font-size="12" font-weight="700" fill="#475569" text-anchor="middle">A₂</text>
+
+                <rect x="120" y="0" width="32" height="30" fill="#f8fafc" stroke="#94a3b8" rx="2" />
+                <text x="136" y="20" font-family="var(--font-mono)" font-size="12" font-weight="700" fill="#475569" text-anchor="middle">A₃</text>
+              </g>
+              <text x="100" y="112" font-family="var(--font-sans)" font-size="9.5" fill="#64748b" text-anchor="middle">Opaque items inaccessible directly</text>
+            </g>
+          </svg>
+        </div>
+        <figcaption class="figure-caption">
+          <strong>Figure 2.1:</strong> The Comparison Oracle Protocol. The algorithm cannot look inside array elements. It communicates with the data exclusively through index queries, receiving one boolean answer at a time.
+        </figcaption>
+      </figure>
+    </section>
+
+    <!-- SECTION 2.2 -->
+    <section>
+      <h2 class="section-title">2.2 What Does a Single Comparison Tell Us?</h2>
+      <p>
+        Suppose an algorithm starts with four elements: $x_0, x_1, x_2, x_3$.
+      </p>
+      <p>
+        At the very beginning, before making any comparisons, what does the algorithm know about their relative order?
+        <strong>Precisely nothing.</strong> Every element could potentially be the smallest, and every element could potentially be the largest.
+      </p>
+      <p>
+        Now, suppose the algorithm makes its first query:
+        $$\text{Is } x_0 < x_1? \quad \longrightarrow \quad \text{True}$$
+      </p>
+      <p>
+        Let us pause and examine this state of knowledge:
+      </p>
+      <ol>
+        <li><strong>What is now known:</strong> Between $x_0$ and $x_1$, $x_0$ is smaller. In any valid final sorted order, $x_0$ must precede $x_1$.</li>
+        <li><strong>What is still unknown:</strong> We know nothing about $x_2$ or $x_3$. We do not know if $x_0$ is smaller than $x_2$, or if $x_1$ is larger than $x_3$.</li>
+      </ol>
+
+      <h3 class="subsection-title">The Magic of Transitivity: Free Information</h3>
+      <p>
+        Now suppose the algorithm makes a second query:
+        $$\text{Is } x_1 < x_2? \quad \longrightarrow \quad \text{True}$$
+      </p>
+      <p>
+        Something remarkable happens here. Because our ordering rule is <strong>transitive</strong> (as established in Chapter 1), we know:
+        $$(x_0 < x_1) \quad \text{and} \quad (x_1 < x_2) \implies (x_0 < x_2)$$
+      </p>
+      <p>
+        Notice that the algorithm <strong>never asked the oracle</strong> to compare $x_0$ and $x_2$. Yet, the algorithm now knows with 100% mathematical certainty that $x_0 < x_2$!
+      </p>
+      <p>
+        This is our first fundamental insight into algorithm design:
+      </p>
+      <div class="formal-env remark">
+        <div class="env-label">Fundamental Principle 2.1 (Transitive Deduction)</div>
+        <p>
+          An algorithm does not need to compare every pair of elements directly. Transitivity allows an algorithm to deduce relationships between elements without querying them, obtaining new facts for free.
+        </p>
+      </div>
+    </section>
+
+    <!-- SECTION 2.3 -->
+    <section>
+      <h2 class="section-title">2.3 Representing Knowledge as a Poset</h2>
+      <p>
+        How can we mathematically represent everything an algorithm knows at any given moment?
+      </p>
+      <p>
+        At any intermediate step of sorting, some pairs of elements have a known order, while other pairs remain uncompared and unknown. In mathematics, a set where <em>some</em> pairs are ordered but others are not is called a <strong>Partially Ordered Set</strong>, or <strong>Poset</strong>.
+      </p>
+
+      <div class="formal-env definition">
+        <div class="env-label oxford">Definition 2.2 (Partially Ordered Set / Poset)</div>
+        <div class="env-body">
+          <p>
+            A <strong>poset</strong> $(S, \prec)$ consists of a set of elements $S$ and a binary relation $\prec$ that is:
+          </p>
+          <ul>
+            <li><strong>Irreflexive:</strong> No element is less than itself ($x \not\prec x$).</li>
+            <li><strong>Asymmetric:</strong> If $x \prec y$, then $y \not\prec x$.</li>
+            <li><strong>Transitive:</strong> If $x \prec y$ and $y \prec z$, then $x \prec z$.</li>
+          </ul>
+          <p>
+            Unlike a <em>total</em> order, a poset does <strong>not</strong> require totality. Two elements $x$ and $y$ can be <em>incomparable</em> under the current state of knowledge, meaning neither $x \prec y$ nor $y \prec x$ has been established yet.
+          </p>
+        </div>
+      </div>
+
+      <p>
+        We can visualize an algorithm's knowledge as a directed graph:
+      </p>
+      <ul>
+        <li><strong>Vertices:</strong> The elements being sorted ($x_0, x_1, \dots, x_{n-1}$).</li>
+        <li><strong>Directed Edges:</strong> A directed arrow from $u$ to $v$ ($u \longrightarrow v$) means we know $u < v$.</li>
+        <li><strong>Transitive Reachability:</strong> If there is a directed path from $u$ to $w$ (for example, $u \to v \to w$), then $u < w$ is known via transitivity.</li>
+      </ul>
+
+      <h3 class="subsection-title">The Evolution of Sorting</h3>
+      <p>
+        Using the language of posets, we can now state what sorting actually does:
+      </p>
+      <ol>
+        <li><strong>Initial State (Antichain):</strong> At step 0, there are zero edges. No two elements are comparable. In poset theory, a set with zero relations is called an <strong>antichain</strong>. Uncertainty is at its absolute maximum.</li>
+        <li><strong>Intermediate State (Partial Order):</strong> Each comparison adds a new edge. Transitivity fills in paths. Elements form small ordered trees and disconnected clusters.</li>
+        <li><strong>Final State (Total Order / Chain):</strong> When the algorithm finishes, every single pair of elements is connected by a directed path. In poset theory, this is called a <strong>chain</strong> (or total order):
+          $$x_{\pi(0)} \longrightarrow x_{\pi(1)} \longrightarrow x_{\pi(2)} \longrightarrow \dots \longrightarrow x_{\pi(n-1)}$$
+        </li>
+      </ol>
+      <p>
+        Therefore, <strong>sorting is the process of converting an antichain into a single linear chain using the fewest possible queries.</strong>
+      </p>
+
+      <!-- FIGURE 2.2: THE EVOLUTION OF POSET KNOWLEDGE -->
+      <figure class="academic-figure">
+        <div class="matrix-row-title">Figure 2.2: The Three-Stage Evolution of Poset Knowledge</div>
+        <div class="scientific-canvas" style="padding: 16px 8px;">
+          <svg viewBox="0 0 680 170" style="width: 100%; max-width: 680px; height: auto; display: block; margin: 0 auto;">
+            <defs>
+              <marker id="arrow2" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                <path d="M 0 1 L 10 5 L 0 9 z" fill="#111827" />
+              </marker>
+              <marker id="arrow-blue" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                <path d="M 0 1 L 10 5 L 0 9 z" fill="#1e3a8a" />
+              </marker>
+            </defs>
+
+            <!-- Stage 1: Antichain -->
+            <g transform="translate(20, 10)">
+              <rect x="0" y="0" width="190" height="150" fill="#f8fafc" stroke="#d1d5db" rx="2" />
+              <text x="95" y="22" font-family="var(--font-sans)" font-size="11" font-weight="700" fill="#64748b" text-anchor="middle">1. INITIAL ANTICHAIN</text>
+              <circle cx="35" cy="75" r="14" fill="#ffffff" stroke="#111827" stroke-width="1.2" />
+              <text x="35" y="79" font-family="var(--font-mono)" font-size="12" font-weight="700" text-anchor="middle">x₀</text>
+              <circle cx="75" cy="75" r="14" fill="#ffffff" stroke="#111827" stroke-width="1.2" />
+              <text x="75" y="79" font-family="var(--font-mono)" font-size="12" font-weight="700" text-anchor="middle">x₁</text>
+              <circle cx="115" cy="75" r="14" fill="#ffffff" stroke="#111827" stroke-width="1.2" />
+              <text x="115" y="79" font-family="var(--font-mono)" font-size="12" font-weight="700" text-anchor="middle">x₂</text>
+              <circle cx="155" cy="75" r="14" fill="#ffffff" stroke="#111827" stroke-width="1.2" />
+              <text x="155" y="79" font-family="var(--font-mono)" font-size="12" font-weight="700" text-anchor="middle">x₃</text>
+              
+              <text x="95" y="118" font-family="var(--font-sans)" font-size="11" fill="#475569" text-anchor="middle">0 edges • No relations</text>
+              <text x="95" y="135" font-family="var(--font-mono)" font-size="11" font-weight="600" fill="#991b1b" text-anchor="middle">e(P) = 24 suspects</text>
+            </g>
+
+            <!-- Arrow between Stage 1 and 2 -->
+            <g transform="translate(215, 80)">
+              <path d="M 0 0 L 20 0" fill="none" stroke="#64748b" stroke-width="1.5" marker-end="url(#arrow2)" />
+            </g>
+
+            <!-- Stage 2: Partial Order -->
+            <g transform="translate(245, 10)">
+              <rect x="0" y="0" width="190" height="150" fill="#f8fafc" stroke="#d1d5db" rx="2" />
+              <text x="95" y="22" font-family="var(--font-sans)" font-size="11" font-weight="700" fill="#64748b" text-anchor="middle">2. PARTIAL ORDER</text>
+              
+              <!-- Pair 1: x0 < x1 -->
+              <circle cx="55" cy="95" r="13" fill="#ffffff" stroke="#111827" stroke-width="1.2" />
+              <text x="55" y="99" font-family="var(--font-mono)" font-size="11" font-weight="700" text-anchor="middle">x₀</text>
+              <circle cx="55" cy="45" r="13" fill="#ffffff" stroke="#111827" stroke-width="1.2" />
+              <text x="55" y="49" font-family="var(--font-mono)" font-size="11" font-weight="700" text-anchor="middle">x₁</text>
+              <path d="M 55 82 L 55 58" fill="none" stroke="#111827" stroke-width="1.4" marker-end="url(#arrow2)" />
+
+              <!-- Pair 2: x3 < x2 -->
+              <circle cx="135" cy="95" r="13" fill="#ffffff" stroke="#111827" stroke-width="1.2" />
+              <text x="135" y="99" font-family="var(--font-mono)" font-size="11" font-weight="700" text-anchor="middle">x₃</text>
+              <circle cx="135" cy="45" r="13" fill="#ffffff" stroke="#111827" stroke-width="1.2" />
+              <text x="135" y="49" font-family="var(--font-mono)" font-size="11" font-weight="700" text-anchor="middle">x₂</text>
+              <path d="M 135 82 L 135 58" fill="none" stroke="#111827" stroke-width="1.4" marker-end="url(#arrow2)" />
+
+              <text x="95" y="118" font-family="var(--font-sans)" font-size="11" fill="#475569" text-anchor="middle">2 independent trees</text>
+              <text x="95" y="135" font-family="var(--font-mono)" font-size="11" font-weight="600" fill="#d97706" text-anchor="middle">e(P) = 6 suspects</text>
+            </g>
+
+            <!-- Arrow between Stage 2 and 3 -->
+            <g transform="translate(440, 80)">
+              <path d="M 0 0 L 20 0" fill="none" stroke="#64748b" stroke-width="1.5" marker-end="url(#arrow2)" />
+            </g>
+
+            <!-- Stage 3: Total Order (Chain) -->
+            <g transform="translate(470, 10)">
+              <rect x="0" y="0" width="190" height="150" fill="#ffffff" stroke="#065f46" stroke-width="1.5" rx="2" />
+              <text x="95" y="22" font-family="var(--font-sans)" font-size="11" font-weight="700" fill="#065f46" text-anchor="middle">3. TOTAL ORDER (CHAIN)</text>
+              
+              <!-- Vertical column: x1 < x3 < x0 < x2 -->
+              <circle cx="95" cy="115" r="11" fill="#ffffff" stroke="#065f46" stroke-width="1.2" />
+              <text x="95" y="119" font-family="var(--font-mono)" font-size="10.5" font-weight="700" text-anchor="middle">x₁</text>
+
+              <circle cx="95" cy="85" r="11" fill="#ffffff" stroke="#065f46" stroke-width="1.2" />
+              <text x="95" y="89" font-family="var(--font-mono)" font-size="10.5" font-weight="700" text-anchor="middle">x₃</text>
+
+              <circle cx="95" cy="55" r="11" fill="#ffffff" stroke="#065f46" stroke-width="1.2" />
+              <text x="95" y="59" font-family="var(--font-mono)" font-size="10.5" font-weight="700" text-anchor="middle">x₀</text>
+
+              <circle cx="95" cy="25" r="11" fill="#ffffff" stroke="#065f46" stroke-width="1.2" />
+              <text x="95" y="29" font-family="var(--font-mono)" font-size="10.5" font-weight="700" text-anchor="middle">x₂</text>
+
+              <path d="M 95 104 L 95 96" fill="none" stroke="#065f46" stroke-width="1.4" marker-end="url(#arrow2)" />
+              <path d="M 95 74 L 95 66" fill="none" stroke="#065f46" stroke-width="1.4" marker-end="url(#arrow2)" />
+              <path d="M 95 44 L 95 36" fill="none" stroke="#065f46" stroke-width="1.4" marker-end="url(#arrow2)" />
+
+              <text x="95" y="142" font-family="var(--font-mono)" font-size="11" font-weight="700" fill="#065f46" text-anchor="middle">e(P) = 1 (Sorted!)</text>
+            </g>
+          </svg>
+        </div>
+        <figcaption class="figure-caption">
+          <strong>Figure 2.2:</strong> The structural evolution of knowledge. An algorithm begins with an empty antichain ($24$ linear extensions), constructs intermediate partial orders, and halts when all elements are organized into a single linear chain ($1$ linear extension).
+        </figcaption>
+      </figure>
+    </section>
+
+    <!-- SECTION 2.4 -->
+    <section>
+      <h2 class="section-title">2.4 Redundancy: When a Query Yields Zero Information</h2>
+      <p>
+        Once we understand that knowledge forms a poset, an important danger becomes clear: <strong>redundant comparisons</strong>.
+      </p>
+      <p>
+        Suppose an algorithm already knows:
+        $$x_0 < x_1 \quad \text{and} \quad x_1 < x_2$$
+        As we saw, transitivity already guarantees that $x_0 < x_2$.
+      </p>
+      <p>
+        What happens if the algorithm now asks the oracle: <em>"Is $x_0 < x_2$?"</em>
+      </p>
+      <p>
+        The oracle will answer <strong>True</strong>. But this answer tells the algorithm <strong>nothing new</strong>! The poset did not change. The set of possible orderings did not shrink. The algorithm wasted computational time asking a question to which it already possessed the answer.
+      </p>
+
+      <div class="formal-env definition">
+        <div class="env-label oxford">Definition 2.3 (Redundant Comparison)</div>
+        <div class="env-body">
+          <p>
+            A comparison between elements $u$ and $v$ is <strong>redundant</strong> if their relative order is already contained in the transitive closure of the algorithm's current poset:
+            $$(u \prec^+ v) \lor (v \prec^+ u)$$
+            A redundant query yields <strong>zero bits of information</strong> and strictly degrades algorithmic efficiency.
+          </p>
+        </div>
+      </div>
+
+      <!-- FIGURE 2.3: INFORMATIVE VS REDUNDANT QUERY -->
+      <figure class="academic-figure">
+        <div class="matrix-row-title">Figure 2.3: Informative vs. Redundant Queries in a Knowledge Graph</div>
+        <div class="scientific-canvas" style="padding: 16px 8px;">
+          <svg viewBox="0 0 680 150" style="width: 100%; max-width: 680px; height: auto; display: block; margin: 0 auto;">
+            <!-- Left Panel: Informative Query -->
+            <g transform="translate(30, 10)">
+              <rect x="0" y="0" width="290" height="130" fill="#ffffff" stroke="#065f46" stroke-width="1.2" rx="2" />
+              <text x="145" y="22" font-family="var(--font-sans)" font-size="11" font-weight="700" fill="#065f46" text-anchor="middle">CASE A: INFORMATIVE QUERY (NO PATH)</text>
+              
+              <!-- Two disconnected components -->
+              <circle cx="50" cy="70" r="13" fill="#f8fafc" stroke="#111827" stroke-width="1.2" />
+              <text x="50" y="74" font-family="var(--font-mono)" font-size="11" font-weight="700" text-anchor="middle">x₀</text>
+
+              <circle cx="110" cy="70" r="13" fill="#f8fafc" stroke="#111827" stroke-width="1.2" />
+              <text x="110" y="74" font-family="var(--font-mono)" font-size="11" font-weight="700" text-anchor="middle">x₁</text>
+
+              <path d="M 64 70 L 96 70" fill="none" stroke="#111827" stroke-width="1.3" marker-end="url(#arrow2)" />
+
+              <!-- Target node x2 -->
+              <circle cx="230" cy="70" r="13" fill="#f8fafc" stroke="#111827" stroke-width="1.2" />
+              <text x="230" y="74" font-family="var(--font-mono)" font-size="11" font-weight="700" text-anchor="middle">x₂</text>
+
+              <!-- New query arc -->
+              <path d="M 124 70 L 216 70" fill="none" stroke="#065f46" stroke-width="1.8" stroke-dasharray="4,3" marker-end="url(#arrow2)" />
+              <text x="170" y="60" font-family="var(--font-sans)" font-size="10.5" font-weight="700" fill="#065f46" text-anchor="middle">Query: x₁ &lt; x₂</text>
+
+              <text x="145" y="112" font-family="var(--font-sans)" font-size="11" fill="#065f46" text-anchor="middle">✓ Connects components • Yields new information</text>
+            </g>
+
+            <!-- Right Panel: Redundant Query -->
+            <g transform="translate(360, 10)">
+              <rect x="0" y="0" width="290" height="130" fill="#ffffff" stroke="#991b1b" stroke-width="1.2" rx="2" />
+              <text x="145" y="22" font-family="var(--font-sans)" font-size="11" font-weight="700" fill="#991b1b" text-anchor="middle">CASE B: REDUNDANT QUERY (EXISTING PATH)</text>
+              
+              <!-- Existing chain: x0 -> x1 -> x2 -->
+              <circle cx="50" cy="85" r="13" fill="#f8fafc" stroke="#111827" stroke-width="1.2" />
+              <text x="50" y="89" font-family="var(--font-mono)" font-size="11" font-weight="700" text-anchor="middle">x₀</text>
+
+              <circle cx="145" cy="85" r="13" fill="#f8fafc" stroke="#111827" stroke-width="1.2" />
+              <text x="145" y="89" font-family="var(--font-mono)" font-size="11" font-weight="700" text-anchor="middle">x₁</text>
+
+              <circle cx="240" cy="85" r="13" fill="#f8fafc" stroke="#111827" stroke-width="1.2" />
+              <text x="240" y="89" font-family="var(--font-mono)" font-size="11" font-weight="700" text-anchor="middle">x₂</text>
+
+              <path d="M 64 85 L 131 85" fill="none" stroke="#111827" stroke-width="1.3" marker-end="url(#arrow2)" />
+              <path d="M 159 85 L 226 85" fill="none" stroke="#111827" stroke-width="1.3" marker-end="url(#arrow2)" />
+
+              <!-- Redundant query arc over the top -->
+              <path d="M 50 71 C 80 35, 210 35, 238 71" fill="none" stroke="#991b1b" stroke-width="1.8" stroke-dasharray="3,3" marker-end="url(#arrow2)" />
+              <text x="145" y="44" font-family="var(--font-sans)" font-size="10.5" font-weight="700" fill="#991b1b" text-anchor="middle">Query: x₀ &lt; x₂ (Wasted!)</text>
+
+              <text x="145" y="112" font-family="var(--font-sans)" font-size="11" fill="#991b1b" text-anchor="middle">✕ Path already exists • 0 bits gained</text>
+            </g>
+          </svg>
+        </div>
+        <figcaption class="figure-caption">
+          <strong>Figure 2.3:</strong> Informative queries versus redundant queries. If a directed path already exists between two vertices in the algorithm's poset, their relationship is already fixed by transitivity; asking the oracle produces zero information.
+        </figcaption>
+      </figure>
+    </section>
+
+    <!-- SECTION 2.5 -->
+    <section>
+      <h2 class="section-title">2.5 Linear Extensions: Counting the Suspects</h2>
+      <p>
+        How do we measure how close an algorithm is to finishing?
+      </p>
+      <p>
+        For $n$ distinct elements, there are $n!$ possible ways they could be ordered (we will explore this combinatorics deeply in Chapter 3). For $n = 4$, there are $4! = 24$ possible orderings:
+      </p>
+      <p style="text-align: center; font-family: var(--font-mono); font-size: 15px;">
+        [x₀, x₁, x₂, x₃], [x₀, x₁, x₃, x₂], [x₀, x₂, x₁, x₃], ..., [x₃, x₂, x₁, x₀]
+      </p>
+      <p>
+        Any complete ordering of the elements that does not contradict our current knowledge is called a <strong>linear extension</strong> of our poset:
+      </p>
+
+      <div class="formal-env definition">
+        <div class="env-label oxford">Definition 2.4 (Linear Extension)</div>
+        <div class="env-body">
+          <p>
+            A <strong>linear extension</strong> of a poset $(S, \prec)$ is a total order $(S, <_{tot})$ that is consistent with $\prec$. That is, whenever $u \prec v$ in the poset, $u <_{tot} v$ must also hold in the total order.
+          </p>
+          <p>
+            The number of linear extensions, denoted $e(P)$, represents the <strong>number of remaining possible true orderings</strong> consistent with our current knowledge.
+          </p>
+        </div>
+      </div>
+
+      <p>
+        This gives us an exact, mathematical scorecard for an algorithm's progress:
+      </p>
+      <ul>
+        <li>At the start, $e(P) = n!$. All $n!$ orderings are possible suspects.</li>
+        <li>Every time we perform a comparison, we cut the suspect pool. The oracle's answer eliminates every ordering inconsistent with the new clue.</li>
+        <li><strong>When $e(P) = 1$, exactly one ordering remains. The array is completely sorted!</strong></li>
+      </ul>
+    </section>
+
+    <!-- FIGURE 2.4: INTERACTIVE LAB -->
+    <section>
+      <figure class="academic-figure">
+        <div class="matrix-row-title">Figure 2.4: The Knowledge Poset & Transitive Deduction Engine</div>
+        
+        <p style="font-size: 14.5px; color: var(--ink-secondary); margin-bottom: 14px;">
+          Below are four mystery elements: $x_0, x_1, x_2, x_3$. Click an element, then click a second element to query the Comparison Oracle. Watch how direct comparisons and transitive deductions accumulate on the live graph.
+        </p>
+
+        <div class="scientific-canvas">
+          <div class="matrix-row-title">Click Two Elements to Query the Comparison Oracle</div>
+          <div class="matrix-row" id="poset-nodes-container"></div>
+          <svg id="poset-graph-svg" viewBox="0 0 600 130" style="width: 100%; max-width: 600px; height: 130px; display: block; margin: 12px auto 0 auto; background: #ffffff; border: 1px solid var(--border-light);"></svg>
+        </div>
+
+        <div class="scientific-controls">
+          <button class="sci-btn primary" id="btn-smart-step">Query an Informative Pair</button>
+          <button class="sci-btn" id="btn-reset-poset">Reset to Antichain (Start Over)</button>
+        </div>
+
+        <div id="query-feedback-msg" class="formal-env remark" style="margin: 14px 0;">
+          Click any element to begin a comparison.
+        </div>
+
+        <!-- Metrics Dashboard -->
+        <table class="readout-table">
+          <thead>
+            <tr>
+              <th style="width: 28%;">Metric</th>
+              <th style="width: 22%;">Value</th>
+              <th>Mathematical Significance</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Comparisons Performed</td>
+              <td id="metric-comparison-count" style="font-family: var(--font-mono); font-weight: 700;">0</td>
+              <td>Total queries billed to the algorithm.</td>
+            </tr>
+            <tr>
+              <td>Direct Facts Learned</td>
+              <td id="metric-direct-facts" style="font-family: var(--font-mono); font-weight: 700;">0</td>
+              <td>Number of pairs directly compared.</td>
+            </tr>
+            <tr>
+              <td>Facts Deduced for Free</td>
+              <td id="metric-deduced-facts" style="font-family: var(--font-mono); font-weight: 700; color: var(--accent-oxford);">0</td>
+              <td>Relations established purely via transitivity.</td>
+            </tr>
+            <tr>
+              <td>Remaining Suspects ($e(P)$)</td>
+              <td id="metric-linear-ext" style="font-family: var(--font-mono); font-weight: 700;">24 of 24 suspects</td>
+              <td>Linear extensions consistent with current clues.</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <!-- List of current known relations -->
+        <div style="margin-top: 18px; font-family: var(--font-sans); font-size: 14px;">
+          <strong>Current Transitive Closure (All Known Order Relations):</strong>
+          <ul id="known-relations-list" style="margin: 8px 0 0 20px;">
+            <li style="color: var(--ink-muted);">No comparisons performed yet. State is an antichain.</li>
+          </ul>
+        </div>
+
+        <figcaption class="figure-caption">
+          <strong>Figure 2.4:</strong> Interactive Poset state explorer for $n = 4$. Notice that when you compare two elements that create a chain (such as $A < B$ and $B < C$), the fact $A < C$ appears automatically on the graph as a dashed blue arrow. If you query $A$ and $C$ directly, the engine flags it as a redundant query with zero information gain.
+        </figcaption>
+      </figure>
+    </section>
+
+    <!-- SECTION 2.6: ANALYTICAL EXERCISES -->
+    <section>
+      <h2 class="section-title">2.6 Analytical Exercises</h2>
+
+      <div class="exercise-block">
+        <div class="exercise-header">Problem 2.1 — Can Any Algorithm Sort With Fewer Than $n-1$ Comparisons?</div>
+        <div class="exercise-content">
+          Suppose an algorithm claims to sort an array of $n$ elements using only $n-2$ comparisons in the worst case. Using graph theory and posets, prove that this is mathematically impossible.
+        </div>
+        <button class="proof-toggle-btn" data-target="sol-2-1">Display Analytical Derivation</button>
+        <div class="proof-solution" id="sol-2-1">
+          <p><strong>Proof:</strong></p>
+          <p>
+            Consider the undirected comparison graph $G = (V, E)$, where the vertices $V$ are the $n$ elements, and each edge in $E$ represents a comparison performed between two elements.
+          </p>
+          <p>
+            A fundamental theorem of graph theory states that a graph with $n$ vertices and $k$ edges has at least $n - k$ connected components.
+          </p>
+          <p>
+            If the algorithm performs only $n - 2$ comparisons, the graph has at least:
+            $$n - (n - 2) = 2 \text{ connected components}$$
+          </p>
+          <p>
+            This means there exist at least two non-empty subsets of elements, $C_1$ and $C_2$, with <strong>zero comparisons connecting any element of $C_1$ to any element of $C_2$</strong>.
+          </p>
+          <p>
+            Without any direct or indirect comparisons between $C_1$ and $C_2$, it is impossible to determine whether the elements in $C_1$ are larger or smaller than those in $C_2$. Thus, the algorithm cannot determine the complete sorted order. 
+          </p>
+          <p>
+            Therefore, <strong>every comparison-based sorting algorithm must perform at least $n-1$ comparisons</strong> merely to make the knowledge graph connected. <span class="qed">■</span>
+          </p>
+        </div>
+      </div>
+
+      <div class="exercise-block">
+        <div class="exercise-header">Problem 2.2 — Maximum Facts from Minimal Comparisons</div>
+        <div class="exercise-content">
+          Suppose you have $n = 4$ elements. What is the maximum number of pairwise order relations you can establish after making only $3$ comparisons? What structure must the comparisons form?
+        </div>
+        <button class="proof-toggle-btn" data-target="sol-2-2">Display Analytical Derivation</button>
+        <div class="proof-solution" id="sol-2-2">
+          <p><strong>Derivation:</strong></p>
+          <p>
+            Between $4$ distinct elements, there are a total of:
+            $$\binom{4}{2} = \frac{4 \times 3}{2} = 6 \text{ possible pairwise relationships}$$
+          </p>
+          <p>
+            If our $3$ comparisons form a single linear chain:
+            $$x_0 < x_1, \quad x_1 < x_2, \quad x_2 < x_3$$
+            then by transitivity, we immediately deduce:
+            $$x_0 < x_2, \quad x_1 < x_3, \quad x_0 < x_3$$
+          </p>
+          <p>
+            This gives $3 \text{ (direct)} + 3 \text{ (deduced)} = 6 \text{ total facts}$!
+          </p>
+          <p>
+            Thus, from only 3 well-chosen comparisons, transitivity can provide all 6 relationships, completely sorting the 4 elements. The remaining linear extensions drop from $24$ directly to $1$. <span class="qed">■</span>
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- SUMMARY & TRANSITION -->
+    <div class="formal-env remark">
+      <div class="env-label">Summary & Transition</div>
+      <p>
+        In this chapter, we discovered:
+      </p>
+      <ul>
+        <li>In the <strong>Comparison Model</strong>, an algorithm has no global vision. It acquires information solely by querying a comparison oracle.</li>
+        <li>An algorithm's knowledge at any point is a <strong>Poset</strong>. Sorting is the task of transforming an empty antichain into a single linear chain.</li>
+        <li><strong>Transitivity</strong> provides indirect facts for free. A well-designed algorithm must never perform a redundant comparison.</li>
+        <li>The remaining uncertainty is measured by the number of <strong>linear extensions</strong> ($e(P)$), which begins at $n!$ and must be reduced to $1$.</li>
+      </ul>
+      <p>
+        This immediately raises a profound combinatorial question:
+        <em>How large is $n!$ really? How fast does the number of possible suspect orderings grow as the array size increases? And how many questions are fundamentally required to narrow $n!$ suspects down to just 1?</em>
+      </p>
+      <p>
+        In <strong>Chapter 3</strong>, we examine <strong>Permutations, Combinatorics, and the Information Entropy of $S_n$</strong>.
+      </p>
+    </div>
+
+    <!-- CHAPTER NAVIGATION -->
+    <nav class="monograph-nav">
+      <a href="01-what-is-sorting.html">← Chapter 1: What Exactly Is Sorting?</a>
+      <a href="index.html">Master Curriculum Index</a>
+      <a href="03-permutations-combinatorics.html">Chapter 3: Permutations and Combinatorics →</a>
+    </nav>
+
+  </article>
+
+  <!-- Local KaTeX scripts for offline rendering -->
+  <script src="assets/vendor/katex/katex.min.js"></script>
+  <script src="assets/vendor/katex/contrib/auto-render.min.js"></script>
+
+  <!-- Chapter 2 Demonstration Script -->
+  <script src="assets/js/chapter-02.js"></script>
+</body>
+</html>
+

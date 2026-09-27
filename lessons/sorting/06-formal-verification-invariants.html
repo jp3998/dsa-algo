@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chapter 6: Formal Verification: Preconditions, Postconditions, and Loop Invariants — Theoretical Foundations</title>
+
+  <!-- Local KaTeX Distribution (100% Offline, Publication-Grade Typesetting) -->
+  <link rel="stylesheet" href="assets/vendor/katex/katex.min.css">
+  
+  <!-- Academic Monograph Stylesheet -->
+  <link rel="stylesheet" href="assets/css/lesson-theme.css">
+  <link rel="stylesheet" href="assets/css/visualizer.css">
+</head>
+<body>
+
+  <article class="article-container">
+
+    <!-- CHAPTER HEADER -->
+    <header class="monograph-header">
+      <div class="header-series">Part II: Correctness, Invariants, and Elementary Derivations • Chapter 6</div>
+      <h1 class="monograph-title">Formal Verification: Preconditions, Postconditions, and Loop Invariants</h1>
+      <div class="monograph-epigraph">
+        "Testing can show the presence of bugs, but never their absence. To know that an algorithm sorts every conceivable input array correctly, we cannot rely on empirical trial. We must construct a mathematical proof using loop invariants and well-founded progress metrics."
+      </div>
+    </header>
+
+    <!-- SECTION 6.1 -->
+    <section>
+      <h2 class="section-title">6.1 The Engineering Problem: How Do We Know Code Is Correct?</h2>
+      <p class="lead">
+        In Part I, we proved what comparison algorithms <em>cannot</em> do: they cannot sort faster than $\Omega(n \log n)$ in the worst case.
+      </p>
+      <p>
+        Now, in Part II, we turn from impossibility to construction: <strong>how do we design algorithms that are mathematically guaranteed to sort correctly?</strong>
+      </p>
+      <p>
+        A novice programmer writes code, runs three test cases, sees that they pass, and assumes the program is correct. But in sorting, edge cases abound:
+      </p>
+      <ul>
+        <li>What happens when the array contains all identical values? ($[5, 5, 5, 5]$)</li>
+        <li>What happens when the array is already in reverse sorted order? ($[9, 8, 7, 6]$)</li>
+        <li>What happens when $n = 0$ (empty array) or $n = 1$ (single element)?</li>
+      </ul>
+      <p>
+        In 1969, British computer scientist Tony Hoare, building on the pioneering work of Robert Floyd, formulated <strong>Axiomatic Program Verification</strong> (known today as <strong>Floyd-Hoare Logic</strong>).
+      </p>
+
+      <div class="formal-env definition">
+        <div class="env-label oxford">Definition 6.1 (The Hoare Triple)</div>
+        <div class="env-body">
+          <p>
+            A <strong>Hoare Triple</strong> describes how the execution of a piece of code alters the state of the computer:
+            $$\{P\} \; C \; \{Q\} \tag{6.1}$$
+          </p>
+          <ul>
+            <li><strong>Precondition ($P$):</strong> An assertion that must hold true about the program state immediately <em>before</em> executing code $C$.</li>
+            <li><strong>Command ($C$):</strong> The sequence of instructions or algorithm being executed.</li>
+            <li><strong>Postcondition ($Q$):</strong> An assertion that is guaranteed to hold true immediately <em>after</em> code $C$ terminates, provided $P$ was true initially.</li>
+          </ul>
+        </div>
+      </div>
+
+      <h3 class="subsection-title">The Hoare Triple for Sorting</h3>
+      <p>
+        Using the formal specification we established in Chapter 1, the entire problem of sorting an array $A$ can be written as a single Hoare triple:
+      </p>
+      $$\{A \text{ is an array of } n \text{ elements}\} \quad \text{Sort}(A) \quad \{A \text{ is sorted and is a permutation of its initial state}\}$$
+      <p>
+        More formally:
+      </p>
+      <ul>
+        <li><strong>Precondition $P$:</strong> $A = A_{\text{init}}$ with length $n \ge 0$.</li>
+        <li><strong>Postcondition $Q$:</strong>
+          $$\left(\forall i \in \{0, \dots, n-2\}, \; A[i] \le A[i+1]\right) \quad \land \quad \left(\text{multiset}(A) = \text{multiset}(A_{\text{init}})\right)$$
+        </li>
+      </ul>
+
+      <div class="formal-env remark">
+        <div class="env-label">Partial Correctness vs. Total Correctness</div>
+        <p>
+          In formal logic, we distinguish between two levels of proof:
+        </p>
+        <ol>
+          <li><strong>Partial Correctness:</strong> <em>If</em> the algorithm halts, the final state satisfies postcondition $Q$. (It does not prove the code won't loop forever).</li>
+          <li><strong>Total Correctness:</strong> The algorithm is partially correct <em>and</em> it is mathematically guaranteed to terminate in finite steps.</li>
+        </ol>
+        <p>
+          $$\text{Total Correctness} = \text{Partial Correctness} + \text{Proof of Termination}$$
+        </p>
+      </div>
+    </section>
+
+    <!-- SECTION 6.2 -->
+    <section>
+      <h2 class="section-title">6.2 The Anatomy of a Loop Invariant</h2>
+      <p>
+        Most bugs in algorithms occur inside loops (especially while-loops and nested for-loops).
+      </p>
+      <p>
+        To prove that a loop is correct, we use a <strong>Loop Invariant</strong>.
+      </p>
+
+      <div class="formal-env definition">
+        <div class="env-label oxford">Definition 6.2 (Loop Invariant)</div>
+        <div class="env-body">
+          <p>
+            A <strong>loop invariant</strong> is a formal mathematical predicate, denoted $I$, that is true prior to the first iteration of a loop and remains true before and after every subsequent iteration of the loop.
+          </p>
+        </div>
+      </div>
+
+      <p>
+        Proving correctness using a loop invariant is identical to <strong>Mathematical Induction</strong>:
+      </p>
+
+      <div class="formal-env theorem">
+        <div class="env-label">The Three Invariant Obligations</div>
+        <div class="env-body">
+          <ol>
+            <li>
+              <strong>Initialization (Base Case):</strong><br/>
+              The invariant $I$ must be true <em>before the very first iteration</em> of the loop begins.
+            </li>
+            <li>
+              <strong>Maintenance (Inductive Step):</strong><br/>
+              If the invariant $I$ is true before an iteration, and the loop continuation guard $G$ is true, then executing the loop body once leaves $I$ true before the start of the next iteration:
+              $$\{I \land G\} \; \text{LoopBody} \; \{I\}$$
+            </li>
+            <li>
+              <strong>Termination (Conclusion):</strong><br/>
+              When the loop terminates (the guard $G$ becomes <strong>False</strong>), the truth of the invariant $I$ combined with $\neg G$ must logically imply the postcondition $Q$:
+              $$(I \land \neg G) \implies Q$$
+            </li>
+          </ol>
+        </div>
+      </div>
+
+      <!-- FIGURE 6.1: HOARE PIPELINE SVG -->
+      <figure class="academic-figure">
+        <div class="matrix-row-title">Figure 6.1: The Hoare State Pipeline and Invariant Cycle</div>
+        <div class="scientific-canvas" style="padding: 16px 8px;">
+          <svg viewBox="0 0 680 180" style="width: 100%; max-width: 680px; height: auto; display: block; margin: 0 auto;">
+            <defs>
+              <marker id="inv-arrow" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                <path d="M 0 1 L 10 5 L 0 9 z" fill="#111827" />
+              </marker>
+              <marker id="inv-arrow-blue" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                <path d="M 0 1 L 10 5 L 0 9 z" fill="#1e3a8a" />
+              </marker>
+              <marker id="inv-arrow-green" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                <path d="M 0 1 L 10 5 L 0 9 z" fill="#065f46" />
+              </marker>
+            </defs>
+
+            <!-- Precondition Box -->
+            <g transform="translate(20, 50)">
+              <rect x="0" y="0" width="130" height="70" fill="#f8fafc" stroke="#111827" stroke-width="1.2" rx="2" />
+              <text x="65" y="24" font-family="var(--font-sans)" font-size="11" font-weight="700" fill="#111827" text-anchor="middle">PRECONDITION {P}</text>
+              <text x="65" y="44" font-family="var(--font-mono)" font-size="10.5" fill="#475569" text-anchor="middle">Initial Array State</text>
+              <text x="65" y="58" font-family="var(--font-mono)" font-size="10.5" fill="#475569" text-anchor="middle">A = A_init</text>
+            </g>
+
+            <!-- Arrow 1: Initialization -->
+            <path d="M 150 85 L 210 85" fill="none" stroke="#111827" stroke-width="1.4" marker-end="url(#inv-arrow)" />
+            <text x="180" y="76" font-family="var(--font-sans)" font-size="9.5" font-weight="700" fill="#1e3a8a" text-anchor="middle">1. INITIALIZATION</text>
+
+            <!-- Middle Box: Invariant & Loop Engine -->
+            <g transform="translate(210, 25)">
+              <rect x="0" y="0" width="240" height="120" fill="#eff6ff" stroke="#1e3a8a" stroke-width="1.4" rx="2" />
+              <text x="120" y="24" font-family="var(--font-sans)" font-size="11.5" font-weight="700" fill="#1e3a8a" text-anchor="middle">LOOP INVARIANT {I}</text>
+              
+              <!-- Invariant Loop Cycle -->
+              <path d="M 60 70 C 60 40, 180 40, 180 70 C 180 100, 60 100, 60 74" fill="none" stroke="#1e3a8a" stroke-width="1.5" stroke-dasharray="3,2" marker-end="url(#inv-arrow-blue)" />
+              <text x="120" y="74" font-family="var(--font-sans)" font-size="10" font-weight="700" fill="#1e3a8a" text-anchor="middle">2. MAINTENANCE</text>
+              <text x="120" y="88" font-family="var(--font-mono)" font-size="9.5" fill="#1e3a8a" text-anchor="middle">{I ∧ G} Body {I}</text>
+
+              <text x="120" y="132" font-family="var(--font-mono)" font-size="10" fill="#64748b" text-anchor="middle">Guard G is True</text>
+            </g>
+
+            <!-- Arrow 2: Termination -->
+            <path d="M 450 85 L 510 85" fill="none" stroke="#065f46" stroke-width="1.5" marker-end="url(#inv-arrow-green)" />
+            <text x="480" y="76" font-family="var(--font-sans)" font-size="9.5" font-weight="700" fill="#065f46" text-anchor="middle">3. TERMINATION</text>
+            <text x="480" y="102" font-family="var(--font-mono)" font-size="9" fill="#065f46" text-anchor="middle">(Guard is False)</text>
+
+            <!-- Postcondition Box -->
+            <g transform="translate(510, 50)">
+              <rect x="0" y="0" width="150" height="70" fill="#ecfdf5" stroke="#065f46" stroke-width="1.4" rx="2" />
+              <text x="75" y="24" font-family="var(--font-sans)" font-size="11" font-weight="700" fill="#065f46" text-anchor="middle">POSTCONDITION {Q}</text>
+              <text x="75" y="44" font-family="var(--font-mono)" font-size="10.5" fill="#065f46" text-anchor="middle">A is sorted!</text>
+              <text x="75" y="58" font-family="var(--font-mono)" font-size="10" fill="#065f46" text-anchor="middle">I ∧ ¬G  ⟹  Q</text>
+            </g>
+          </svg>
+        </div>
+        <figcaption class="figure-caption">
+          <strong>Figure 6.1:</strong> The Floyd-Hoare verification architecture. The loop starts in state $P$ which establishes invariant $I$. Each pass through the loop maintains $I$ while decreasing the remaining work. When the loop halts, $I$ guarantees that postcondition $Q$ has been achieved.
+        </figcaption>
+      </figure>
+    </section>
+
+    <!-- SECTION 6.3 -->
+    <section>
+      <h2 class="section-title">6.3 Proving Termination: Loop Variants and Well-Founded Orders</h2>
+      <p>
+        A loop invariant proves that <em>if</em> the loop halts, it will produce the right answer. But what guarantees that the loop will ever halt?
+      </p>
+      <p>
+        To prove termination, we must define a <strong>Loop Variant Function</strong> (also called a <em>progress metric</em> or <em>bound function</em>).
+      </p>
+
+      <div class="formal-env definition">
+        <div class="env-label oxford">Definition 6.3 (Loop Variant Function)</div>
+        <div class="env-body">
+          <p>
+            A <strong>loop variant</strong> is an integer-valued function $v : \text{State} \to \mathbb{Z}$ satisfying two conditions:
+          </p>
+          <ol>
+            <li><strong>Strict Monotonic Decrease:</strong> In every iteration of the loop, the value of $v$ strictly decreases:
+              $$v_{k+1} < v_k \tag{6.2}$$
+            </li>
+            <li><strong>Bounded Below:</strong> Whenever the loop continuation guard $G$ is true, the variant is non-negative:
+              $$G \implies v \ge 0 \tag{6.3}$$
+            </li>
+          </ol>
+        </div>
+      </div>
+
+      <p>
+        <strong>Why does this guarantee termination?</strong><br/>
+        The natural numbers $\mathbb{N} = \{0, 1, 2, \dots\}$ possess the mathematical property of being <strong>well-founded</strong>: there is no such thing as an infinitely descending sequence of non-negative integers!
+      </p>
+      <p>
+        If $v$ starts at some finite integer (for example, $v_0 = n$) and decreases by at least $1$ with every iteration ($v_0 > v_1 > v_2 > \dots$), it <em>must</em> reach $0$ in at most $v_0$ iterations. Once $v$ reaches $0$, the loop guard $G$ cannot remain true, and the loop is forced to terminate!
+      </p>
+    </section>
+
+    <!-- SECTION 6.4 -->
+    <section>
+      <h2 class="section-title">6.4 The Spatial Anatomy of a Sorting Invariant</h2>
+      <p>
+        In sorting algorithms, the loop invariant almost always partitions the array into distinct geometric regions:
+      </p>
+
+      <!-- FIGURE 6.2: UNIVERSAL ARRAY PARTITION -->
+      <figure class="academic-figure">
+        <div class="matrix-row-title">Figure 6.2: The Universal Array Partition Scheme of Invariant-Driven Sorting</div>
+        <div class="scientific-canvas" style="padding: 20px 10px;">
+          <svg viewBox="0 0 680 140" style="width: 100%; max-width: 680px; height: auto; display: block; margin: 0 auto;">
+            <!-- Sorted Prefix -->
+            <g transform="translate(40, 30)">
+              <rect x="0" y="0" width="280" height="48" fill="#ecfdf5" stroke="#065f46" stroke-width="1.5" rx="2" />
+              <text x="140" y="24" font-family="var(--font-sans)" font-size="12" font-weight="700" fill="#065f46" text-anchor="middle">SORTED &amp; SETTLED REGION</text>
+              <text x="140" y="40" font-family="var(--font-mono)" font-size="11" fill="#065f46" text-anchor="middle">A[0 ... k-1]</text>
+            </g>
+
+            <!-- Active Boundary Line -->
+            <line x1="320" y1="15" x2="320" y2="95" stroke="#1e3a8a" stroke-width="2" stroke-dasharray="4,2" />
+            <text x="320" y="112" font-family="var(--font-mono)" font-size="11" font-weight="700" fill="#1e3a8a" text-anchor="middle">Index k (Boundary)</text>
+
+            <!-- Unsorted Suffix -->
+            <g transform="translate(320, 30)">
+              <rect x="0" y="0" width="320" height="48" fill="#f8fafc" stroke="#94a3b8" stroke-width="1.2" stroke-dasharray="3,3" rx="2" />
+              <text x="160" y="24" font-family="var(--font-sans)" font-size="12" font-weight="700" fill="#64748b" text-anchor="middle">UNINSPECTED / UNPROCESSED REGION</text>
+              <text x="160" y="40" font-family="var(--font-mono)" font-size="11" fill="#64748b" text-anchor="middle">A[k ... n-1]</text>
+            </g>
+
+            <!-- Invariant Annotations -->
+            <text x="180" y="102" font-family="var(--font-mono)" font-size="10.5" fill="#065f46" text-anchor="middle">Invariant: A[0] ≤ A[1] ≤ ... ≤ A[k-1]</text>
+            <text x="480" y="102" font-family="var(--font-mono)" font-size="10.5" fill="#64748b" text-anchor="middle">Remaining Work: Variant v = n - k</text>
+          </svg>
+        </div>
+        <figcaption class="figure-caption">
+          <strong>Figure 6.2:</strong> Spatial partition maintained during execution. The algorithm expands the sorted region $A[0 \dots k-1]$ by moving the boundary $k$ from $0$ to $n$. When $k = n$, the unprocessed region vanishes, and the entire array is sorted.
+        </figcaption>
+      </figure>
+
+      <p>
+        Notice how the variant metric relates directly to the size of the unprocessed region:
+      </p>
+      $$v(k) = n - k \tag{6.4}$$
+      <ul>
+        <li>At initialization ($k = 0$): $v = n - 0 = n$. The entire array remains to be processed.</li>
+        <li>During each iteration: $k$ increments by $1 \implies v$ decreases by $1$.</li>
+        <li>At termination ($k = n$): $v = n - n = 0$. The loop halts.</li>
+      </ul>
+    </section>
+
+    <!-- SECTION 6.5: INTERACTIVE LAB -->
+    <section>
+      <figure class="academic-figure">
+        <div class="matrix-row-title">Figure 6.4: Interactive Laboratory — The Invariant State Machine</div>
+        
+        <p style="font-size: 14.5px; color: var(--ink-secondary); margin-bottom: 14px;">
+          Step through an invariant-driven partition below. Watch how the invariant predicate is verified at each stage: <em>Initialization</em>, <em>Maintenance</em>, and <em>Termination</em>, while the loop variant $v(k)$ strictly decreases to $0$.
+        </p>
+
+        <!-- Controls Bar -->
+        <div class="scientific-controls">
+          <button class="sci-btn primary" id="btn-inv-step">Execute Step (k = 0 → 1)</button>
+          <button class="sci-btn" id="btn-inv-reset">Reset to Initialization (k = 0)</button>
+        </div>
+
+        <!-- Live Array Display -->
+        <div class="scientific-canvas" style="padding: 16px;">
+          <div class="matrix-row-title">Array State Partition (Green = Sorted Region A[0..k-1], White = Uninspected A[k..n-1])</div>
+          <div class="matrix-row" id="invariant-array-container" style="gap: 10px;"></div>
+        </div>
+
+        <!-- Status Readout -->
+        <div id="inv-status-readout" class="formal-env remark" style="margin: 14px 0;">
+          Initialization phase...
+        </div>
+
+        <!-- Verification Dashboard -->
+        <table class="readout-table" style="margin-top: 14px;">
+          <thead>
+            <tr>
+              <th style="width: 25%;">Formal Condition</th>
+              <th style="width: 35%;">Mathematical Check</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Boundary Index</td>
+              <td id="metric-inv-k" style="font-family: var(--font-mono); font-weight: 700;">k = 0</td>
+              <td>Position of the partition boundary.</td>
+            </tr>
+            <tr>
+              <td>Loop Variant Metric</td>
+              <td id="metric-inv-variant" style="font-family: var(--font-mono); font-weight: 700; color: var(--accent-oxford);">v(k) = n - k = 8</td>
+              <td>Remaining iterations until guaranteed termination.</td>
+            </tr>
+            <tr>
+              <td>Prefix Order Invariant</td>
+              <td id="metric-check-prefix" style="font-family: var(--font-mono);">Evaluating...</td>
+              <td>$\forall i < k-1, \; A[i] \le A[i+1]$</td>
+            </tr>
+            <tr>
+              <td>Boundary Invariant</td>
+              <td id="metric-check-boundary" style="font-family: var(--font-mono);">Evaluating...</td>
+              <td>Prefix elements in correct relative partition.</td>
+            </tr>
+            <tr>
+              <td>Postcondition Satisfied?</td>
+              <td id="metric-check-post" style="font-family: var(--font-mono);">Evaluating...</td>
+              <td>$(I \land \neg G) \implies Q$</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <figcaption class="figure-caption">
+          <strong>Figure 6.4:</strong> Interactive step-by-step invariant machine. Notice that at every step, the invariant is proven to hold before advancing. When $k = n$, the termination condition triggers, establishing total correctness.
+        </figcaption>
+      </figure>
+    </section>
+
+    <!-- SECTION 6.6: ANALYTICAL EXERCISES -->
+    <section>
+      <h2 class="section-title">6.5 Analytical Exercises</h2>
+
+      <div class="exercise-block">
+        <div class="exercise-header">Problem 6.1 — Formulating an Invariant for Array Maximum</div>
+        <div class="exercise-content">
+          Consider a simple algorithm that finds the maximum element in an array $A[0 \dots n-1]$:
+          <pre style="background: var(--bg-canvas); padding: 8px; font-family: var(--font-mono); font-size: 13px; border: 1px solid var(--border-light); margin: 8px 0;">
+max_val = A[0]
+for i from 1 to n - 1:
+    if A[i] > max_val:
+        max_val = A[i]
+return max_val
+          </pre>
+          Formulate the exact loop invariant, verify its <strong>Initialization</strong>, <strong>Maintenance</strong>, and <strong>Termination</strong>, and define a valid loop variant.
+        </div>
+        <button class="proof-toggle-btn" data-target="sol-6-1">Display Analytical Derivation</button>
+        <div class="proof-solution" id="sol-6-1">
+          <p><strong>Formal Formulation:</strong></p>
+          <ul>
+            <li><strong>Loop Invariant $I$:</strong> At the start of each iteration with loop index $i$, <code>max_val</code> holds the maximum value among all elements in the subarray $A[0 \dots i-1]$:
+              $$I \equiv \left(\text{max\_val} = \max_{0 \le j < i} A[j]\right)$$
+            </li>
+            <li><strong>Loop Variant $v$:</strong> $v(i) = n - i$. Since $i$ increases by $1$ on each pass, $v$ decreases strictly until $v = 1$, when the loop halts.</li>
+          </ul>
+          <p><strong>Three Invariant Steps:</strong></p>
+          <ol>
+            <li><strong>Initialization:</strong> Prior to iteration $i = 1$, <code>max_val = A[0]</code>. The subarray $A[0 \dots 0]$ contains only $A[0]$, so <code>max_val</code> is trivially the maximum of this 1-element subarray. Invariant holds.</li>
+            <li><strong>Maintenance:</strong> Assume $I$ holds at the start of iteration $i$: $\text{max\_val} = \max(A[0 \dots i-1])$. The loop inspects $A[i]$. If $A[i] > \text{max\_val}$, <code>max_val</code> is updated to $A[i]$; otherwise, it remains unchanged. In either case, the new value of <code>max_val</code> equals $\max(A[0 \dots i])$. When $i$ increments for the next iteration, the invariant holds for the extended subarray.</li>
+            <li><strong>Termination:</strong> The loop terminates when $i = n$. Substituting $i = n$ into invariant $I$ gives:
+              $$\text{max\_val} = \max_{0 \le j < n} A[j]$$
+              This matches the postcondition: <code>max_val</code> is the maximum of the entire array! <span class="qed">■</span>
+            </li>
+          </ol>
+        </div>
+      </div>
+
+      <div class="exercise-block">
+        <div class="exercise-header">Problem 6.2 — Flawed Invariants and Off-By-One Errors</div>
+        <div class="exercise-content">
+          Suppose a student attempts to verify a sorting algorithm using the invariant:
+          $$I_{\text{flawed}} \equiv \text{"Every element in } A[0 \dots k-1] \text{ has been compared to at least one other element."}$$
+          Explain why this invariant is mathematically insufficient to prove that the array is sorted upon termination.
+        </div>
+        <button class="proof-toggle-btn" data-target="sol-6-2">Display Analytical Derivation</button>
+        <div class="proof-solution" id="sol-6-2">
+          <p><strong>Flaw Analysis:</strong></p>
+          <p>
+            An invariant must be strong enough to <strong>imply the postcondition</strong> upon termination.
+          </p>
+          <p>
+            When the loop terminates ($k = n$), the student's invariant states: <em>"Every element in $A[0 \dots n-1]$ has been compared to at least one other element."</em>
+          </p>
+          <p>
+            This statement fails to imply $A[i] \le A[i+1]$! For example, consider the array $[9, 4, 8, 2]$. If we compare $9$ with $4$, and compare $8$ with $2$, every single element has been compared to another element. Yet the array is completely unsorted!
+          </p>
+          <p>
+            An invariant must capture <strong>order relationships</strong>, not merely historical activity. <span class="qed">■</span>
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- SUMMARY & TRANSITION -->
+    <div class="formal-env remark">
+      <div class="env-label">Summary & Transition to Elementary Sorting Algorithms</div>
+      <p>
+        In this chapter, we established the mathematical verification toolkit:
+      </p>
+      <ul>
+        <li><strong>Hoare Triples $\{P\} C \{Q\}$:</strong> Define the contract of what an algorithm must achieve.</li>
+        <li><strong>Loop Invariants (Initialization, Maintenance, Termination):</strong> The inductive proof engine that guarantees correctness.</li>
+        <li><strong>Loop Variants $v$:</strong> Strictly decreasing metrics on well-founded sets that guarantee termination.</li>
+      </ul>
+      <p>
+        With this framework in place, we are ready to analyze and derive specific sorting algorithms from first principles.
+      </p>
+      <p>
+        In <strong>Chapter 7</strong>, we derive our first concrete sorting algorithm: <strong>Bubble Sort</strong>. Rather than memorizing its code, we will derive it directly from the concept of <strong>adjacent inversions</strong> and repair them systematically.
+      </p>
+    </div>
+
+    <!-- CHAPTER NAVIGATION -->
+    <nav class="monograph-nav">
+      <a href="05-asymptotics-lower-bound.html">← Chapter 5: Asymptotic Analysis & Lower Bound</a>
+      <a href="index.html">Master Curriculum Index</a>
+      <a href="07-bubble-sort.html">Chapter 7: Derivation of Bubble Sort →</a>
+    </nav>
+
+  </article>
+
+  <!-- Local KaTeX scripts for offline rendering -->
+  <script src="assets/vendor/katex/katex.min.js"></script>
+  <script src="assets/vendor/katex/contrib/auto-render.min.js"></script>
+
+  <!-- Chapter 6 Demonstration Script -->
+  <script src="assets/js/chapter-06.js"></script>
+</body>
+</html>
+
