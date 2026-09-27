@@ -1,0 +1,527 @@
+/* ============================================================================
+   lab.css — interactive figures.
+
+   A "lab" is a figure the reader operates: cells they can click, controls that
+   change the state, and a readout that says what each change did to the
+   conditions under discussion. Colours come from the tokens in lesson.css.
+   ========================================================================= */
+
+/* ---------- 1. The card -------------------------------------------------- */
+
+.lab {
+  margin: var(--s6) 0;
+  padding: var(--s5) var(--s5) var(--s4);
+  background: var(--paper-raised);
+  border: 1px solid var(--rule);
+  border-radius: 5px;
+}
+
+.lab-title {
+  margin: 0 0 var(--s4);
+  font-family: var(--sans);
+  font-size: 0.66rem;
+  font-weight: 600;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  font-variant-numeric: lining-nums;
+  color: var(--ink-faint);
+}
+
+.lab-title .figure-label { color: var(--active); }
+
+.lab figcaption { margin-top: var(--s4); }
+
+/* Allowed to borrow the sidenote margin, like .figure--wide. */
+.lab--wide {
+  margin-right: calc(-1 * (var(--sidenote) + var(--s5)));
+  clear: right;
+}
+@media (max-width: 1100px) {
+  .lab--wide { margin-right: 0; clear: none; }
+}
+
+/* The panel the action happens in. */
+.lab-stage {
+  padding: var(--s5) var(--s4);
+  background: var(--paper-sunk);
+  border: 1px solid var(--rule);
+  border-radius: 4px;
+}
+
+.lab-stage + .lab-stage { margin-top: var(--s3); }
+
+.stage-label {
+  margin: 0 0 var(--s3);
+  font-family: var(--sans);
+  font-size: 0.62rem;
+  font-weight: 600;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+  font-variant-numeric: lining-nums;
+  color: var(--ink-faint);
+  text-align: center;
+}
+
+.stage-label + .cells { margin-bottom: var(--s2); }
+
+.stage-divider {
+  height: 1px;
+  margin: var(--s5) auto;
+  width: 82%;
+  background: var(--rule);
+}
+
+.stage-note {
+  margin: var(--s3) 0 0;
+  font-size: 0.8rem;
+  line-height: 1.5;
+  color: var(--ink-soft);
+  text-align: center;
+}
+
+/* ---------- 2. Cells ----------------------------------------------------- */
+
+.cells {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: flex-end;
+  gap: var(--s3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.cell {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  min-width: 62px;
+  padding: var(--s2) var(--s3) 6px;
+  background: var(--paper-raised);
+  border: 1.5px solid var(--rule-strong);
+  border-radius: 4px;
+  transition: border-color 0.15s, background 0.15s, box-shadow 0.15s, transform 0.15s;
+}
+
+.cell-val {
+  font-family: var(--mono);
+  font-size: 1.02rem;
+  font-weight: 600;
+  font-variant-numeric: lining-nums tabular-nums;
+  color: var(--ink);
+  line-height: 1.25;
+}
+
+.cell-val.is-word {
+  font-family: var(--serif);
+  font-size: 1.06rem;
+  font-weight: 600;
+  letter-spacing: -0.005em;
+}
+
+.cell-sub {
+  font-family: var(--sans);
+  font-size: 0.58rem;
+  letter-spacing: 0.06em;
+  font-variant-numeric: lining-nums;
+  color: var(--ink-faint);
+  white-space: nowrap;
+}
+
+/* Clickable cells announce themselves. */
+.cell.is-clickable { cursor: pointer; }
+.cell.is-clickable:hover {
+  border-color: var(--accent);
+  box-shadow: 0 2px 8px rgba(28, 27, 25, 0.07);
+  transform: translateY(-2px);
+}
+
+.cell.is-selected {
+  border-color: var(--accent);
+  background: var(--accent-wash);
+  box-shadow: 0 2px 8px rgba(46, 92, 138, 0.14);
+  transform: translateY(-3px);
+}
+
+/* The three meanings, identical to every other figure in the series. */
+.cell.is-active    { border-color: var(--active);    background: var(--active-wash); }
+.cell.is-active .cell-val { color: var(--active); }
+
+.cell.is-settled   { border-color: var(--settled);   background: var(--settled-wash); }
+
+.cell.is-discarded { border-color: var(--discarded); background: var(--discarded-wash); }
+.cell.is-discarded .cell-val { color: var(--discarded); }
+
+.cell.is-ghost {
+  border-style: dashed;
+  border-color: var(--rule);
+  background: transparent;
+}
+.cell.is-ghost .cell-val { color: var(--ink-faint); }
+
+/* A slot waiting to be filled. */
+.cell.is-slot {
+  min-width: 62px;
+  border-style: dashed;
+  border-color: var(--rule-strong);
+  background: transparent;
+}
+.cell.is-slot .cell-val { color: var(--rule-strong); }
+
+/* Marks drawn between neighbouring cells. */
+.gap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  align-self: center;
+  width: 26px;
+  height: 26px;
+  margin-bottom: 10px;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  font-family: var(--sans);
+  font-size: 0.9rem;
+  color: var(--rule-strong);
+  transition: background 0.15s, color 0.15s;
+}
+
+.gap.is-clickable { cursor: pointer; }
+.gap.is-clickable:hover { background: var(--accent-wash); color: var(--accent); }
+.gap.is-pass { color: var(--settled); font-weight: 700; }
+.gap.is-fail { color: var(--active); font-weight: 700; }
+
+/* ---------- 3. Controls -------------------------------------------------- */
+
+.lab-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s2);
+  align-items: center;
+  margin-top: var(--s4);
+}
+
+.lab-controls .spacer { flex: 1 1 auto; }
+
+.lab-controls .readout {
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  font-variant-numeric: lining-nums tabular-nums;
+  color: var(--ink-soft);
+}
+
+button.primary {
+  background: var(--ink);
+  border-color: var(--ink);
+  color: var(--paper);
+}
+button.primary:hover:not(:disabled) {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+/* ---------- 4. Readout table --------------------------------------------- */
+
+.lab-readout {
+  width: 100%;
+  margin-top: var(--s4);
+  border-collapse: collapse;
+  font-size: 0.82rem;
+}
+
+.lab-readout th {
+  font-family: var(--sans);
+  font-size: 0.6rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  text-align: left;
+  padding: 0 var(--s3) var(--s2) 0;
+  border-bottom: 1px solid var(--rule-strong);
+}
+
+.lab-readout td {
+  padding: var(--s3) var(--s3) var(--s3) 0;
+  border-bottom: 1px solid var(--rule);
+  vertical-align: top;
+  line-height: 1.45;
+}
+
+.lab-readout tr:last-child td { border-bottom: 0; }
+
+.lab-readout .col-cond  { width: 38%; }
+.lab-readout .col-stat  { width: 8.5rem; }
+
+.lab-readout .cond {
+  font-weight: 500;
+  color: var(--ink);
+}
+
+.lab-readout .why { color: var(--ink-soft); }
+
+.tag {
+  display: inline-block;
+  padding: 0.16em 0.6em;
+  border: 1px solid;
+  border-radius: 3px;
+  font-family: var(--sans);
+  font-size: 0.58rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.tag.pass    { color: var(--settled);   border-color: var(--settled);   background: var(--settled-wash); }
+.tag.fail    { color: var(--active);    border-color: var(--active);    background: var(--active-wash); }
+.tag.unknown { color: var(--ink-faint); border-color: var(--rule-strong); background: transparent; }
+
+/* ---------- 4b. Pair-knowledge matrix ------------------------------------ */
+
+.kmatrix {
+  width: auto;                 /* the global table rule stretches to 100% */
+  margin: 0 auto;
+  border-collapse: collapse;
+  table-layout: fixed;
+  font-family: var(--sans);
+  font-variant-numeric: lining-nums;
+}
+
+.kmatrix-cap {
+  caption-side: bottom;
+  padding-top: var(--s3);
+  font-size: 0.72rem;
+  color: var(--ink-faint);
+}
+
+.kmatrix th {
+  width: 2.45rem;
+  border: 0;
+  padding: 0.2rem 0.4rem;
+  font-size: 0.64rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  color: var(--ink-faint);
+  text-align: center;
+}
+
+.kmatrix td {
+  width: 2.45rem;
+  height: 2.05rem;
+  padding: 0;
+  text-align: center;
+  font-size: 0.78rem;
+  border: 1px solid var(--rule);
+  background: var(--paper-raised);
+  color: var(--rule-strong);
+  transition: background 0.18s, color 0.18s;
+}
+
+.kmatrix td.k-self {
+  background: repeating-linear-gradient(
+    45deg, transparent, transparent 3px, var(--rule) 3px, var(--rule) 4px);
+  border-color: var(--rule);
+}
+
+.kmatrix td.k-paid {
+  background: var(--accent-wash);
+  color: var(--accent);
+  font-weight: 700;
+}
+
+.kmatrix td.k-free {
+  background: var(--settled-wash);
+  color: var(--settled);
+  font-weight: 700;
+}
+
+/* ---------- 5. Legend ---------------------------------------------------- */
+
+.lab-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s4);
+  margin-top: var(--s3);
+  font-family: var(--sans);
+  font-size: 0.66rem;
+  letter-spacing: 0.02em;
+  color: var(--ink-soft);
+}
+
+.lab-legend span { display: inline-flex; align-items: center; gap: 0.45em; }
+
+.lab-legend i {
+  display: inline-block;
+  width: 0.8em;
+  height: 0.8em;
+  border: 1.5px solid;
+  border-radius: 2px;
+  font-style: normal;
+}
+
+.lab-legend .sw-active    { border-color: var(--active);    background: var(--active-wash); }
+.lab-legend .sw-settled   { border-color: var(--settled);   background: var(--settled-wash); }
+.lab-legend .sw-discarded { border-color: var(--discarded); background: var(--discarded-wash); }
+.lab-legend .sw-plain     { border-color: var(--rule-strong); background: var(--paper-raised); }
+.lab-legend .sw-paid      { border-color: var(--accent);  background: var(--accent-wash); }
+.lab-legend .sw-free      { border-color: var(--settled); background: var(--settled-wash); }
+
+/* ---------- 6. Interactive SVG ------------------------------------------- */
+
+.lab-svg { display: block; width: 100%; height: auto; margin: 0 auto; }
+
+.hit { cursor: pointer; }
+.hit rect, .hit circle { transition: fill 0.15s, stroke 0.15s; }
+
+/* ---------- 7. Narrow ---------------------------------------------------- */
+
+@media (max-width: 700px) {
+  .lab { padding: var(--s4) var(--s3) var(--s3); }
+  .lab-stage { padding: var(--s4) var(--s2); }
+  .cells { gap: var(--s2); }
+  .cell { min-width: 52px; padding: 6px var(--s2) 5px; }
+  .cell-val { font-size: 0.92rem; }
+  .gap { width: 18px; }
+  .kmatrix td, .kmatrix th { width: 1.9rem; height: 1.75rem; font-size: 0.7rem; }
+
+  .lab-readout, .lab-readout tbody, .lab-readout tr, .lab-readout td { display: block; width: 100%; }
+  .lab-readout thead { display: none; }
+  .lab-readout tr { padding: var(--s3) 0; border-bottom: 1px solid var(--rule); }
+  .lab-readout td { border: 0; padding: 0 0 var(--s1); }
+  .lab-readout .col-stat { margin: var(--s2) 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cell { transition: none; }
+  .cell.is-clickable:hover, .cell.is-selected { transform: none; }
+}
+
+@media print {
+  .lab-controls { display: none; }
+  .lab { break-inside: avoid; }
+}
+
+/* ---------- 8. Arrangement list (Lesson 04) ------------------------------ */
+
+.arr-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(7.5rem, max-content));
+  justify-content: center;
+  gap: var(--s2) var(--s5);
+}
+
+.arr-grid.is-dense {
+  grid-template-columns: repeat(auto-fit, minmax(4.6rem, max-content));
+  gap: 3px var(--s4);
+}
+
+.arr-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--serif);
+}
+
+.arr-item {
+  display: inline-block;
+  min-width: 1.35em;
+  padding: 0.1em 0.15em;
+  text-align: center;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.arr-gap {
+  display: inline-block;
+  width: 0.85em;
+  text-align: center;
+  font-size: 0.6rem;
+  line-height: 1;
+  color: var(--active);
+}
+
+.is-dense .arr-item { font-size: 0.86rem; min-width: 1.15em; }
+
+/* ---------- 9. Slider ---------------------------------------------------- */
+
+.slider-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--s3);
+  margin-bottom: var(--s4);
+}
+
+.slider-label {
+  font-family: var(--sans);
+  font-size: 0.62rem;
+  font-weight: 600;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+
+.slider-row input[type="range"] {
+  flex: 0 1 18rem;
+  accent-color: var(--active);
+  cursor: pointer;
+}
+
+.slider-value {
+  min-width: 2ch;
+  font-family: var(--mono);
+  font-size: 0.86rem;
+  font-variant-numeric: lining-nums tabular-nums;
+  font-weight: 600;
+  color: var(--active);
+}
+
+/* ---------- 10. Candidate grid (Lesson 05) ------------------------------ */
+
+.cand-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(4.1rem, max-content));
+  justify-content: center;
+  gap: var(--s2) var(--s3);
+}
+
+.cand {
+  display: flex;
+  justify-content: center;
+  gap: 0.12em;
+  padding: 0.22em 0.42em;
+  border: 1px solid var(--rule-strong);
+  border-radius: 3px;
+  background: var(--paper-raised);
+  font-family: var(--serif);
+  font-size: 0.86rem;
+  font-weight: 600;
+  color: var(--ink);
+  transition: opacity 0.25s, background 0.25s, border-color 0.25s, color 0.25s;
+}
+
+.cand.is-dead {
+  border-color: var(--rule);
+  background: var(--discarded-wash);
+  color: var(--discarded);
+  opacity: 0.55;
+  text-decoration: line-through;
+  text-decoration-color: var(--discarded);
+}
+
+.cand.is-only {
+  border-color: var(--settled);
+  background: var(--settled-wash);
+  color: var(--settled);
+  box-shadow: 0 1px 6px rgba(62, 107, 84, 0.18);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cand { transition: none; }
+}

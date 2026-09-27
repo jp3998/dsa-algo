@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lesson 05 · What one comparison buys</title>
+<link rel="stylesheet" href="assets/vendor/katex/katex.min.css">
+<link rel="stylesheet" href="assets/css/lesson.css">
+<link rel="stylesheet" href="assets/css/lab.css">
+</head>
+<body>
+
+<article class="lesson">
+
+  <header class="lesson-head">
+    <p class="lesson-part">Part I · Order and Information</p>
+    <p class="lesson-number">Lesson 05</p>
+    <h1>What one comparison buys</h1>
+  </header>
+
+  <section class="where-we-are">
+    <h2>Where we are</h2>
+    <p>Sorting is now a narrowing problem: start with $n!$ live possibilities, finish with one, using
+    questions that each return one of two answers. We have the starting number. What we do not have is
+    the exchange rate — how much of that field a single question clears away.</p>
+  </section>
+
+  <div class="lesson-body">
+
+  <!-- ==================================================================== -->
+  <section id="s1">
+    <h2><span class="sec-num">1</span> The wrong unit</h2>
+
+    <p>Lesson 03 already answered a question that sounds like this one. A comparison settles one pair
+    outright, and sometimes more by chaining. Why is that not the answer?</p>
+
+    <p>Because it is measured in the wrong unit. &ldquo;Pairs settled&rdquo; and &ldquo;possibilities
+    eliminated&rdquo; are different quantities, and there is no fixed rate between them. Settling a
+    pair early in a run kills an enormous number of arrangements; settling one at the very end, when
+    only two candidates remain, kills exactly one.</p>
+
+    <p class="beat">So we change what we count. From here on the thing being tracked is the
+    <strong>candidate set</strong>: the arrangements still consistent with every answer received so
+    far.</p>
+
+    <div class="block block--definition">
+      <p class="block-label">Definition</p>
+      <p>At any moment during a run, the <strong>candidate set</strong> is the collection of
+      arrangements that agree with every answer the algorithm has been given. It starts at all $n!$
+      of them and the algorithm is finished exactly when it contains one.</p>
+    </div>
+
+    <p>This is the honest picture of what an algorithm knows. Not a list of facts — a set of worlds
+    still allowed. And it makes the finish line sharp: an algorithm may stop when the set has one
+    member, and may not stop before.</p>
+  </section>
+
+  <!-- ==================================================================== -->
+  <section id="s2">
+    <h2><span class="sec-num">2</span> Watching candidates die</h2>
+
+    <p>Four items have $4! = 24$ arrangements, which is few enough to put all of them on the screen
+    and watch what happens to them.</p>
+
+    <figure class="lab lab--wide" id="fig-2-1">
+      <p class="lab-title"><span class="figure-label">Figure 2.1</span> Twenty-four worlds, narrowing</p>
+      <div class="lab-stage">
+        <p class="stage-label">The items &mdash; click two of them to choose a question</p>
+        <div id="l21-row"></div>
+        <p class="stage-note" id="l21-note"></p>
+      </div>
+      <div class="lab-stage">
+        <p class="stage-label">Every arrangement of the four items</p>
+        <div id="l21-grid"></div>
+        <div id="l21-legend"></div>
+      </div>
+      <div id="l21-controls"></div>
+      <div id="l21-readout"></div>
+      <figcaption>
+        Pick a pair and read the split <em>before</em> you ask &mdash; the table tells you how many
+        candidates each answer would leave. Then ask it and watch that many go grey. Count how many
+        questions it takes to get from 24 down to 1, and try to do it in fewer.
+      </figcaption>
+    </figure>
+
+    <p>Two things are worth doing deliberately in Figure 2.1 before reading on.</p>
+
+    <p><strong>Get to a single survivor</strong>, and notice how few questions it took. Twenty-four
+    candidates, and you almost certainly finished in five or fewer.</p>
+
+    <p><strong>Then reset and ask a deliberately bad question</strong> — one where the split is very
+    lopsided, or one you have already effectively answered. Watch the candidate count barely move.
+    Both of those questions cost the same. Only one of them bought anything.</p>
+  </section>
+
+  <!-- ==================================================================== -->
+  <section id="s3">
+    <h2><span class="sec-num">3</span> Every question is a cut</h2>
+
+    <p>Here is the structure the figure is showing, stated once and precisely, because everything in
+    the next two lessons is built on it.</p>
+
+    <p>Take the candidate set as it stands, and pick any two items to compare. Every candidate in the
+    set has an opinion about that pair — it is a complete arrangement, so it puts one of the two
+    first. So the set falls into exactly two groups: those that say $a$ comes first, and those that
+    say $b$ does.</p>
+
+    <p class="beat">Then the answer arrives, and one group is right. Every candidate in the other
+    group contradicts something we now know, and is gone.</p>
+
+    <div class="block block--claim">
+      <p class="block-label">What a comparison does</p>
+      <p>A comparison partitions the current candidate set into two groups, and the answer discards
+      one of them. Nothing else happens — no candidate is ever added back, and no candidate consistent
+      with the answer is ever lost.</p>
+    </div>
+
+    <p>Both halves of that last sentence matter, and it is worth seeing why each is true.</p>
+
+    <p><strong>Nothing comes back</strong> because answers do not expire. An arrangement ruled out by
+    an earlier answer still contradicts it later.</p>
+
+    <p><strong>Nothing correct is lost</strong> because the true arrangement agrees with every answer
+    the relation gives — the answers are <em>about</em> it. So the truth is in the surviving group
+    every time, and the set can never shrink to nothing.<span class="sidenote-ref"
+    tabindex="0"></span><span class="sidenote">This is why the algorithm can trust its own state.
+    Whatever else is true, the real arrangement is somewhere in the candidate set — which is what
+    makes reaching a set of size one the same thing as knowing the answer.</span></p>
+  </section>
+
+  <!-- ==================================================================== -->
+  <section id="s4">
+    <h2><span class="sec-num">4</span> The best a question can do</h2>
+
+    <p>Now the question that decides everything. A comparison splits the set in two and we keep one
+    part. <em>How small can we force the surviving part to be?</em></p>
+
+    <p>We do not get to choose which group survives. The relation decides, and it is answering about
+    an arrangement we know nothing about. So when we choose a question, we are choosing a split — and
+    then we are handed one side of it, without a say in which.</p>
+
+    <p class="beat">Suppose the split is 20 and 4. If the answer sends us to the small side we have
+    done wonderfully. But we cannot count on it, and a claim about what sorting <em>must</em> cost
+    cannot rest on luck. The number we can rely on is the size of the <em>larger</em> group, because
+    that is the one we might be handed.</p>
+
+    <p>So: to make the guaranteed survivor small, make the two groups as equal as possible. And the
+    best possible case is a split straight down the middle, leaving half.</p>
+
+    <div class="block block--claim">
+      <p class="block-label">The limit on a single question</p>
+      <p>A comparison cannot be relied on to reduce a candidate set of size $m$ below $m/2$. Whatever
+      pair is chosen, one of the two groups has at least half the candidates in it, and that is the
+      group the answer may select.</p>
+    </div>
+
+    <p>Notice how little was assumed. Nothing about the items, nothing about which algorithm is
+    running, nothing about clever choices of pair. The argument is only that two groups covering $m$
+    candidates cannot both be smaller than $m/2$.</p>
+
+    <figure class="lab lab--wide" id="fig-4-1">
+      <p class="lab-title"><span class="figure-label">Figure 4.1</span> Good questions and bad ones</p>
+      <div class="lab-stage">
+        <p class="stage-label">Every question available right now, and what each would leave you</p>
+        <div id="l41-bars"></div>
+      </div>
+      <div id="l41-controls"></div>
+      <div id="l41-readout"></div>
+      <figcaption>
+        Each bar is one possible question, split into the two groups its answers would leave. Compare
+        the bars: the dark portion is the group you might be handed. Ask a question, then look again
+        &mdash; watch how the best available split gets worse as the set shrinks.
+      </figcaption>
+    </figure>
+
+    <p>Work Figure 4.1 for a moment and something slightly deflating shows up. At the start, with 24
+    candidates, several questions split 12 and 12 — perfectly. A few questions in, the best available
+    split is no longer even. By the end you are often choosing between a question that leaves 2 and
+    one that leaves 2, when a perfect split would have left 1.5, which is not a thing.</p>
+
+    <p class="beat">So halving is a <em>ceiling</em>, not a promise. Sometimes it is available and
+    sometimes it is not. That distinction is going to matter enormously: a ceiling is exactly what you
+    need to prove that something <em>cannot</em> be done quickly, and exactly what you cannot use to
+    prove that something can.</p>
+  </section>
+
+  <!-- ==================================================================== -->
+  <section id="s5">
+    <h2><span class="sec-num">5</span> From $n!$ down to one</h2>
+
+    <p>We now have both numbers, and can finally put them together.</p>
+
+    <p>Start with $n!$ candidates. Finish with 1. Each question, at very best, halves what is left. So
+    after $k$ questions the candidate set cannot be smaller than</p>
+
+    $$\frac{n!}{2^k},$$
+
+    <p>and for the algorithm to be finished, that has to have come down to 1. Which means $2^k$ has to
+    have grown to at least $n!$:</p>
+
+    $$2^k \ge n!.$$
+
+    <p class="beat">Stop and look at what that says, because it is the shape of the entire result and
+    it arrived without any algorithm being mentioned. It is a statement about counting: a quantity
+    that at best doubles each step has to catch a quantity that starts enormous.</p>
+
+    <p>And now the awkward part. We would like to turn $2^k \ge n!$ into a statement about $k$, and to
+    do that we need to know <em>how big $n!$ actually is</em> — not the feeling from Lesson 04, but a
+    number we can put in an inequality.</p>
+
+    <p>We also have a gap of a different kind, and it is more serious than it looks. The argument
+    above tracks one run. An algorithm is not one run — it behaves differently on different inputs,
+    and the run we followed might not be its worst. To make a claim about every input at once we need
+    to see the whole of an algorithm&rsquo;s behaviour in a single picture.</p>
+
+    <p>That picture is the next lesson, and it turns out to be a shape everyone already knows.</p>
+  </section>
+
+  </div><!-- /.lesson-body -->
+
+  <!-- ==================================================================== -->
+  <section class="mental-model">
+    <h2>The idea in one line</h2>
+    <p>What an algorithm knows is not a list of facts but a set of surviving possibilities — and a
+    comparison is a cut through that set which, at the very best, leaves half.</p>
+  </section>
+
+  <section class="check-yourself">
+    <h2>Check yourself</h2>
+
+    <details class="q">
+      <summary>Six candidates remain, and you compare a pair that splits them 5 and 1. You get lucky:
+      the answer leaves the group of 1. Have you disproved the claim that a question cannot be relied
+      on to leave fewer than half?</summary>
+      <div class="answer">
+        <p><strong>No, and the reason is the whole difference between a guarantee and an outcome.</strong></p>
+        <p>The claim is not that every question leaves at least half. It is that no question can be
+        <em>relied on</em> to leave less. The 5–1 split can turn out beautifully, and it can also
+        leave you with 5 — and you had no way to arrange which.</p>
+        <p>Put it as a bet. Choosing the 5–1 split is choosing a question whose worst outcome is 5
+        survivors. Choosing a 3–3 split is choosing one whose worst outcome is 3. If you must succeed
+        no matter what the answer is, the second is better, even though the first sometimes does
+        better.</p>
+        <p>This distinction runs through the rest of the series and has a name coming in Part IV. For
+        now hold the shape: <em>when you cannot control which branch you get, the branch that matters
+        is the bad one.</em></p>
+      </div>
+    </details>
+
+    <details class="q">
+      <summary>You have four items and you ask about the same pair twice. What does the second answer
+      do to the candidate set, and what does that tell you about what a comparison really costs?</summary>
+      <div class="answer">
+        <p><strong>Nothing at all — and it still costs a question.</strong></p>
+        <p>After the first answer, every surviving candidate agrees about that pair. So the split is
+        the entire set against nothing, and the answer discards the empty group. The set is exactly
+        the size it was.</p>
+        <p>The uncomfortable implication: <strong>a comparison is not a unit of progress.</strong> It
+        is a unit of <em>cost</em>. What you get for it depends entirely on whether the candidates
+        disagreed about the thing you asked.</p>
+        <p>And this is not only about literal repeats. Asking about a pair already settled by chaining
+        — you know A before B and B before C, and you ask about A and C — is equally free of
+        information and equally expensive. The whole skill of a good sorting algorithm is never
+        spending a question on something the candidates already agree about.</p>
+      </div>
+    </details>
+
+    <details class="q">
+      <summary>Why did Section 4 insist that we cannot choose which group survives? Could an algorithm
+      not pick the pair whose answer it expects to be favourable?</summary>
+      <div class="answer">
+        <p><strong>It can pick the pair. It cannot pick the answer, and the answer is where the
+        narrowing comes from.</strong></p>
+        <p>An algorithm chooses which question to ask — that is the whole of its freedom, and it is
+        real. What it cannot do is influence the reply, because the reply is a fact about the input,
+        which was fixed before the algorithm started.</p>
+        <p>&ldquo;Expects to be favourable&rdquo; is worth pulling apart too. Expectation requires a
+        belief about which arrangements are more likely, and in the worst case the input is whatever
+        is least convenient. An algorithm that leans on a favourable guess is fast when the guess
+        holds and slow when it does not.</p>
+        <p>That is not a dead end — it is a real strategy with real consequences, and Part VI is
+        devoted to it. But for proving what <em>every</em> algorithm must spend, we cannot let the
+        algorithm assume anything about the answer it is about to receive.</p>
+      </div>
+    </details>
+
+    <details class="q">
+      <summary>The bound says the set cannot be relied on to fall below $n!/2^k$ after $k$ questions.
+      Does it follow that some algorithm actually achieves $n!/2^k$?</summary>
+      <div class="answer">
+        <p><strong>No. This is the single most misread step in the whole argument.</strong></p>
+        <p>What we showed is that halving is the <em>most</em> a question can be relied on to do, so
+        no algorithm can be doing better than $n!/2^k$. That is a floor under the candidate count — a
+        statement about what is impossible.</p>
+        <p>Whether any algorithm gets close is a completely separate question, and the answer is: not
+        always. Figure 4.1 shows why. Once a few answers are in, an even split may not be available at
+        all — no pair divides the survivors in half, because of how the survivors are shaped.</p>
+        <p><strong>The general form, which is worth memorising as a habit rather than a fact:</strong>
+        showing that nobody can do better than $X$ does not show that anybody achieves $X$. These are
+        two different claims requiring two different arguments, and Part IV gives them two different
+        names. Part V then does the genuinely surprising thing — it produces an algorithm that meets
+        this bound, and that it can be met is not something the bound itself ever promised.</p>
+      </div>
+    </details>
+  </section>
+
+  <section class="still-unanswered">
+    <h2>What&rsquo;s still unanswered</h2>
+    <p>We have $2^k \ge n!$, which is most of a result and not yet usable. Two things are missing.</p>
+    <p>The first is arithmetic: we need to turn &ldquo;$2^k$ is at least $n!$&rdquo; into a statement
+    about $k$, and that needs a real grip on the size of $n!$.</p>
+    <p>The second is more serious. Everything above follows a single run — one input, one sequence of
+    answers. An algorithm is a rule covering every possible input, and its cost is what it does on the
+    worst of them. We have no way to talk about all of its runs at once.</p>
+    <p>So before the arithmetic, we need a picture of an entire algorithm rather than one execution of
+    it. That is next — and the argument only becomes a proof once we have it.</p>
+  </section>
+
+  <nav class="lesson-nav">
+    <a href="04-counting-the-arrangements.html"><span class="nav-label">Previous</span>← 04 · Counting the arrangements</a>
+    <a href="index.html"><span class="nav-label">Series</span>All lessons</a>
+    <a class="nav-next" href="06-every-algorithm-is-a-tree.html"><span class="nav-label">Next</span>06 · Every comparison algorithm is a tree →</a>
+  </nav>
+
+</article>
+
+<script defer src="assets/vendor/katex/katex.min.js"></script>
+<script defer src="assets/vendor/katex/contrib/auto-render.min.js"></script>
+<script defer src="assets/js/diagram.js"></script>
+<script defer src="assets/js/lab.js"></script>
+<script defer src="assets/js/lesson.js"></script>
+<script defer src="assets/js/lessons/05-what-one-comparison-buys.js"></script>
+</body>
+</html>

@@ -40,7 +40,7 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 /* ==========================================================================
-   FIGURE 2.1: THE KNOWLEDGE POSET & TRANSITIVE DEDUCTION ENGINE
+   FIGURE 2.4: THE KNOWLEDGE POSET & TRANSITIVE DEDUCTION ENGINE
    ========================================================================== */
 function initPosetLab() {
   // 4 elements with hidden true values:
@@ -52,6 +52,22 @@ function initPosetLab() {
     { id: 2, label: "x₂", trueVal: 29 },
     { id: 3, label: "x₃", trueVal: 9 }
   ];
+
+  // Precompute all 24 permutations of [0, 1, 2, 3] once
+  const ALL_PERMUTATIONS = [];
+  function generatePermutations(arr, current = []) {
+    if (arr.length === 0) {
+      ALL_PERMUTATIONS.push(current);
+      return;
+    }
+    for (let i = 0; i < arr.length; i++) {
+      generatePermutations(
+        [...arr.slice(0, i), ...arr.slice(i + 1)],
+        [...current, arr[i]]
+      );
+    }
+  }
+  generatePermutations([0, 1, 2, 3]);
 
   // Adjacency matrix for known relations: direct[i][j] = true iff i < j was directly queried
   let direct = Array.from({ length: 4 }, () => Array(4).fill(false));
@@ -72,7 +88,7 @@ function initPosetLab() {
 
   function computeTransitiveClosure() {
     closure = direct.map((row) => [...row]);
-    // Warshall's algorithm
+    // Warshall's transitive closure algorithm
     for (let k = 0; k < 4; k++) {
       for (let i = 0; i < 4; i++) {
         for (let j = 0; j < 4; j++) {
@@ -96,31 +112,15 @@ function initPosetLab() {
     deducedFactsCount = totalKnown - dCount;
   }
 
-  // Generate all 24 permutations of [0, 1, 2, 3] and filter by closure
-  function countLinearExtensions() {
-    const perms = [];
-    function permute(arr, current = []) {
-      if (arr.length === 0) {
-        perms.push(current);
-        return;
-      }
-      for (let i = 0; i < arr.length; i++) {
-        permute([...arr.slice(0, i), ...arr.slice(i + 1)], [...current, arr[i]]);
-      }
-    }
-    permute([0, 1, 2, 3]);
-
-    // Check consistency: for each pair (i, j), if closure[i][j] is true,
-    // then i must appear before j in the permutation
+  // Count linear extensions consistent with closure
+  function countLinearExtensions(testClosure = closure) {
     let validCount = 0;
-    perms.forEach((p) => {
+    ALL_PERMUTATIONS.forEach((p) => {
       let consistent = true;
       for (let i = 0; i < 4; i++) {
         for (let j = 0; j < 4; j++) {
-          if (closure[i][j]) {
-            const posI = p.indexOf(i);
-            const posJ = p.indexOf(j);
-            if (posI > posJ) {
+          if (testClosure[i][j]) {
+            if (p.indexOf(i) > p.indexOf(j)) {
               consistent = false;
               break;
             }
@@ -130,7 +130,6 @@ function initPosetLab() {
       }
       if (consistent) validCount++;
     });
-
     return validCount;
   }
 
@@ -138,7 +137,7 @@ function initPosetLab() {
     computeTransitiveClosure();
     const remainingExtensions = countLinearExtensions();
 
-    // Render nodes
+    // 1. Render interactive selection nodes
     if (nodesContainer) {
       nodesContainer.innerHTML = "";
       elements.forEach((el) => {
@@ -146,13 +145,14 @@ function initPosetLab() {
         btn.className = `sci-cell ${selectedFirst === el.id ? "selected" : ""}`;
         btn.innerHTML = `
           <span class="sci-cell-val">${el.label}</span>
-          <span class="sci-cell-sub">Select</span>
+          <span class="sci-cell-sub">${selectedFirst === el.id ? "Active" : "Select"}</span>
         `;
         btn.addEventListener("click", () => handleNodeClick(el.id));
         nodesContainer.appendChild(btn);
+      });
     }
 
-    // Render live SVG graph
+    // 2. Render live SVG graph
     const svgEl = document.getElementById("poset-graph-svg");
     if (svgEl) {
       const coords = [
@@ -164,16 +164,16 @@ function initPosetLab() {
 
       let svgHtml = `
         <defs>
-          <marker id="arrow-direct" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+          <marker id="arrow-direct" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="6" markerHeight="6" orient="auto">
             <path d="M 0 1 L 10 5 L 0 9 z" fill="#111827" />
           </marker>
-          <marker id="arrow-deduced" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+          <marker id="arrow-deduced" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="6" markerHeight="6" orient="auto">
             <path d="M 0 1 L 10 5 L 0 9 z" fill="#1e3a8a" />
           </marker>
         </defs>
       `;
 
-      // Draw arrows
+      // Draw all relation edges (closure)
       for (let i = 0; i < 4; i++) {
         for (let j = 0; j < 4; j++) {
           if (closure[i][j]) {
@@ -181,40 +181,57 @@ function initPosetLab() {
             const p1 = coords[i];
             const p2 = coords[j];
             const dist = Math.abs(i - j);
+            const isLeftToRight = p1.x < p2.x;
 
-            if (dist === 1) {
-              // Straight or slightly curved
-              const dir = p1.x < p2.x ? 1 : -1;
-              const startX = p1.x + dir * 18;
-              const endX = p2.x - dir * 18;
+            const strokeColor = isDirect ? "#111827" : "#1e3a8a";
+            const strokeWidth = isDirect ? "1.8" : "1.4";
+            const dashArray = isDirect ? "" : "stroke-dasharray='4,3'";
+            const markerId = isDirect ? "arrow-direct" : "arrow-deduced";
+
+            if (dist === 1 && isLeftToRight) {
+              // Direct straight connection left-to-right at horizontal level
+              const startX = p1.x + 18;
+              const endX = p2.x - 18;
               svgHtml += `
-                <path d="M ${startX} ${p1.y} L ${endX} ${p2.y}" 
+                <path d="M ${startX} 65 L ${endX} 65" 
                       fill="none" 
-                      stroke="${isDirect ? "#111827" : "#1e3a8a"}" 
-                      stroke-width="${isDirect ? "1.8" : "1.4"}" 
-                      ${isDirect ? "" : "stroke-dasharray='4,3'"} 
-                      marker-end="url(#${isDirect ? "arrow-direct" : "arrow-deduced"})" />
+                      stroke="${strokeColor}" 
+                      stroke-width="${strokeWidth}" 
+                      ${dashArray} 
+                      marker-end="url(#${markerId})" />
               `;
-            } else {
-              // Arch over top or under bottom
-              const dir = p1.x < p2.x ? 1 : -1;
+            } else if (isLeftToRight) {
+              // Left-to-right arching OVER top (dist >= 2)
               const startX = p1.x;
               const endX = p2.x;
-              const archY = dir > 0 ? (dist === 2 ? 22 : 10) : (dist === 2 ? 108 : 120);
+              const archY = dist === 2 ? 18 : 6;
               svgHtml += `
-                <path d="M ${startX} ${p1.y - 14} Q ${(p1.x + p2.x) / 2} ${archY}, ${endX} ${p2.y - 14}" 
+                <path d="M ${startX} ${p1.y - 17} Q ${(p1.x + p2.x) / 2} ${archY}, ${endX} ${p2.y - 17}" 
                       fill="none" 
-                      stroke="${isDirect ? "#111827" : "#1e3a8a"}" 
-                      stroke-width="${isDirect ? "1.8" : "1.4"}" 
-                      ${isDirect ? "" : "stroke-dasharray='4,3'"} 
-                      marker-end="url(#${isDirect ? "arrow-direct" : "arrow-deduced"})" />
+                      stroke="${strokeColor}" 
+                      stroke-width="${strokeWidth}" 
+                      ${dashArray} 
+                      marker-end="url(#${markerId})" />
+              `;
+            } else {
+              // Right-to-left arching UNDER bottom (dist >= 1)
+              const startX = p1.x;
+              const endX = p2.x;
+              const archY = dist === 1 ? 102 : (dist === 2 ? 116 : 124);
+              svgHtml += `
+                <path d="M ${startX} ${p1.y + 17} Q ${(p1.x + p2.x) / 2} ${archY}, ${endX} ${p2.y + 17}" 
+                      fill="none" 
+                      stroke="${strokeColor}" 
+                      stroke-width="${strokeWidth}" 
+                      ${dashArray} 
+                      marker-end="url(#${markerId})" />
               `;
             }
           }
         }
       }
 
-      // Draw vertices over arrows
+      // Draw node circles over edges
       elements.forEach((el, idx) => {
         const p = coords[idx];
         const isSel = selectedFirst === el.id;
@@ -229,7 +246,8 @@ function initPosetLab() {
                   font-size="12.5" 
                   font-weight="700" 
                   fill="${isSel ? "#1e3a8a" : "#111827"}" 
-                  text-anchor="middle">${el.label}</text>
+                  text-anchor="middle"
+                  pointer-events="none">${el.label}</text>
           </g>
         `;
       });
@@ -237,7 +255,7 @@ function initPosetLab() {
       svgEl.innerHTML = svgHtml;
     }
 
-    // Render relations list
+    // 3. Render known relations list
     if (relationsList) {
       relationsList.innerHTML = "";
       let hasAny = false;
@@ -260,7 +278,7 @@ function initPosetLab() {
       }
     }
 
-    // Update metrics
+    // 4. Update dashboard metrics
     if (compCountEl) compCountEl.textContent = comparisonCount;
     if (directFactsEl) directFactsEl.textContent = directFactsCount;
     if (deducedFactsEl) deducedFactsEl.textContent = deducedFactsCount;
@@ -299,16 +317,15 @@ function initPosetLab() {
 
     // Check if relationship was already known via transitive closure
     const alreadyKnown = closure[i][j] || closure[j][i];
+    const isDirectlyKnown = direct[i][j] || direct[j][i];
     const trueSmaller = elements[i].trueVal < elements[j].trueVal ? i : j;
     const trueLarger = elements[i].trueVal < elements[j].trueVal ? j : i;
 
     if (alreadyKnown) {
       if (queryFeedbackEl) {
-        queryFeedbackEl.className = "formal-env remark";
-        queryFeedbackEl.innerHTML = `
-          <strong>Redundant Query!</strong> The relation <em>${elements[trueSmaller].label} &lt; ${elements[trueLarger].label}</em> was <strong>already known via transitivity</strong>.<br/>
-          This comparison spent 1 operation but provided <strong>0 bits of new information</strong>. Remaining consistent permutations unchanged.
-        `;
+        queryFeedbackEl.innerHTML = isDirectlyKnown
+          ? `<strong>Redundant Query!</strong> You already directly compared <em>${elements[trueSmaller].label}</em> and <em>${elements[trueLarger].label}</em> earlier.<br/>This comparison wasted 1 query operation and gained <strong>0 bits of new information</strong>.`
+          : `<strong>Redundant Query!</strong> The relation <em>${elements[trueSmaller].label} &lt; ${elements[trueLarger].label}</em> was <strong>already known via transitivity</strong>.<br/>A directed path already exists in your poset knowledge graph! This query yielded <strong>0 bits of new information</strong>.`;
       }
       return;
     }
@@ -323,7 +340,6 @@ function initPosetLab() {
     const eliminated = beforeCount - afterCount;
 
     if (queryFeedbackEl) {
-      queryFeedbackEl.className = "formal-env remark";
       queryFeedbackEl.innerHTML = `
         <strong>Oracle Answer:</strong> <em>${elements[trueSmaller].label} &lt; ${elements[trueLarger].label}</em>.<br/>
         This comparison eliminated <strong>${eliminated}</strong> inconsistent permutations.
@@ -352,7 +368,7 @@ function initPosetLab() {
 
   if (btnSmartStep) {
     btnSmartStep.addEventListener("click", () => {
-      // Find an uncompared pair that cuts the remaining linear extensions as evenly as possible
+      // Find an uncompared pair
       let bestPair = null;
       for (let i = 0; i < 4; i++) {
         for (let j = i + 1; j < 4; j++) {
@@ -377,4 +393,3 @@ function initPosetLab() {
 
   render();
 }
-

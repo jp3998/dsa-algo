@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lesson 03 · What an algorithm is able to find out</title>
+<link rel="stylesheet" href="assets/vendor/katex/katex.min.css">
+<link rel="stylesheet" href="assets/css/lesson.css">
+<link rel="stylesheet" href="assets/css/lab.css">
+</head>
+<body>
+
+<article class="lesson">
+
+  <header class="lesson-head">
+    <p class="lesson-part">Part I · Order and Information</p>
+    <p class="lesson-number">Lesson 03</p>
+    <h1>What an algorithm is able to find out</h1>
+  </header>
+
+  <section class="where-we-are">
+    <h2>Where we are</h2>
+    <p>We can judge a proposed answer: it must hold the same items and sit in non-decreasing order. But
+    an algorithm never gets to make that judgement about its own output — it has to build the output
+    from nothing, and it starts out knowing nothing about which arrangement is the right one. So the
+    question we could not ask before: what is it actually allowed to ask, and how much does an answer
+    give it?</p>
+  </section>
+
+  <div class="lesson-body">
+
+  <!-- ==================================================================== -->
+  <section id="s1">
+    <h2><span class="sec-num">1</span> The algorithm does not see the input</h2>
+
+    <p>When you look at the sequence 17, 4, 29, 4, 11, you take it in at a glance. It is tempting to
+    imagine an algorithm doing something similar — looking at the whole thing and then getting to
+    work.</p>
+
+    <p>It does not. An algorithm has no eyes. It has <em>operations</em>: a fixed list of things it is
+    able to do, each one returning a definite result. Everything it will ever know is assembled out of
+    the results of operations it chose to perform.</p>
+
+    <p class="beat">That is not a limitation we are imposing to make the problem interesting. It is
+    what a computation is. And it means that before we can say anything at all about how much work
+    sorting takes, we have to say <em>which operations are on the list</em>. Change the list and you
+    change the problem — not how hard it is to solve, but what solving it even involves.</p>
+
+    <div class="block block--definition">
+      <p class="block-label">Definition</p>
+      <p>A <strong>computational model</strong> is a statement of which operations an algorithm may
+      perform and what each one costs. It fixes what is knowable and what is expensive.</p>
+    </div>
+
+    <p>Every claim in the rest of this series is made relative to some model. A claim without one is
+    not a weak claim; it is not a claim at all.</p>
+  </section>
+
+  <!-- ==================================================================== -->
+  <section id="s2">
+    <h2><span class="sec-num">2</span> The weakest honest assumption</h2>
+
+    <p>So which operations should we allow? We could allow a great many, but there is a good reason to
+    start with almost none.</p>
+
+    <p>Think about what we actually need in order to sort. Lesson 00 found the atom: take two items,
+    ask which comes first. That single operation is enough to build any ordering knowledge at all, and
+    it is available for <em>every</em> kind of item — numbers, names, dates, records, things with no
+    numbers in them anywhere. Anything you can order, you can compare.</p>
+
+    <p class="beat">So we begin by assuming that and nothing else. The items are sealed: we cannot
+    read them, add them, look at their digits or ask how big they are. We can hand any two of them to
+    the relation and receive one of two answers.</p>
+
+    <div class="block block--definition">
+      <p class="block-label">Definition</p>
+      <p>In the <strong>comparison model</strong>, the items are opaque. The only operation available
+      is a <strong>comparison</strong>: given two items $a$ and $b$, learn whether $a \preceq b$. We
+      count comparisons and ignore everything else.</p>
+    </div>
+
+    <p>Two things to be clear about, because both get misremembered.</p>
+
+    <p>This is a <strong>choice</strong>, not a discovery. Nothing in the nature of sorting forces it.
+    We are choosing to see how far the weakest reasonable assumption takes us, precisely because
+    whatever we prove under it will hold no matter what the items turn out to be.</p>
+
+    <p>And it is a <strong>weak</strong> assumption, which is exactly what makes results proved under
+    it strong. A limit established here applies to sorting numbers, sorting strings, sorting anything
+    — because none of those were assumed. In Part XI we will hand the algorithm more power and watch
+    the limit move.<span class="sidenote-ref" tabindex="0"></span><span class="sidenote">A general
+    habit worth forming: when you prove something, notice how much you assumed. A result that needs
+    little applies widely. A result that needs a lot may be true and still be almost useless.</span></p>
+  </section>
+
+  <!-- ==================================================================== -->
+  <section id="s3">
+    <h2><span class="sec-num">3</span> Watching knowledge accumulate</h2>
+
+    <p>Sealed items and one operation. That sounds impoverished, and the point of this section is
+    that it is less impoverished than it sounds — for a reason we have already met and not yet cashed
+    in.</p>
+
+    <p>Figure 3.1 gives you five sealed boxes and lets you spend comparisons on them. Every question
+    you ask is recorded, and so is everything that follows from what you have asked.</p>
+
+    <figure class="lab lab--wide" id="fig-3-1">
+      <p class="lab-title"><span class="figure-label">Figure 3.1</span> Five sealed boxes</p>
+      <div class="lab-stage">
+        <p class="stage-label">The items &mdash; click two of them to compare</p>
+        <div id="l31-row"></div>
+        <p class="stage-note" id="l31-note"></p>
+      </div>
+      <div class="lab-stage">
+        <p class="stage-label">What you know about each pair</p>
+        <div id="l31-matrix"></div>
+        <div id="l31-legend"></div>
+      </div>
+      <div id="l31-controls"></div>
+      <div id="l31-readout"></div>
+      <figcaption>
+        Ask a few comparisons and watch the grid fill. Compare the two counts in the table: the
+        number of questions you paid for, and the number of pairs you know about. They come apart
+        almost immediately, and the gap only widens.
+      </figcaption>
+    </figure>
+
+    <p>Ask three or four questions and look at the grid. You will find cells filled in that you never
+    asked about.</p>
+
+    <p class="beat">Those are the ones you got for nothing. If you learned that box&nbsp;B comes before
+    box&nbsp;D, and separately that D comes before A, then B comes before A — and you were never asked
+    to pay for it. The relation carries that conclusion whether or not anybody checks.</p>
+
+    <p>This is transitivity from Lesson 01, showing up for the third time and now with a price tag
+    attached. There it was what made a row possible at all. Here it is a discount: some of what you
+    know was deduced rather than purchased.</p>
+
+    <div class="block block--claim">
+      <p class="block-label">Worth holding on to</p>
+      <p>An algorithm&rsquo;s knowledge is not the list of answers it received. It is everything that
+      follows from those answers. The two are very different sizes.</p>
+    </div>
+
+    <p>That gap is where every clever sorting algorithm lives. An algorithm that asks well arranges
+    for each answer to imply a great deal; one that asks badly pays for facts it already had. We are
+    not ready to make that precise — but from here on, whenever an algorithm seems to be doing
+    suspiciously little work, the question to ask is what it is getting for free.</p>
+  </section>
+
+  <!-- ==================================================================== -->
+  <section id="s4">
+    <h2><span class="sec-num">4</span> What a single answer does not settle</h2>
+
+    <p>Now the other direction. The discount is real, and it is easy to overrate it.</p>
+
+    <p>Go back to Figure 3.1, reset it, and ask exactly one question. Suppose the answer is that
+    box&nbsp;A comes before box&nbsp;B.</p>
+
+    <p>What do you know?</p>
+
+    <p class="beat">You know the relative position of two boxes. That is the entire content of the
+    answer. You do not know where either sits among the other three. You do not know whether A is the
+    smallest or merely smaller than B. You do not know a single value, and you will never know a
+    single value, because the model does not contain an operation that would tell you one.</p>
+
+    <p>With five items there are ten pairs. One question has settled one of them, and possibly one or
+    two more by chaining if you had earlier answers to chain with — starting from nothing, it settles
+    exactly one.</p>
+
+    <p>So the honest summary of a comparison is this. It is the smallest unit of order knowledge there
+    is, it can pay off far beyond itself once other answers are in hand, and on its own it is very
+    nearly nothing.</p>
+
+    <p>Which sets up the question this part of the course exists to answer. If one comparison is very
+    nearly nothing, and a complete arrangement is a great deal, <em>how many comparisons does it
+    take?</em> We cannot attempt that yet, because we have no way to measure the size of &ldquo;a complete
+    arrangement.&rdquo; That measurement is the next lesson.</p>
+  </section>
+
+  <!-- ==================================================================== -->
+  <section id="s5">
+    <h2><span class="sec-num">5</span> The model is a choice, and choices can be changed</h2>
+
+    <p>One last thing before we move on, because it is the hinge that Part XI turns on and it costs
+    nothing to see now.</p>
+
+    <p>We chose to seal the boxes. Suppose we unseal them — suppose the items are numbers, and the
+    algorithm is allowed one more operation: read the value in a box. Figure 5.1 gives you the
+    switch.</p>
+
+    <figure class="lab lab--wide" id="fig-5-1">
+      <p class="lab-title"><span class="figure-label">Figure 5.1</span> The same boxes, a richer model</p>
+      <div class="lab-stage">
+        <p class="stage-label">Choose what the algorithm is allowed to do</p>
+        <div id="l51-mode"></div>
+        <div class="stage-divider"></div>
+        <p class="stage-label" id="l51-hint">The items</p>
+        <div id="l51-row"></div>
+        <p class="stage-note" id="l51-note"></p>
+      </div>
+      <div id="l51-controls"></div>
+      <div id="l51-readout"></div>
+      <figcaption>
+        Reach complete knowledge twice: once by comparing only, then again with reading switched on.
+        Compare the operation counts. Watch what one read does to the grid of known pairs compared
+        with what one comparison does &mdash; a read is a different size of fact.
+      </figcaption>
+    </figure>
+
+    <p>The difference is not that reading is faster. It is that a read and a comparison are answers to
+    different questions, and they carry different amounts. A comparison tells you about a
+    <em>pair</em>. A read tells you about an <em>item</em>, and an item participates in every pair it
+    belongs to.</p>
+
+    <p class="beat">We are not going to build anything on this yet, and it would be easy to draw the
+    wrong conclusion from it — reading values does not automatically make sorting cheaper, and the
+    lesson where we finally cash this in is a long way off. Register only the shape of the
+    observation:</p>
+
+    <div class="block block--warning">
+      <p class="block-label">The hinge</p>
+      <p>Everything we are about to prove is a statement about the comparison model. When an algorithm
+      later appears to beat one of those results, it will not have broken anything. It will be working
+      in a different model — and the first question to ask of it is always <em>which assumption
+      changed?</em></p>
+    </div>
+  </section>
+
+  </div><!-- /.lesson-body -->
+
+  <!-- ==================================================================== -->
+  <section class="mental-model">
+    <h2>The idea in one line</h2>
+    <p>An algorithm knows only what its operations return and what follows from that — so before
+    asking how hard a problem is, ask what the algorithm is allowed to do. Fix the operations and you
+    have fixed the problem.</p>
+  </section>
+
+  <section class="check-yourself">
+    <h2>Check yourself</h2>
+
+    <details class="q">
+      <summary>You compare five sealed items and receive four answers: A before B, C before D, B
+      before C, and A before E. How many of the ten pairs do you now know about?</summary>
+      <div class="answer">
+        <p><strong>Seven of the ten.</strong> Four you paid for, three more for free.</p>
+        <p>Chaining A before B with B before C gives <strong>A before C</strong>. Chaining that with C
+        before D gives <strong>A before D</strong>. Chaining B before C with C before D gives
+        <strong>B before D</strong>. That is three deductions, none of them costing a question.</p>
+        <p>The three still unknown all involve E. You know A comes before E, and nothing else about it
+        — E never appeared in a chain with B, C or D, so its position relative to them is completely
+        open.</p>
+        <p>The shape to notice: four questions bought seven facts, and the item you asked about once
+        is the item you know least about. Where you spend your questions decides what you get for
+        free.</p>
+      </div>
+    </details>
+
+    <details class="q">
+      <summary>We said the comparison model is a <em>weak</em> assumption, and then said that makes
+      results proved under it <em>strong</em>. Is that backwards?</summary>
+      <div class="answer">
+        <p><strong>It sounds backwards and it is exactly right.</strong> Keeping the two straight is
+        worth the effort, because the confusion recurs everywhere.</p>
+        <p>A weak assumption is one that is easy to satisfy — few demands, so many situations meet it.
+        The comparison model demands only that items can be compared, which is true of numbers,
+        strings, dates, records, and anything else you might want to sort.</p>
+        <p>A result proved from weak assumptions therefore applies <em>everywhere those weak
+        assumptions hold</em>, which is nearly everywhere. That breadth is what makes it strong.</p>
+        <p>Flip it around to see the trade. If we assumed the items were integers between 1 and 100,
+        we could prove sharper things — but each would come with the condition attached, and would
+        say nothing about sorting names. Stronger assumptions buy sharper conclusions and narrower
+        reach. There is no free lunch in either direction, and the whole of Part XI is an extended
+        study of this exchange rate.</p>
+      </div>
+    </details>
+
+    <details class="q">
+      <summary>Someone claims: &ldquo;sorting ten million items takes at least a second.&rdquo; What
+      is wrong with the claim as stated?</summary>
+      <div class="answer">
+        <p><strong>No model, so no claim.</strong></p>
+        <p>At least a second on what? A statement about elapsed time depends on the machine, the
+        language, how items are laid out in memory, whether comparing two of them is one instruction
+        or a thousand. None of that has been specified, so the sentence cannot be shown true and
+        cannot be shown false.</p>
+        <p>Repair it by naming a model and a count: <em>in the comparison model, any algorithm sorting
+        ten million items must make at least so many comparisons.</em> That is checkable, provable,
+        and machine-independent.</p>
+        <p>The price of the repair is honesty about what you have. A claim about comparisons is not a
+        claim about seconds, and converting between them needs facts about a machine that no proof
+        can supply. We hold that distinction all the way to Part XII, where we finally put the two
+        side by side and find they disagree in interesting ways.</p>
+      </div>
+    </details>
+
+    <details class="q">
+      <summary>In the comparison model, could an algorithm ever determine the actual value stored in
+      an item?</summary>
+      <div class="answer">
+        <p><strong>No — and the reason is worth more than the answer.</strong></p>
+        <p>Suppose an algorithm claimed to. Take its input and replace every item with a different
+        one, chosen so that every pair compares exactly the same way as before — replace 4, 11, 29
+        with 100, 200, 300, say. Every comparison the algorithm makes returns precisely the answer it
+        returned on the original input, so the algorithm behaves identically, step for step, and
+        announces the same values. It is now wrong.</p>
+        <p>So no such algorithm exists. And notice the method, because it is the one we will use to
+        prove far harder things: <strong>build a second input the algorithm cannot distinguish from
+        the first, and let it be wrong on one of them.</strong></p>
+        <p>You have now seen that move twice — it was also the answer to the first question in Lesson
+        00. In Lesson 06 it grows into the argument that gives this whole part its conclusion.</p>
+      </div>
+    </details>
+  </section>
+
+  <section class="still-unanswered">
+    <h2>What&rsquo;s still unanswered</h2>
+    <p>We have an operation, and we know roughly what it buys: one pair directly, sometimes several
+    more by chaining, never a value. What we have no grip on at all is the size of the job.</p>
+    <p>&ldquo;How many comparisons does sorting take?&rdquo; is a question about a ratio — how much
+    must be learned, divided by how much each question teaches. We have started on the denominator.
+    The numerator is untouched: we have never asked how much there is to learn in the first place.</p>
+    <p>So that is next, and it turns out to be a counting problem. How many arrangements could the
+    answer possibly be?</p>
+  </section>
+
+  <nav class="lesson-nav">
+    <a href="02-what-sorting-asks-for.html"><span class="nav-label">Previous</span>← 02 · What sorting asks for</a>
+    <a href="index.html"><span class="nav-label">Series</span>All lessons</a>
+    <a class="nav-next" href="04-counting-the-arrangements.html"><span class="nav-label">Next</span>04 · Counting the arrangements →</a>
+  </nav>
+
+</article>
+
+<script defer src="assets/vendor/katex/katex.min.js"></script>
+<script defer src="assets/vendor/katex/contrib/auto-render.min.js"></script>
+<script defer src="assets/js/diagram.js"></script>
+<script defer src="assets/js/lab.js"></script>
+<script defer src="assets/js/lesson.js"></script>
+<script defer src="assets/js/lessons/03-what-an-algorithm-knows.js"></script>
+</body>
+</html>

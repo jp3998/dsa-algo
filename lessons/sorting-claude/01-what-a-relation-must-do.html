@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lesson 01 · What a relation must do</title>
+<link rel="stylesheet" href="assets/vendor/katex/katex.min.css">
+<link rel="stylesheet" href="assets/css/lesson.css">
+<link rel="stylesheet" href="assets/css/lab.css">
+</head>
+<body>
+
+<article class="lesson">
+
+  <header class="lesson-head">
+    <p class="lesson-part">Part I · Order and Information</p>
+    <p class="lesson-number">Lesson 01</p>
+    <h1>What a relation must do</h1>
+  </header>
+
+  <section class="where-we-are">
+    <h2>Where we are</h2>
+    <p>Last lesson we found that order comes from a relation, and then leaned on that relation
+    behaving well without ever saying what &ldquo;well&rdquo; means. Now we collect the debt. We are
+    going to take three relations that each look perfectly reasonable, try to build a row out of
+    each, and watch each one fail in a different way. Every failure names one thing a relation has to
+    guarantee — and when we have all three, we can prove something worth having.</p>
+  </section>
+
+  <div class="lesson-body">
+
+  <!-- ==================================================================== -->
+  <section id="s1">
+    <h2><span class="sec-num">1</span> What a row has to promise</h2>
+
+    <p>Before we can say a relation fails, we need to be precise about what success would look like.
+    So: what is a row, exactly?</p>
+
+    <p>Write the relation as $a \prec b$, read as &ldquo;<em>a</em> comes before
+    <em>b</em>.&rdquo;<span class="sidenote-ref" tabindex="0"></span><span class="sidenote">We use a
+    bare symbol rather than $&lt;$ on purpose. The relation might be height, or age, or alphabetical
+    position, or something with no numbers in it anywhere. Nothing in this lesson assumes the items
+    are numbers.</span> A row is an arrangement of all the items, one after another, and what we want
+    from it is this:</p>
+
+    <div class="block block--definition">
+      <p class="block-label">What we want</p>
+      <p>An arrangement is a <strong>valid row</strong> when, for every pair of items, the one that
+      appears earlier in the arrangement is the one the relation says comes first.</p>
+    </div>
+
+    <p>That is a demanding promise, and it is worth seeing how demanding. It is not enough for
+    neighbours to be in the right order relative to each other. <em>Every</em> pair has to agree with
+    the relation, including items sitting at opposite ends with five things between them.</p>
+
+    <p class="beat">Now we can go hunting. We want relations for which such an arrangement exists,
+    and we want to know that the relation picks out which arrangement it is. The fastest way to
+    understand a requirement is to watch what happens when it is missing, so for the next three
+    sections we break things on purpose.</p>
+  </section>
+
+  <!-- ==================================================================== -->
+  <section id="s2">
+    <h2><span class="sec-num">2</span> Failure one: the loop</h2>
+
+    <p>Rock beats scissors. Scissors beats paper. Paper beats rock. Take &ldquo;beats&rdquo; as our
+    relation — the winner comes first — and try to build a row.</p>
+
+    <p>There are only six possible arrangements of three items, so rather than argue in the abstract
+    we can work through every one of them. Figure 2.1 lets you do it by hand.</p>
+
+    <figure class="lab lab--wide" id="fig-2-1">
+      <p class="lab-title"><span class="figure-label">Figure 2.1</span> Try to build a row</p>
+      <div class="lab-stage">
+        <p class="stage-label">The three facts &mdash; each arrow points from winner to loser</p>
+        <div class="figure-art" id="mount-cycle"></div>
+      </div>
+      <div class="lab-stage">
+        <p class="stage-label">Your attempt &mdash; click any two to swap them</p>
+        <div id="l21-row"></div>
+        <p class="stage-note" id="l21-note"></p>
+      </div>
+      <div id="l21-controls"></div>
+      <div id="l21-readout"></div>
+      <figcaption>
+        Keep pressing <em>Try the next arrangement</em> until the counter reaches six. Watch the
+        bottom row of the table as you go: it counts the arrangements that worked, and it never
+        leaves zero. Notice too that the offending pair keeps moving &mdash; there is no single bad
+        pair to fix.
+      </figcaption>
+    </figure>
+
+    <p>Every arrangement fails, and notice <em>how</em> it fails. There is nothing subtle going on,
+    no near-miss we could patch by being cleverer. Whichever item we put first, one of the three
+    facts says something else should have come before it. The relation is fighting itself.</p>
+
+    <p class="beat">What is the defect? It is not that any single fact is wrong. Each of the three is
+    fine on its own. The trouble is that they chain into a circle: following &ldquo;beats&rdquo;
+    three times brings you back where you started.</p>
+
+    <p>And a circle is incompatible with a row for a simple reason. In a row, being earlier is a
+    one-way street — if you walk forward you never return to where you began. A relation containing a
+    loop is asking to be laid out along a line while insisting that one of its journeys comes home.
+    No arrangement can satisfy both.</p>
+
+    <p>So here is the first requirement. We need chains to go somewhere rather than curl up:</p>
+
+    <div class="block block--definition">
+      <p class="block-label">Definition</p>
+      <p>A relation is <strong>transitive</strong> when, for all items $a$, $b$ and $c$: if
+      $a \prec b$ and $b \prec c$, then $a \prec c$.</p>
+    </div>
+
+    <p>Transitivity is exactly what rock-paper-scissors lacks. Rock beats scissors and scissors beats
+    paper, so a transitive relation would demand that rock beats paper. It does not, and that single
+    broken link is the whole problem.</p>
+
+    <p class="beat">It is also worth seeing what transitivity <em>gives</em> you, because that is the
+    half people usually miss. Look back at Figure 3.1 in Lesson 00 — the row of hidden items where
+    six questions about neighbours settled the whole arrangement. Those six answers only covered six
+    of the twenty-one pairs. The other fifteen came from chaining, free of charge.</p>
+
+    <p>That is not a small convenience. It is the reason sorting is possible at a sane price at all.
+    A relation that made you pay for all twenty-one would be a different and much more expensive
+    problem, and we will see exactly how much more expensive in Lesson 04.</p>
+  </section>
+
+  <!-- ==================================================================== -->
+  <section id="s3">
+    <h2><span class="sec-num">3</span> Failure two: the two-way pair</h2>
+
+    <p>The second failure is smaller and takes only two items to produce.</p>
+
+    <p>Suppose our relation reports both $a \prec b$ and $b \prec a$. Perhaps it is comparing
+    restaurants and the rule is &ldquo;whichever I would rather eat at tonight,&rdquo; and honestly,
+    both.</p>
+
+    <p>Which goes first in the row?</p>
+
+    <p class="beat">The question has no answer, and it has no answer in a way that cannot be repaired.
+    Put $a$ first and the fact $b \prec a$ says that was wrong. Put $b$ first and $a \prec b$ says the
+    same. There is no third option to try. With the loop in Section 2 we at least had six candidate
+    arrangements to work through; here there are two, and both are refuted by the relation itself
+    before we start.</p>
+
+    <p>So the second requirement forbids exactly this:</p>
+
+    <div class="block block--definition">
+      <p class="block-label">Definition</p>
+      <p>A relation is <strong>asymmetric</strong> when $a \prec b$ and $b \prec a$ are never both
+      true.<span class="sidenote-ref" tabindex="0"></span><span class="sidenote">You will often meet
+      the closely related <strong>antisymmetry</strong>, stated for relations like $\le$ that allow an
+      item to relate to itself: if $a \le b$ and $b \le a$ then $a = b$. It is the same idea dressed
+      for a relation that includes equality. We use the strict form because &ldquo;comes
+      before&rdquo; is the question an algorithm actually asks.</span></p>
+    </div>
+
+    <p>It is tempting to file this one under &ldquo;too obvious to need saying.&rdquo; Resist that.
+    The restaurant relation is a real relation that real people use, and it breaks here. So does
+    &ldquo;is at least as tall as,&rdquo; the moment two people are the same height. Whenever a
+    relation is built from a judgement rather than a measurement, this is the first place it tends to
+    give way.</p>
+  </section>
+
+  <!-- ==================================================================== -->
+  <section id="s4">
+    <h2><span class="sec-num">4</span> Failure three: the missing answer</h2>
+
+    <p>The third failure is the most interesting, because at first it does not look like a failure at
+    all.</p>
+
+    <p>You are getting dressed. Socks have to go on before shoes. A shirt has to go on before a
+    jacket. That is the entire relation — two facts, no loops, no two-way pairs. It passes both tests
+    we have built so far.</p>
+
+    <p>Now build the row. Figure 4.1 gives you all four items and both constraints.</p>
+
+    <figure class="lab lab--wide" id="fig-4-1">
+      <p class="lab-title"><span class="figure-label">Figure 4.1</span> Now try to build <em>the</em> row</p>
+      <div class="lab-stage">
+        <p class="stage-label">The two constraints, and nothing else</p>
+        <div class="figure-art" id="mount-partial"></div>
+      </div>
+      <div class="lab-stage">
+        <p class="stage-label">Your attempt &mdash; click any two to swap them</p>
+        <div id="l41-row"></div>
+        <p class="stage-note" id="l41-note"></p>
+      </div>
+      <div id="l41-controls"></div>
+      <div id="l41-readout"></div>
+      <figcaption>
+        Compare this to Figure 2.1, where nothing ever worked. Here the opposite happens: go hunting
+        and you will find eight different arrangements that satisfy every constraint. Watch the last
+        row of the table climb as you discover them, and ask yourself which of the eight the relation
+        is asking for.
+      </figcaption>
+    </figure>
+
+    <p>Nothing failed. That is the trouble. Socks before shoes, shirt before jacket — and eight
+    different arrangements keep both promises. The relation is perfectly consistent and it has no
+    preference among them.</p>
+
+    <p class="beat">The defect is that some pairs have no answer. Ask the relation whether socks come
+    before the shirt and it says nothing at all. Not &ldquo;no&rdquo; — nothing. The two items are
+    <strong>incomparable</strong>, and since the relation has no opinion about where they sit
+    relative to each other, neither can we.</p>
+
+    <p>Take a moment on why this is fatal for us specifically, because in other settings it is fine.
+    Lesson 00 ended with the difference between a collection <em>being</em> in order and someone
+    <em>knowing</em> it. Here there is no single ordered arrangement to know about. An algorithm
+    asking comparisons could work forever and never be led to one answer rather than another, because
+    the relation it is questioning does not contain the answer. The problem is not hard; it is
+    underspecified.</p>
+
+    <p>Hence the third requirement:</p>
+
+    <div class="block block--definition">
+      <p class="block-label">Definition</p>
+      <p>A relation is <strong>total</strong> when, for every pair of distinct items $a$ and $b$,
+      exactly one of $a \prec b$ and $b \prec a$ holds.</p>
+    </div>
+
+    <p>Read that carefully: <em>exactly one</em> does two jobs at once. &ldquo;At least one&rdquo;
+    is totality proper, ruling out the missing answer. &ldquo;At most one&rdquo; is the asymmetry
+    from Section 3. Stating it this way bundles both, which is convenient and is why you will often
+    see it written as one condition.</p>
+
+    <div class="block block--warning">
+      <p class="block-label">Not a defect, elsewhere</p>
+      <p>A relation that is transitive and asymmetric but not total is called a <strong>partial
+      order</strong>, and it is a perfectly good object — the dressing constraints are a real and
+      useful description of the world. It is only a failure <em>relative to the job of producing one
+      determined row</em>.</p>
+      <p>Hold on to this. In Part VII we deliberately build a structure that maintains a partial order
+      and refuses to learn any more, because the missing answers are precisely the ones we can avoid
+      paying for. What looks like a defect here turns into a saving there.</p>
+    </div>
+  </section>
+
+  <!-- ==================================================================== -->
+  <section id="s5">
+    <h2><span class="sec-num">5</span> The three together, and what they buy</h2>
+
+    <p>Three failures, three requirements. Collect them:</p>
+
+    <div class="block block--definition">
+      <p class="block-label">Definition</p>
+      <p>A relation $\prec$ on a set is a <strong>strict total order</strong> when it is:</p>
+      <ul>
+        <li><strong>transitive</strong> — $a \prec b$ and $b \prec c$ force $a \prec c$;</li>
+        <li><strong>asymmetric</strong> — never both $a \prec b$ and $b \prec a$;</li>
+        <li><strong>total</strong> — for distinct $a$ and $b$, one of $a \prec b$, $b \prec a$ holds.</li>
+      </ul>
+    </div>
+
+    <p>Each was forced on us by a specific way of failing, which is the useful way to hold them. Not
+    three axioms handed down, but three repairs, each patching a hole we watched open.</p>
+
+    <p class="beat">Now the payoff. We have been assuming a good relation produces a row. Let us
+    actually prove it — and prove something slightly stronger that we are going to need in the very
+    next lesson.</p>
+
+    <div class="block block--claim">
+      <p class="block-label">Claim</p>
+      <p>Let $S$ be a finite, non-empty set and let $\prec$ be a strict total order on $S$. Then
+      there is <strong>exactly one</strong> valid row of the items of $S$.</p>
+    </div>
+
+    <p>Before the proof, the part that is usually left out: how would you find this argument yourself?</p>
+
+    <p>Start by asking what the hardest decision is. Building the row is a sequence of choices, and
+    the first one looks like the worst, because it seems to require knowing about everything at once.
+    So make that the question: <strong>is there always something that goes first?</strong> If we can
+    settle that, the rest of the row is the same problem on a smaller set, and we can lean on that.</p>
+
+    <p>Something that goes first means something with nothing before it. So: does such an item always
+    exist? Try to find one by walking. Pick any item. If something comes before it, walk there. If
+    something comes before <em>that</em>, walk there. Either you stop — and where you stop is an item
+    with nothing before it, which is what we wanted — or you walk forever. On a finite set, walking
+    forever means revisiting. And revisiting is exactly the loop that transitivity and asymmetry
+    forbid. So the walk stops, and it stops where we need it to.</p>
+
+    <p>That is the whole idea. The proof below is that paragraph written carefully.</p>
+
+    <div class="block block--proof">
+      <p class="block-label">Proof</p>
+      <p><strong>A first item exists.</strong> Pick any $a_1 \in S$. If some item comes before $a_1$,
+      call it $a_2$ and repeat; this produces $\dots \prec a_3 \prec a_2 \prec a_1$. By transitivity,
+      every item in this chain comes before every item listed after it. By asymmetry, no item can
+      appear twice — if $a_i$ appeared again later, we would have both $a_i \prec a_i$ and its
+      reverse. So the chain has no repeats, and since $S$ is finite it must stop. It stops at an item
+      $m$ with nothing before it.</p>
+      <p><strong>That first item is unique.</strong> Suppose $m$ and $m'$ both have nothing before
+      them, with $m \neq m'$. Totality says one of $m \prec m'$, $m' \prec m$ holds. Either way one
+      of them has something before it, which contradicts how they were chosen. So $m = m'$.</p>
+      <p><strong>Induction.</strong> Remove $m$ from $S$. The remaining set is finite, and $\prec$
+      restricted to it is still transitive, asymmetric and total — removing items cannot create a
+      loop, a two-way pair, or a missing answer. So by induction on the size of $S$ it has exactly one
+      valid row. Put $m$ at the front of it. Every item of $S$ other than $m$ has $m$ before it, so
+      the result is a valid row of $S$.</p>
+      <p><strong>Only one.</strong> Any valid row must begin with an item that has nothing before it,
+      since anything before it would have to appear earlier and there is no earlier. We showed that
+      item is $m$, uniquely. The rest of the row is a valid row of $S$ without $m$, which by induction
+      is unique. So the whole row is unique.<span class="qed"></span></p>
+    </div>
+
+    <p>That claim is the licence for everything that follows. It is why the phrase <em>the</em> sorted
+    arrangement is legitimate rather than sloppy — with a strict total order there is exactly one
+    thing it could refer to. Without it, &ldquo;sort this&rdquo; would not be a question with an
+    answer.</p>
+
+    <p class="beat">Notice also where finiteness was used: one place only, to force the walk to stop.
+    That is not a technicality, and the exercises ask you to break it.</p>
+  </section>
+
+  <!-- ==================================================================== -->
+  <section id="s6">
+    <h2><span class="sec-num">6</span> Ties, and the return of many answers</h2>
+
+    <p>One more thing, and it is the one that survives into the rest of the series.</p>
+
+    <p>Sort four people by height: 158, 167, 167, 181. Two of them are the same height.</p>
+
+    <p>Under a strict total order this situation cannot arise, because totality demands that for any
+    two distinct people one comes before the other. Our two 167s refuse to comply. They are distinct
+    people — different names, different lives — and the relation we chose cannot separate them.</p>
+
+    <figure class="lab lab--wide" id="fig-6-1">
+      <p class="lab-title"><span class="figure-label">Figure 6.1</span> Two firsts, and no way to choose</p>
+      <div class="lab-stage">
+        <p class="stage-label">Four people ordered by height &mdash; two of them tie</p>
+        <div id="l61-row"></div>
+        <p class="stage-note" id="l61-note"></p>
+      </div>
+      <div id="l61-controls"></div>
+      <div id="l61-readout"></div>
+      <figcaption>
+        Swap the two marked people and read the table again. Watch the first row stay satisfied
+        through the swap: both arrangements keep every promise a row is supposed to keep. The last
+        row is the one that changed between this lesson and the last.
+      </figcaption>
+    </figure>
+
+    <p>We could declare this an error and insist on relations that never tie. That would be tidy and
+    would throw away most of the useful relations in the world — sorting by surname, by date, by
+    price, by score all produce ties constantly. So instead we loosen the requirement, carefully.</p>
+
+    <p class="beat">Keep transitivity, because loops are still fatal. Keep the ban on two-way pairs.
+    But allow a third possibility for a pair: neither comes before the other, and they are not the
+    same item. Call them <strong>tied</strong>. A relation of this kind is a <strong>weak
+    order</strong>.</p>
+
+    <p>What does that cost? Go back and find the step in the proof that breaks.</p>
+
+    <p>It is the uniqueness of the first item. The argument was: if $m$ and $m'$ both have nothing
+    before them, totality forces one before the other, contradiction. With ties allowed, totality no
+    longer forces anything — $m$ and $m'$ can peacefully both be first-eligible. The existence half
+    of the proof survives untouched. The uniqueness half does not.</p>
+
+    <div class="block block--claim">
+      <p class="block-label">What we are left with</p>
+      <p>Under a weak order, a valid row still always exists. It is no longer unique: two items that
+      tie can appear in either order, and every resulting arrangement is equally valid.</p>
+    </div>
+
+    <p>Figure 6.1 is that claim in miniature. Both arrangements are right, and nothing in the
+    relation prefers one.</p>
+
+    <p>Which leaves a question we are deliberately not going to answer yet. When several arrangements
+    are all correct, does it matter which one you produce? The relation says no. Keep an eye on
+    whether you believe that.</p>
+  </section>
+
+  </div><!-- /.lesson-body -->
+
+  <!-- ==================================================================== -->
+  <section class="mental-model">
+    <h2>The idea in one line</h2>
+    <p>No loops, no two-way pairs, no missing answers — three guarantees, each one forced by a
+    specific way of failing, and together exactly enough to turn a relation into a single determined
+    row. Allow ties and you keep the row but lose the word <em>single</em>.</p>
+  </section>
+
+  <section class="check-yourself">
+    <h2>Check yourself</h2>
+
+    <details class="q">
+      <summary>Rock-paper-scissors failed to give a row. Exactly which of the three requirements does
+      it break — and does it break any of the others?</summary>
+      <div class="answer">
+        <p><strong>Transitivity, and only transitivity.</strong> Checking the other two is the point
+        of the exercise.</p>
+        <p><strong>Asymmetric?</strong> Yes. Rock beats scissors and scissors does not beat rock. The
+        same for the other two pairs. No pair goes both ways.</p>
+        <p><strong>Total?</strong> Yes. Take any two of the three and exactly one beats the other.
+        Every pair has an answer.</p>
+        <p><strong>Transitive?</strong> No. Rock beats scissors and scissors beats paper, so
+        transitivity would require rock to beat paper. Paper beats rock.</p>
+        <p>This is worth registering because it shows a single missing requirement is enough to
+        destroy the row entirely. The relation is two-thirds of the way to being a total order and
+        gets nothing for it.</p>
+      </div>
+    </details>
+
+    <details class="q">
+      <summary>Take &ldquo;is a prefix of&rdquo; on strings, so that <em>car</em> comes before
+      <em>cart</em>. Which requirement fails, and what kind of object is it?</summary>
+      <div class="answer">
+        <p><strong>Totality fails; the other two hold.</strong> It is a partial order.</p>
+        <p>Transitive: if <em>a</em> is a prefix of <em>b</em> and <em>b</em> of <em>c</em>, then
+        <em>a</em> is a prefix of <em>c</em>. Asymmetric: two different strings cannot each be a
+        prefix of the other, since a proper prefix is strictly shorter.</p>
+        <p>But <em>cat</em> and <em>dog</em> are incomparable — neither is a prefix of the other, and
+        the relation has nothing to say about them. This is Section 4 exactly: consistent, useful,
+        and unable to determine a row.</p>
+        <p>Worth noticing: this is <em>not</em> how dictionaries order words. Dictionary order is a
+        different relation built on top, which handles <em>cat</em> against <em>dog</em> by looking
+        at the first position where they differ. That relation is total, which is precisely why a
+        dictionary can exist as a single sequence of pages.</p>
+      </div>
+    </details>
+
+    <details class="q">
+      <summary>The proof used finiteness in exactly one place. Find it, then break it: give a strict
+      total order on an infinite set with no valid row in our sense.</summary>
+      <div class="answer">
+        <p><strong>The place:</strong> the walk. We argued that following &ldquo;something comes
+        before this&rdquo; must eventually stop, because a non-stopping walk on a finite set would
+        have to revisit an item, and revisiting is a loop. On an infinite set the walk can continue
+        forever without ever repeating, so the argument evaporates.</p>
+        <p><strong>The counterexample:</strong> the integers under the usual $&lt;$. It is
+        transitive, asymmetric and total, so it is a strict total order. But there is no first
+        integer: whatever you propose, subtract one. The walk $\dots \prec -3 \prec -2 \prec -1$ runs
+        forever.</p>
+        <p>So no arrangement with a first item, then a second, and so on can list the integers in
+        increasing order. The relation is impeccable; what fails is the attempt to lay it out as a
+        row with a beginning.</p>
+        <p>This is not a trick. It is why sorting is always posed on a finite collection, and why we
+        will never have to worry about the case again — but it is much better to know which step was
+        carrying that weight than to carry a vague sense that finiteness matters somewhere.</p>
+      </div>
+    </details>
+
+    <details class="q">
+      <summary>Suppose someone hands you a relation and promises it is transitive and total, but you
+      suspect they are wrong. You can only ask it about pairs. How would you catch a violation of
+      transitivity, and why is that harder than catching a two-way pair?</summary>
+      <div class="answer">
+        <p><strong>A two-way pair takes two questions.</strong> Ask about $a$ against $b$, then $b$
+        against $a$. If both come back &ldquo;comes before,&rdquo; you are finished.</p>
+        <p><strong>A transitivity violation needs three items at once.</strong> You have to find
+        $a$, $b$, $c$ with $a \prec b$, $b \prec c$ and $c \prec a$. No question about a single pair
+        can reveal it, because every individual answer is perfectly innocent — rock beats scissors is
+        not a suspicious fact. The defect only exists in the combination.</p>
+        <p>And that is the cost: pairs number around $n^2/2$, but triples number around $n^3/6$.
+        Checking every pair for a two-way violation is far cheaper than checking every triple for a
+        loop.</p>
+        <p>The general lesson, which will keep returning: <em>how much of the structure a defect
+        touches decides how much work it takes to find.</em> Local defects are cheap to detect. A
+        defect that only exists in the relationship between three separate places is not.</p>
+      </div>
+    </details>
+
+    <details class="q">
+      <summary>Two people are both 167 cm, and Figure 6.1 shows both arrangements are correct. Is
+      that a flaw in our specification of a row, or a flaw in the relation we chose?</summary>
+      <div class="answer">
+        <p><strong>Neither is broken — but the question is the right one to be suspicious about,
+        and it is the one the next lesson starts from.</strong></p>
+        <p>The relation is not flawed. &ldquo;Shorter than&rdquo; is a genuine relation, and the two
+        people genuinely are the same height. Demanding that it separate them would be demanding that
+        it report something untrue.</p>
+        <p>The specification is not flawed either. It asks that every pair appear consistently with
+        the relation, and both arrangements do.</p>
+        <p>What has happened is that the specification is <strong>silent</strong> where the relation
+        is silent. It admits several answers because the relation admits several, and it has no view
+        about which you produce.</p>
+        <p>Whether that silence is acceptable depends on something outside the relation entirely — on
+        whether the two tied items differ in some way you care about. Two people of the same height
+        are still two different people. If they arrived in a particular order, you might have
+        expectations about the order they leave in. The relation cannot have an opinion about that,
+        because you never told it about anything but height.</p>
+        <p>Keep that thought. It comes back with a name in Part V, and by Part XI an entire algorithm
+        will depend on it.</p>
+      </div>
+    </details>
+  </section>
+
+  <section class="still-unanswered">
+    <h2>What&rsquo;s still unanswered</h2>
+    <p>We can now say what a relation has to do, and we proved that a good one picks out exactly one
+    row — or, with ties, a family of equally good ones. That settles what <em>order</em> means.</p>
+    <p>It does not settle what <em>sorting</em> means. Those are not the same question, and the gap
+    between them is wider than it looks. We have been talking as though the job is to arrange items
+    we already hold, but nothing so far says the output has to contain the same items as the input at
+    all. As stated, a procedure that threw everything away and handed back three numbers in
+    increasing order would satisfy every condition in this lesson.</p>
+    <p>Everyone can see that is wrong. Saying precisely <em>why</em> it is wrong turns out to be the
+    whole of the next lesson — and the second half of the answer is a mathematical object we will lean on
+    for the rest of Part I.</p>
+  </section>
+
+  <nav class="lesson-nav">
+    <a href="00-what-order-is.html"><span class="nav-label">Previous</span>← 00 · What order is</a>
+    <a href="index.html"><span class="nav-label">Series</span>All lessons</a>
+    <a class="nav-next" href="02-what-sorting-asks-for.html"><span class="nav-label">Next</span>02 · What sorting asks for →</a>
+  </nav>
+
+</article>
+
+<script defer src="assets/vendor/katex/katex.min.js"></script>
+<script defer src="assets/vendor/katex/contrib/auto-render.min.js"></script>
+<script defer src="assets/js/diagram.js"></script>
+<script defer src="assets/js/lab.js"></script>
+<script defer src="assets/js/lesson.js"></script>
+<script defer src="assets/js/lessons/01-what-a-relation-must-do.js"></script>
+</body>
+</html>
