@@ -4,8 +4,6 @@
 
 **Problem Link:** https://neetcode.io/problems/max-consecutive-ones/question
 
-**Submission History:** https://neetcode.io/problems/max-consecutive-ones/history
-
 ---
 
 ## 1. Articulation / Variable Naming
