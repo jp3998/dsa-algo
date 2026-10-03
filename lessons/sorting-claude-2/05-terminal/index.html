@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Order &amp; Sorting</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<link rel="stylesheet" href="theme.css">
+</head>
+<body>
+<div class="page">
+
+  <h1 class="title">Order &amp; Sorting</h1>
+  <div class="title-rule" aria-hidden="true">══════════════════════════════════════════════════════════════════</div>
+  <p class="subtitle">from first principles</p>
+
+  <p>This course doesn't present sorting algorithms one after another. It follows a single chain of questions: what it means to put things in order, what that costs, why it costs that much, and what changes when the assumptions change. Each lesson starts from a question the previous one left open and ends by handing a new one on. The algorithms show up along the way, as answers. That's why the lessons below are titled by questions rather than by algorithm names.</p>
+
+  <hr class="hr">
+
+  <h2><span class="hash">##</span> How a lesson works</h2>
+  <ul>
+    <li><strong>Predict first.</strong> Some blocks ask you to commit to an answer before the explanation appears.</li>
+    <li><strong>Checkpoints check themselves.</strong> A wrong answer explains the specific misunderstanding behind it.</li>
+    <li><strong>Every claim carries a tag</strong> that says how much it's worth: proof, proof sketch, intuition, empirical, heuristic.</li>
+    <li><strong>Each lesson ends with a ledger:</strong> what's established, which assumptions are in force, and the open question passed on.</li>
+  </ul>
+
+  <div class="tag-legend">
+    <div class="row"><span class="tag tag-proof">[proof]</span><span class="meaning">a guarantee, valid under the stated assumptions.</span></div>
+    <div class="row"><span class="tag tag-proof-sketch">[proof sketch]</span><span class="meaning">the key steps of a proof; details omitted.</span></div>
+    <div class="row"><span class="tag tag-intuition">[intuition]</span><span class="meaning">a reason to expect something; not a guarantee.</span></div>
+    <div class="row"><span class="tag tag-empirical">[empirical]</span><span class="meaning">measured on particular inputs; can change with them.</span></div>
+    <div class="row"><span class="tag tag-heuristic">[heuristic]</span><span class="meaning">a design choice that usually helps; no guarantee.</span></div>
+  </div>
+
+  <hr class="hr">
+
+  <h2><span class="hash">##</span> Lessons</h2>
+
+  <div class="lesson-listing">
+    <div class="lesson-row">
+      <span class="lesson-num">0</span>
+      <span class="lesson-title-wrap">
+        <span class="lesson-title">What does it mean for things to be in order?</span>
+        <span class="lesson-line">Relations, orders, and what exactly the sorting problem asks.</span>
+      </span>
+      <span class="leader"></span>
+      <span class="lesson-status status-pending">[not yet written]</span>
+    </div>
+    <div class="lesson-row">
+      <span class="lesson-num">1</span>
+      <span class="lesson-title-wrap">
+        <span class="lesson-title">How many questions does it take to be sure?</span>
+        <span class="lesson-line">Checking an order, finding an extreme, and why knowing an answer differs from proving it.</span>
+      </span>
+      <span class="leader"></span>
+      <span class="lesson-status status-pending">[not yet written]</span>
+    </div>
+    <div class="lesson-row">
+      <span class="lesson-num">2</span>
+      <span class="lesson-title-wrap">
+        <span class="lesson-title">What happens if we repeatedly take the smallest?</span>
+        <span class="lesson-line">A first complete strategy, its exact cost, and the information it throws away.</span>
+      </span>
+      <span class="leader"></span>
+      <span class="lesson-status status-pending">[not yet written]</span>
+    </div>
+    <div class="lesson-row">
+      <span class="lesson-num">3</span>
+      <span class="lesson-title-wrap">
+        <span class="lesson-title"><a href="lesson-03.html">How far is an array from sorted, and what does a local fix buy?</a></span>
+        <span class="lesson-line">Measuring disorder, and the price of repairing it one neighbour at a time.</span>
+      </span>
+      <span class="leader"></span>
+      <span class="lesson-status status-available">[available]</span>
+    </div>
+    <div class="lesson-row">
+      <span class="lesson-num">4</span>
+      <span class="lesson-title-wrap">
+        <span class="lesson-title">Is knowing the order the same as moving into it?</span>
+        <span class="lesson-line">Separating the cost of learning from the cost of rearranging.</span>
+      </span>
+      <span class="leader"></span>
+      <span class="lesson-status status-pending">[not yet written]</span>
+    </div>
+    <div class="lesson-row">
+      <span class="lesson-num">5</span>
+      <span class="lesson-title-wrap">
+        <span class="lesson-title">Is there a floor under every comparison-based method?</span>
+        <span class="lesson-line">Counting what any algorithm must learn, whatever it does.</span>
+      </span>
+      <span class="leader"></span>
+      <span class="lesson-status status-pending">[not yet written]</span>
+    </div>
+    <div class="lesson-row">
+      <span class="lesson-num">6</span>
+      <span class="lesson-title-wrap">
+        <span class="lesson-title">Can elements travel far without giving up local repair?</span>
+        <span class="lesson-line">Long-range moves, and an honest mix of theory and experiment.</span>
+      </span>
+      <span class="leader"></span>
+      <span class="lesson-status status-pending">[not yet written]</span>
+    </div>
+    <div class="lesson-row">
+      <span class="lesson-num">7</span>
+      <span class="lesson-title-wrap">
+        <span class="lesson-title">What if we split the problem by position?</span>
+        <span class="lesson-line">Combining solved halves, and where the logarithm comes from.</span>
+      </span>
+      <span class="leader"></span>
+      <span class="lesson-status status-pending">[not yet written]</span>
+    </div>
+    <div class="lesson-row">
+      <span class="lesson-num">8</span>
+      <span class="lesson-title-wrap">
+        <span class="lesson-title">What if we split it by value instead?</span>
+        <span class="lesson-line">Randomness, expectation, and a worst case that must be guarded against.</span>
+      </span>
+      <span class="leader"></span>
+      <span class="lesson-status status-pending">[not yet written]</span>
+    </div>
+    <div class="lesson-row">
+      <span class="lesson-num">9</span>
+      <span class="lesson-title-wrap">
+        <span class="lesson-title">How much order do we actually need?</span>
+        <span class="lesson-line">When a full sort is more work than the question requires.</span>
+      </span>
+      <span class="leader"></span>
+      <span class="lesson-status status-pending">[not yet written]</span>
+    </div>
+    <div class="lesson-row">
+      <span class="lesson-num">10</span>
+      <span class="lesson-title-wrap">
+        <span class="lesson-title">Can we keep what we have already learned?</span>
+        <span class="lesson-line">Maintaining partial knowledge cheaply.</span>
+      </span>
+      <span class="leader"></span>
+      <span class="lesson-status status-pending">[not yet written]</span>
+    </div>
+    <div class="lesson-row">
+      <span class="lesson-num">11</span>
+      <span class="lesson-title-wrap">
+        <span class="lesson-title">Three roads to $n \log n$: what actually differs?</span>
+        <span class="lesson-line">Same growth rate, different ideas.</span>
+      </span>
+      <span class="leader"></span>
+      <span class="lesson-status status-pending">[not yet written]</span>
+    </div>
+    <div class="lesson-row">
+      <span class="lesson-num">12</span>
+      <span class="lesson-title-wrap">
+        <span class="lesson-title">What if keys are more than opaque objects?</span>
+        <span class="lesson-line">Changing the model, and why "linear time" always comes with conditions.</span>
+      </span>
+      <span class="leader"></span>
+      <span class="lesson-status status-pending">[not yet written]</span>
+    </div>
+    <div class="lesson-row">
+      <span class="lesson-num">13</span>
+      <span class="lesson-title-wrap">
+        <span class="lesson-title">How much uncertainty does the input really carry?</span>
+        <span class="lesson-line">Duplicates, presortedness, and how Python's own sort exploits them.</span>
+      </span>
+      <span class="leader"></span>
+      <span class="lesson-status status-pending">[not yet written]</span>
+    </div>
+    <div class="lesson-row">
+      <span class="lesson-num">14</span>
+      <span class="lesson-title-wrap">
+        <span class="lesson-title">What lies beyond a single total order?</span>
+        <span class="lesson-line">Partial orders, chains and antichains.</span>
+      </span>
+      <span class="leader"></span>
+      <span class="lesson-status status-pending">[not yet written]</span>
+    </div>
+    <div class="lesson-row">
+      <span class="lesson-num">15</span>
+      <span class="lesson-title-wrap">
+        <span class="lesson-title">What changes outside the idealised machine?</span>
+        <span class="lesson-line">Memory hierarchies, disks, and comparisons fixed in advance.</span>
+      </span>
+      <span class="leader"></span>
+      <span class="lesson-status status-pending">[not yet written]</span>
+    </div>
+    <div class="lesson-row">
+      <span class="lesson-num">16</span>
+      <span class="lesson-title-wrap">
+        <span class="lesson-title">What is the shape of the whole?</span>
+        <span class="lesson-line">Building the complete mental model.</span>
+      </span>
+      <span class="leader"></span>
+      <span class="lesson-status status-pending">[not yet written]</span>
+    </div>
+  </div>
+
+  <p class="footer-line">Read in order: each lesson depends on the ledgers of the ones before it.</p>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+<script src="engine.js"></script>
+<script src="components.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    SC.ui.renderMath(document.body);
+  });
+</script>
+</body>
+</html>

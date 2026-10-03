@@ -1,0 +1,318 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Component demo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;600;800&family=IBM+Plex+Mono:ital,wght@0,400;0,600;1,400&display=swap">
+<link rel="stylesheet" href="../assets/vendor/katex/katex.min.css">
+<link rel="stylesheet" href="../assets/course.css">
+</head>
+<body>
+<main class="page" data-lesson="demo">
+  <header class="lesson-header">
+    <nav class="lesson-nav">
+      <a href="../index.html">← All lessons</a>
+      <span class="na">Previous: none</span>
+      <span class="na">Next: not yet available</span>
+    </nav>
+    <p class="kicker">Lesson 0</p>
+    <h1 class="title">Does every component work, on a phone as well as on a desk?</h1>
+    <p class="meta">Verification page · fake content</p>
+  </header>
+
+  <section class="where" id="where">
+    <p class="label">Where we are</p>
+    <p>Placeholder text with inline math \(a \prec b\), an identifier <code>find_min</code> and every tag: <span class="tag t-proof">proof</span> <span class="tag t-sketch">proof sketch</span> <span class="tag t-empirical">empirical</span> <span class="tag t-heuristic">heuristic</span> <span class="tag t-intuition">intuition</span>.</p>
+    <ul class="deps"><li><a href="#ledger">Lesson 0 ledger: nothing established</a></li></ul>
+  </section>
+
+  <section class="prereq" id="prereq">
+    <p class="label">Prerequisite check</p>
+    <div class="ex" data-type="mcq" id="q-pre" data-remedy="lesson-01.html#s05">
+      <p class="ex-num">Q1</p>
+      <div class="ex-prompt"><p>Which relation is irreflexive?</p></div>
+      <ul class="ex-options">
+        <li data-correct><div class="opt">\(&lt;\) on integers</div><div class="fb">✓ Nothing is less than itself.</div></li>
+        <li><div class="opt">\(\le\) on integers</div><div class="fb">That is reflexive: every number is \(\le\) itself.</div></li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="lsec" id="s01">
+    <h2 class="sec-head"><span class="sec-num">01</span><span class="sec-title">Callouts, tags, equations</span></h2>
+    <div class="callout def"><p class="callout-label">Definition (inversion)</p><p>A pair \(i&lt;j\) with \(a_i &gt; a_j\).</p></div>
+    <div class="callout lemma" id="lem-1"><p class="callout-label">Lemma 1 (asymmetry)</p><p>If \(a \prec b\) then not \(b \prec a\).</p></div>
+    <div class="callout theorem"><p class="callout-label">Theorem 2</p><p>Every finite strict partial order has a linear extension.</p></div>
+    <div class="callout invariant"><p class="callout-label">Invariant</p><p>The prefix is sorted.</p></div>
+    <div class="callout corollary"><p class="callout-label">Corollary 3</p><p>A total order has exactly one.</p></div>
+    <div class="callout proof"><p class="callout-label">Proof</p><p>By induction on \(n\); the step uses Lemma 1.</p></div>
+    <div class="callout sketch"><p class="callout-label">Proof sketch</p><p>Remove a minimal element and recurse.</p></div>
+    <div class="note"><p class="callout-label">Note</p><p>A note with a gray fill.</p></div>
+    <div class="eq-row"><div class="eq">\[ T(n)=\sum_{j=1}^{n-1}\frac{n!}{j!} \]</div><span class="tag t-proof">proof</span></div>
+    <div class="eq-row"><div class="eq">\[ S = a_1 + a_2 + a_3 + a_4 + a_5 + a_6 + a_7 + a_8 + a_9 + a_{10} + a_{11} + a_{12} + a_{13} + a_{14} + a_{15} + a_{16} + a_{17} + a_{18} \]</div><span class="tag t-empirical">empirical</span></div>
+    <div class="eq-row"><div class="eq">\[ \sum_{i&lt;j} [a_i &gt; a_j] \]</div><span class="tag t-heuristic">heuristic</span></div>
+    <div class="open-question"><p class="callout-label">Open question</p><p class="oq">Can the order be found with fewer questions?</p></div>
+    <details class="deeper"><summary>Going deeper · Linear extensions</summary><div class="deeper-body"><p>Hidden detail with \(e(P)\).</p></div></details>
+    <details class="deeper common"><summary>Common question · Why strict?</summary><div class="deeper-body"><p>Because equality would make every element related to itself.</p></div></details>
+    <figure class="fig" id="fig-1">
+      <figcaption><span class="fig-label">Fig. 1</span><span class="fig-caption">Static cells with every kind.</span></figcaption>
+      <div class="cells"><span class="cell">7</span><span class="cell c-compare">2</span><span class="cell c-key">9</span><span class="cell c-sorted">4</span><span class="cell c-faded">1</span><span class="cell c-outline">5</span></div>
+      <div class="legend"><span class="sw c-sorted"></span>Sorted <span class="sw c-compare"></span>Compared <span class="sw c-key"></span>Key <span class="sw c-outline"></span>Outlined <span class="sw c-faded"></span>Faded</div>
+    </figure>
+    <figure class="fig"><figcaption><span class="fig-label">Table 1</span><span class="fig-caption">A table with tabular numerals.</span></figcaption>
+      <table class="tbl"><thead><tr><th>n</th><th>comparisons</th><th>swaps</th></tr></thead><tbody><tr><td>4</td><td>6</td><td>3</td></tr><tr><td>1 000</td><td>499 500</td><td>999</td></tr></tbody></table>
+    </figure>
+    <figure class="listing" id="lst-1">
+      <figcaption><span class="fig-label">Listing 1</span><span class="fig-caption">Finding the minimum.</span></figcaption>
+      <pre class="py">def find_min(xs):
+    # invariant: xs[best] is the minimum of xs[:i]
+    best = 0
+    for i in range(1, len(xs)):
+        if xs[i] &lt; xs[best]:
+            best = i
+    return best</pre>
+    </figure>
+  </section>
+
+  <section class="lsec" id="s02">
+    <h2 class="sec-head"><span class="sec-num">02</span><span class="sec-title">Predict first, then exercises of every type</span></h2>
+    <div class="predict" id="pr-1">
+      <p class="label">Predict first</p>
+      <div class="ex" data-type="mcq" id="pr-1-q">
+        <div class="ex-prompt"><p>How many comparisons does <code>find_min</code> make on 6 elements?</p></div>
+        <ul class="ex-options">
+          <li><div class="opt">6</div><div class="fb">It never compares an element with itself, so it is one fewer.</div></li>
+          <li data-correct><div class="opt">5</div><div class="fb">One comparison per element after the first.</div></li>
+        </ul>
+      </div>
+      <div class="reveal"><p>Revealed: \(n-1\) comparisons, always.</p></div>
+    </div>
+
+    <div class="ex" data-type="mcq" id="q-mcq" data-remedy="#s01">
+      <p class="ex-num">Q1</p>
+      <div class="ex-prompt"><p>Single choice: which is a strict weak ordering?</p></div>
+      <ul class="ex-options">
+        <li><div class="opt">Subset inclusion</div><div class="fb">Partial, but incomparable sets are not “equivalent”.</div></li>
+        <li data-correct><div class="opt">Compare by string length</div><div class="fb">Equal lengths form tiers.</div></li>
+        <li><div class="opt">Rock beats scissors beats paper beats rock</div><div class="fb">That is a cycle: not even transitive.</div></li>
+      </ul>
+      <div class="ex-hints"><div class="hint">Think about ties.</div><div class="hint">Which relation has equivalence classes?</div></div>
+      <div class="ex-solution"><p>Length induces tiers, and tiers are ordered. Worked: \(|a|&lt;|b|\) is irreflexive and transitive.</p></div>
+    </div>
+
+    <div class="ex" data-type="multi" id="q-multi">
+      <p class="ex-num">Q2</p>
+      <div class="ex-prompt"><p>Select all that apply: an invariant of find_min after step \(i\).</p></div>
+      <ul class="ex-options">
+        <li data-correct><div class="opt"><code>best &lt; i</code></div><div class="fb">True: best indexes the prefix.</div></li>
+        <li><div class="opt"><code>xs</code> is sorted</div><div class="fb">Nothing is rearranged.</div></li>
+        <li data-correct><div class="opt"><code>xs[best]</code> is minimal in <code>xs[:i]</code></div><div class="fb">The invariant itself.</div></li>
+      </ul>
+      <div class="ex-solution"><p>Two of three.</p></div>
+    </div>
+
+    <div class="ex" data-type="numeric" id="q-num" data-answer="5">
+      <p class="ex-num">Q3</p>
+      <div class="ex-prompt"><p>Numeric: comparisons for 6 elements?</p></div>
+      <div class="fb" data-when="correct">The loop runs 5 times.</div>
+      <div class="fb" data-when="6,7">You counted the first element too.</div>
+      <div class="fb" data-when="other">Count loop iterations.</div>
+      <div class="ex-hints"><div class="hint">One per iteration.</div></div>
+      <div class="ex-solution"><p>\(n-1 = 5\).</p></div>
+    </div>
+
+    <div class="ex" data-type="match" id="q-match" data-categories="total:Strict total order|weak:Strict weak ordering|partial:Partial, not weak|none:Not an order">
+      <p class="ex-num">Q4</p>
+      <div class="ex-prompt"><p>Match each relation to its category.</p></div>
+      <ul class="ex-items">
+        <li data-answer="weak"><div class="item">Length of words</div><div class="fb" data-when="correct">Tiers by length.</div><div class="fb" data-when="total">Two words may share a length.</div><div class="fb" data-when="other">Look at ties.</div></li>
+        <li data-answer="none"><div class="item">Rock-paper-scissors</div><div class="fb" data-when="correct">A cycle.</div><div class="fb" data-when="other">There is a cycle.</div></li>
+      </ul>
+      <div class="ex-solution"><p>Ties give weak; cycles give none.</p></div>
+    </div>
+
+    <div class="ex" data-type="order" id="q-order">
+      <p class="ex-num">Q5</p>
+      <div class="ex-prompt"><p>Arrange the proof of the lemma and exclude the false step.</p></div>
+      <ol class="ex-steps">
+        <li data-pos="1">Assume \(a \prec b\) and \(b \prec a\).</li>
+        <li data-pos="2">Transitivity gives \(a \prec a\).</li>
+        <li data-pos="0" data-why="Totality is not an axiom of a strict partial order.">By totality, one of them must fail.</li>
+        <li data-pos="3">This contradicts irreflexivity.</li>
+      </ol>
+      <div class="fb" data-when="correct">That is the proof.</div>
+      <div class="ex-hints"><div class="hint">Start from the assumption.</div></div>
+      <div class="ex-solution"><p>Assume, apply transitivity, contradict irreflexivity.</p></div>
+    </div>
+
+    <div class="ex" data-type="lines" id="q-lines" data-answer="4">
+      <p class="ex-num">Q6</p>
+      <div class="ex-prompt"><p>Find the bug: this should return the index of the minimum.</p></div>
+      <pre class="py">def find_min(xs):
+    best = 0
+    for i in range(1, len(xs)):
+        if xs[i] &gt; xs[best]:
+            best = i
+    return best</pre>
+      <div class="fb" data-when="correct">The comparison is reversed: it finds the maximum. Try [2, 1].</div>
+      <div class="fb" data-when="5">The assignment is right; the test above it is wrong.</div>
+      <div class="fb" data-when="other">That line is fine.</div>
+    </div>
+
+    <div class="ex" data-type="custom" id="q-custom" data-check="DEMO.check" data-placeholder="e.g. 3 1 2">
+      <p class="ex-num">Q7</p>
+      <div class="ex-prompt"><p>Build an input of three numbers that is already sorted.</p></div>
+    </div>
+  </section>
+
+  <div class="checkpoint" id="cp1">
+    <p class="label">Checkpoint 1</p>
+    <div class="ex" data-type="mcq" id="cp1-a"><p class="ex-num">Q1</p><div class="ex-prompt"><p>True or false: \(n-1\) comparisons are necessary to find the minimum.</p></div>
+      <ul class="ex-options"><li data-correct><div class="opt">True</div><div class="fb">Every other element must lose once.</div></li><li><div class="opt">False</div><div class="fb">Information alone says \(\log_2 n\), but certificates need more.</div></li></ul></div>
+    <div class="ex" data-type="numeric" id="cp1-b" data-answer="1/2" data-tol="0.001"><p class="ex-num">Q2</p><div class="ex-prompt"><p>Probability a random pair is in order (fraction ok)?</p></div>
+      <div class="fb" data-when="correct">By symmetry.</div><div class="fb" data-when="other">Each order is equally likely.</div></div>
+  </div>
+
+  <section class="lsec" id="s03" data-gate="cp1">
+    <h2 class="sec-head"><span class="sec-num">03</span><span class="sec-title">Gated section with a trace, a knowledge view and a plot</span></h2>
+    <p>This section stays closed until the checkpoint is attempted.</p>
+
+    <figure class="fig" id="fig-st">
+      <figcaption><span class="fig-label">Fig. 2</span><span class="fig-caption">Stepper over the listing above.</span></figcaption>
+      <div id="stepper-demo"></div>
+    </figure>
+
+    <figure class="fig" id="fig-pv">
+      <figcaption><span class="fig-label">Fig. 3</span><span class="fig-caption">Knowledge view, interactive: click one element, then another.</span></figcaption>
+      <div id="pv-interactive"></div>
+    </figure>
+    <figure class="fig">
+      <figcaption><span class="fig-label">Fig. 4</span><span class="fig-caption">Knowledge view, driven: relations added one at a time.</span></figcaption>
+      <div class="ex-actions" style="margin:0 0 8px"><button type="button" class="btn" id="pv-less">Fewer relations</button><button type="button" class="btn primary" id="pv-more">More relations</button></div>
+      <div id="pv-driven"></div>
+    </figure>
+    <figure class="fig">
+      <figcaption><span class="fig-label">Fig. 5</span><span class="fig-caption">Twelve unrelated elements, and a single element.</span></figcaption>
+      <div id="pv-12"></div>
+      <div id="pv-1"></div>
+    </figure>
+
+    <figure class="fig">
+      <figcaption><span class="fig-label">Fig. 6</span><span class="fig-caption">Operation counts, logarithmic vertical axis.</span></figcaption>
+      <div id="plot-demo"></div>
+    </figure>
+  </section>
+
+  <section class="ledger" id="ledger">
+    <h2 class="ledger-head">Ledger</h2>
+    <div class="ledger-block"><p class="label">Established</p><ul><li>Placeholder result <span class="tag t-proof">proof</span> <a href="#s03">§03</a></li></ul></div>
+    <div class="ledger-block"><p class="label">Assumptions in force</p><ul><li>Distinct keys.</li></ul></div>
+    <div class="ledger-block"><p class="label">Lenses in use</p><ul><li>Knowledge.</li></ul></div>
+    <div class="ledger-block"><p class="label">Reasoning tools acquired</p><ul><li>Invariants.</li></ul></div>
+    <div class="ledger-block"><p class="label">Open gaps</p><div class="gaps"></div></div>
+    <div class="open-question"><p class="callout-label">Open question</p><p class="oq">What does the next lesson ask?</p></div>
+  </section>
+  <nav class="bridge"><a href="../index.html"><span class="label">Next · Lesson 1</span><span class="bridge-title">A bridge title in large bold type</span></a></nav>
+  <footer class="foot"><p>Order and Sorting from First Principles · Component demo</p></footer>
+</main>
+<script src="../assets/vendor/katex/katex.min.js"></script>
+<script src="../assets/vendor/katex/contrib/auto-render.min.js"></script>
+<script src="../assets/vendor/prism/prism-core.min.js"></script>
+<script src="../assets/vendor/prism/prism-python.min.js"></script>
+<script src="../assets/course.js"></script>
+<script>
+(function () {
+  'use strict';
+  var PY = 'def find_min(xs):\n    best = 0\n    for i in range(1, len(xs)):\n        if xs[i] < xs[best]:\n            best = i\n    return best';
+
+  /* faithful port of find_min: one step per executed line */
+  function findMinTrace(xs) {
+    var steps = [], comparisons = 0, arr = xs.slice(), best, i;
+    function emit(line, extra) {
+      var s = { line: line, arr: arr, counters: { comparisons: comparisons }, vars: {} };
+      for (var k in extra) s[k] = extra[k];
+      steps.push(s);
+    }
+    emit(1, { msg: 'Call <code>find_min</code> on ' + arr.length + ' element(s).', vars: {} });
+    if (arr.length === 0) { emit(6, { msg: 'Empty input: there is nothing to return.' }); return steps; }
+    best = 0;
+    emit(2, { msg: '<code>best = 0</code>: so far the first element is the smallest.', marks: { 0: 'key' }, vars: { best: best } });
+    for (i = 1; i < arr.length; i++) {
+      emit(3, { msg: 'Next index: \\(i = ' + i + '\\).', marks: (function () { var m = {}; m[best] = 'key'; m[i] = 'compare'; return m; })(),
+        regions: [{ from: 0, to: i, kind: 'sorted', label: 'Seen' }], vars: { i: i, best: best } });
+      comparisons++;
+      emit(4, { msg: 'Compare \\(' + arr[i] + ' < ' + arr[best] + '\\). This is comparison number ' + comparisons + '.',
+        marks: (function () { var m = {}; m[best] = 'key'; m[i] = 'compare'; return m; })(),
+        regions: [{ from: 0, to: i, kind: 'sorted', label: 'Seen' }], vars: { i: i, best: best } });
+      if (arr[i] < arr[best]) {
+        best = i;
+        emit(5, { msg: 'Yes: a new minimum.', marks: (function () { var m = {}; m[best] = 'key'; return m; })(),
+          regions: [{ from: 0, to: i + 1, kind: 'sorted', label: 'Seen' }], vars: { i: i, best: best } });
+      }
+    }
+    emit(6, { msg: 'Return index ' + best + ': the minimum is ' + arr[best] + ' after ' + comparisons + ' comparisons.',
+      marks: (function () { var m = {}; m[best] = 'key'; return m; })(), regions: [{ from: 0, to: arr.length, kind: 'sorted', label: 'All seen' }], arrays: [{ label: 'Result', values: [arr[best]], marks: { 0: 'key' } }], vars: { i: i, best: best } });
+    return steps;
+  }
+
+  window.DEMO = {
+    check: function (text) {
+      var r = Course.parseArray(text, { maxN: 3, integers: true });
+      if (!r.ok) return { ok: false, html: r.error };
+      var v = r.values;
+      if (v.length !== 3) return { ok: false, html: 'Use exactly three numbers.' };
+      var ok = v[0] <= v[1] && v[1] <= v[2];
+      return { ok: ok, html: ok ? 'Sorted: \\(' + v.join(' \\le ') + '\\).' : 'Not sorted: \\(' + v[0] + '\\) .. ' + v.join(', ') };
+    }
+  };
+
+  document.addEventListener('DOMContentLoaded', function () {
+    new Course.Stepper(document.getElementById('stepper-demo'), {
+      code: PY, trace: findMinTrace, input: [5, 3, 8, 1, 9, 2],
+      presets: [
+        { label: 'Sorted', values: [1, 2, 3, 4, 5, 6] },
+        { label: 'Reversed', values: [6, 5, 4, 3, 2, 1] },
+        { label: 'Random', make: function (rng, n) { var a = []; for (var i = 0; i < n; i++) a.push(Course.randInt(rng, 0, 99)); return a; } }
+      ],
+      maxN: 8, capReason: 'Eight cells is as many as fit legibly on a phone.', min: 0, max: 99,
+      counters: [{ key: 'comparisons', label: 'Comparisons' }],
+      vars: ['i', 'best'],
+      legend: [{ kind: 'key', label: 'Best so far' }, { kind: 'compare', label: 'Compared' }, { kind: 'sorted', label: 'Seen' }]
+    });
+
+    new Course.PosetView(document.getElementById('pv-interactive'), {
+      labels: ['a', 'b', 'c', 'd'], relations: [], interactive: true, showCount: true, showExtensions: 24, truth: [0, 1, 2, 3]
+    });
+
+    var rel = [[0, 2], [1, 2], [1, 3], [2, 3]];
+    var k = 2;
+    var pvd = new Course.PosetView(document.getElementById('pv-driven'), { labels: ['a', 'b', 'c', 'd'], relations: rel.slice(0, k), showCount: true, showExtensions: 24 });
+    document.getElementById('pv-more').addEventListener('click', function () { if (k < rel.length) { k++; pvd.set(rel.slice(0, k)); } });
+    document.getElementById('pv-less').addEventListener('click', function () { if (k > 0) { k--; pvd.set(rel.slice(0, k)); } });
+
+    new Course.PosetView(document.getElementById('pv-12'), { labels: 'abcdefghijkl'.split(''), relations: [], showCount: true, showExtensions: false });
+    new Course.PosetView(document.getElementById('pv-1'), { labels: ['x'], relations: [], showCount: true });
+
+    var ex = [], nl = [], sq = [], pts = [], rg = [];
+    function lf(n) { var s = 0; for (var i = 2; i <= n; i++) s += Math.log(i) / Math.LN2; return Math.ceil(s); }
+    for (var n = 1; n <= 64; n = n < 8 ? n + 1 : n * 2) {
+      ex.push([n, lf(n)]); sq.push([n, n * n]); nl.push([n, n * Math.log(n) / Math.LN2 + 1]);
+      pts.push([n, lf(n) * 1.3 + n]); rg.push([n, lf(n) + n * 0.6, lf(n) * 1.7 + n * 1.2]);
+    }
+    new Course.Plot(document.getElementById('plot-demo'), {
+      xLabel: 'n', yLabel: 'comparisons', logY: true,
+      series: [
+        { label: 'ceil(log2 n!)', type: 'line', data: ex, tag: 'proof' },
+        { label: 'n log2 n', type: 'line', data: nl, tag: 'heuristic' },
+        { label: 'n²', type: 'dashed', data: sq, tag: 'reference' },
+        { label: 'random inputs', type: 'points', data: pts, ranges: rg, tag: 'empirical' }
+      ]
+    });
+  });
+})();
+</script>
+</body>
+</html>

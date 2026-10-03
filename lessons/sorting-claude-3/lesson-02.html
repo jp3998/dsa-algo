@@ -1,0 +1,462 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lesson 2 · What must a comparison promise?</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;600;800&family=IBM+Plex+Mono:ital,wght@0,400;0,600;1,400&display=swap">
+<link rel="stylesheet" href="assets/vendor/katex/katex.min.css">
+<link rel="stylesheet" href="assets/course.css">
+<style>
+  /* Lesson 2 only: theme tokens, no new colors */
+  .oo { color: var(--c-red); font-weight: 700; text-decoration: underline; text-underline-offset: 3px; }
+  .chk-info { margin: 0 0 var(--sp-3); font-size: var(--fs-small); line-height: 1.7; }
+  .chk-info .label { display: inline-block; min-width: 6.5em; }
+  .chk .tgl { margin-bottom: var(--sp-3); }
+  .chk-tbl-wrap { overflow-x: auto; max-width: 100%; margin-bottom: var(--sp-3); }
+  .chk-tbl { border-collapse: collapse; font-family: var(--font-mono); font-size: var(--fs-small); }
+  .chk-tbl th, .chk-tbl td { border: 1px solid var(--c-ink); min-width: 40px; height: 36px; padding: 2px 8px; text-align: center; font-weight: 400; white-space: nowrap; }
+  .chk-tbl thead th, .chk-tbl tbody th { background: var(--c-gray-1); font-weight: 600; }
+  .chk-tbl tbody th { text-align: right; }
+  .chk-tbl td.yes { font-weight: 700; }
+  .chk-tbl td.bad { background: var(--c-red); color: var(--c-bg); border-color: var(--c-red); font-weight: 700; }
+  .chk-key { margin: var(--sp-2) 0 0; color: var(--c-gray-2); font-size: var(--fs-small); }
+  .chk-verdict { padding: var(--sp-3) var(--sp-4); }
+  .chk-verdict p { margin: 0; }
+  .chk-verdict p + p { margin-top: var(--sp-2); }
+  .chk-verdict.pass { background: var(--c-ink); color: var(--c-bg); }
+  .chk-verdict.pass code { background: transparent; color: var(--c-bg); padding: 0; }
+  .chk-verdict.fail { border: 3px solid var(--c-red); background: var(--c-bg); color: var(--c-ink); padding: calc(var(--sp-3) - 2px) calc(var(--sp-4) - 2px); }
+  .chk-verdict.fail code { background: transparent; padding: 0; }
+  .chk-call { overflow-x: auto; }
+  .chk-words { font-weight: 600; }
+  .sr { position: absolute; left: -9999px; }
+</style>
+</head>
+<body>
+<main class="page" data-lesson="2">
+  <header class="lesson-header">
+    <nav class="lesson-nav">
+      <a href="index.html">← All lessons</a>
+      <a href="lesson-01.html">← Lesson 1</a>
+      <a href="lesson-03.html">Lesson 3 →</a>
+    </nav>
+    <p class="kicker">Lesson 2</p>
+    <h1 class="title">What must a comparison promise?</h1>
+    <p class="meta">Stage 0 · Foundations</p>
+  </header>
+
+  <section class="where" id="where">
+    <p class="label">Where we are</p>
+    <p>Lesson 1 found what “in order” means. A request is a rule about pairs, a relation, and a correct answer is an arrangement with no pair out of order. A relation has such an arrangement exactly when it has no cycle. It has exactly one when it is a strict total order. When it is a strict weak ordering, its answers are its tiers in order, and checking neighbours is enough to recognise one.</p>
+    <p>All of that assumed we could see the whole relation, like the lists of lesson 1’s Table 1. A program cannot. A sorting program is handed the items and a way to ask about two of them at a time, “is x before y?”, and it must work from the answers alone. In Python that question is the <code>&lt;</code> operator. This lesson asks what the code behind <code>&lt;</code> must satisfy, how Python lets us supply it, what goes wrong in practice when it fails, and how to prove that an unusual comparison is safe.</p>
+    <ul class="deps">
+      <li>Depends on: <a href="lesson-01.html#s06">Lesson 1 §06: strict weak orderings and tiers</a>; <a href="lesson-01.html#s05">Lesson 1 §05: the neighbour test</a>.</li>
+    </ul>
+  </section>
+
+  <section class="prereq" id="prereq">
+    <p class="label">Prerequisite check</p>
+    <div class="ex" data-type="mcq" id="l2-pre-1" data-remedy="lesson-01.html#s06">
+      <p class="ex-num">Q1</p>
+      <div class="ex-prompt"><p>Under "noticeably smaller" (\(x \prec y\) iff \(y - x &gt; 1\)), which arrangement passes the neighbour test but is <strong>not</strong> sorted?</p></div>
+      <ul class="ex-options">
+        <li data-correct><div class="opt">2.2, 1.5, 1.0</div><div class="fb">Each neighbour pair differs by less than 1, so no neighbour pair is out of order; but 1.0 ≺ 2.2 and 1.0 comes last.</div></li>
+        <li><div class="opt">1.0, 1.5, 2.2</div><div class="fb">This one is sorted: nothing later is required before anything earlier.</div></li>
+        <li><div class="opt">2.2, 1.0, 1.5</div><div class="fb">The neighbour test catches this: 2.2 and 1.0 are neighbours and 1.0 ≺ 2.2.</div></li>
+        <li><div class="opt">1.5, 1.0, 2.2</div><div class="fb">This is sorted: the only required pair is 1.0 ≺ 2.2, and 1.0 comes first.</div></li>
+      </ul>
+    </div>
+    <div class="ex" data-type="mcq" id="l2-pre-2" data-remedy="lesson-01.html#s06">
+      <p class="ex-num">Q2</p>
+      <div class="ex-prompt"><p>In a strict weak ordering, what is a tier?</p></div>
+      <ul class="ex-options">
+        <li data-correct><div class="opt">A class of elements that are pairwise unrelated; the tiers themselves are totally ordered.</div><div class="fb">That is Lemma 9 of lesson 1. Ties live inside a tier; every pair from different tiers is related.</div></li>
+        <li><div class="opt">An element with nothing below it.</div><div class="fb">That is a minimal element (lesson 1 §04). A tier is a whole class of mutually unrelated elements.</div></li>
+        <li><div class="opt">A chain \(x_1 \prec x_2 \prec \cdots\).</div><div class="fb">A chain's elements are all related to each other. A tier's elements are related to none of each other.</div></li>
+        <li><div class="opt">The set of all elements below a given \(x\).</div><div class="fb">That set can contain related elements. A tier contains only mutually unrelated ones.</div></li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="lsec" id="s01">
+    <h2 class="sec-head"><span class="sec-num">01</span><span class="sec-title">The only question Python asks</span></h2>
+    <p>Python's sorting functions, <code>sorted(xs)</code> and <code>xs.sort()</code>, rearrange elements using one question: <code>a &lt; b</code>. Python's documentation states this guarantee: the sort routines use only <code>&lt;</code> when comparing two objects. So a class that defines nothing but <code>__lt__</code> can be sorted:</p>
+    <figure class="listing" id="lst-1">
+      <figcaption><span class="fig-label">Listing 1</span><span class="fig-caption">A class with only <code>__lt__</code> sorts without complaint.</span></figcaption>
+      <pre class="py">class Box:
+    def __init__(self, v):
+        self.v = v
+
+    def __lt__(self, other):
+        return self.v &lt; other.v
+
+    def __repr__(self):
+        return f"Box({self.v})"
+
+
+print(sorted([Box(3), Box(1), Box(2)]))   # [Box(1), Box(2), Box(3)]</pre>
+    </figure>
+    <p>In lesson 1’s terms, <code>&lt;</code> is the relation \(\prec\), handed to the sort not as a list of pairs but as a function it may call on any pair. The sort calls it on some pairs, not on all of them: asking every pair would cost \(n(n-1)/2\) questions, far more than a good sort spends (lesson 3 counts what Python’s sort actually spends). For the pairs it never asks about, the sort relies on the answers it did get chaining together, the way lesson 1’s neighbour test relies on transitivity to vouch for pairs that are not neighbours.</p>
+    <p>Lesson 1 also showed when such chaining is safe. For a strict weak ordering, “no neighbour pair out of order” really does mean “no pair out of order” (lesson 1, Lemma 11). For a mere partial order it does not: the tasks of request (C) fooled the neighbour test with d, a, b, c. So we should expect a sort’s output to mean something only when the <code>&lt;</code> it is given is a strict weak ordering <span class="tag t-intuition">intuition</span>. (Exactly how a particular sort can be misled depends on which pairs it asks about; §05 shows what Python’s sort does in practice.) And nothing checks this: Python trusts your <code>&lt;</code> and never tests it.</p>
+    <p>So the question becomes concrete: when we hand Python a way to compare, how can we be sure it is a strict weak ordering? Python accepts two kinds of comparison. A <strong>key function</strong> says <em>what</em> to compare; a <strong>comparison function</strong> says <em>how</em> two elements compare. We take them in turn, starting with keys, because keys turn out to be safe by construction.</p>
+  </section>
+
+  <section class="lsec" id="s02">
+    <h2 class="sec-head"><span class="sec-num">02</span><span class="sec-title">Keys always give a well-behaved order</span></h2>
+    <p>Real data are records: people, tasks, intervals. We rarely sort them by "the record"; we sort by some property of it: age, deadline, length. Python's <code>key=</code> parameter does this: <code>sorted(people, key=age)</code> computes <code>age(p)</code> once for each element and compares those values with <code>&lt;</code>.</p>
+    <p>Notice what is compared. Sorting people by age never compares two people; it compares their ages, which are numbers. The order on people is borrowed from the order on numbers. Any such borrowed order deserves a name.</p>
+    <div class="callout def"><p class="callout-label">Definition (relation induced by a key)</p><p>Let \(f\) map each element of \(X\) to a set \(K\) of keys that carries a strict total order \(&lt;\). The relation <strong>induced by</strong> \(f\) is \(x \prec_f y\) iff \(f(x) &lt; f(y)\).</p></div>
+    <p>Request (B) of lesson 1 is a borrowed order of exactly this kind, with the key “age”: Dee ≺ Ben because 22 &lt; 25, and Ana and Cy tie because their keys are equal, 30 = 30.</p>
+    <p>Two questions about borrowed orders. Is a borrowed order always a strict weak ordering, the kind of rule lesson 1 showed sorting needs? And does every strict weak ordering arise this way, or are there well-behaved rules that no key can produce? Theorem 1 settles both: a borrowed order is always a strict weak ordering, and every strict weak ordering is a borrowed order.</p>
+
+    <div class="callout theorem" id="thm-keys"><p class="callout-label">Theorem 1 (keys give exactly the strict weak orderings)</p><p>(a) Every relation induced by a key is a strict weak ordering; its tiers are the sets of elements with equal keys. (b) Conversely, every strict weak ordering on a finite set is induced by some key.</p></div>
+    <div class="callout proof">
+      <p class="callout-label">Proof</p>
+      <p>(a) Irreflexive: \(f(x) &lt; f(x)\) never holds. Transitive: \(f(x) &lt; f(y) &lt; f(z)\) gives \(f(x) &lt; f(z)\). Ties: since \(&lt;\) is total on \(K\), "neither \(f(x) &lt; f(y)\) nor \(f(y) &lt; f(x)\)" means exactly \(f(x) = f(y)\), and equality is transitive. So \(\sim\) is transitive and its classes are the sets of equal keys.</p>
+      <p>(b) By lesson 1, Lemma 9, the tiers line up as \(T_1, T_2, \ldots, T_k\), and \(x \prec y\) holds exactly when \(x\)'s tier comes before \(y\)'s. So the key \(f(x) = i\) for \(x \in T_i\) induces \(\prec\).</p>
+    </div>
+    <p>Read it back. Part (a) is the reason <code>key=</code> is safe: <em>whatever</em> function you write, the induced order is a strict weak ordering, <strong>provided the key values themselves are totally ordered by <code>&lt;</code></strong>. That proviso is exactly where things go wrong in <a href="#s05">§05</a>. Part (b) says nothing is lost by thinking of every well-behaved comparison as "compare some key". We will use (b) in <a href="#s06">§06</a> to prove that a strange-looking comparator is well behaved, by finding its hidden key.</p>
+    <p>Ties keep their input order: <code>sorted(["pear", "fig", "kiwi", "plum", "apple"], key=len)</code> returns <code>['fig', 'pear', 'kiwi', 'plum', 'apple']</code>, with the three 4-letter words in their original order. Python guarantees this property, called <strong>stability</strong>; lesson 7 shows why anyone needs it.</p>
+  </section>
+
+  <section class="lsec" id="s03">
+    <h2 class="sec-head"><span class="sec-num">03</span><span class="sec-title">Several keys: lexicographic order</span></h2>
+    <p>Often one property does not decide. Two people have the same age, and we want the tie broken by name. We need an order on pairs (age, name) that compares ages first and looks at names only on a tie.</p>
+
+    <p>A dictionary already works this way. The first letter decides; only when the first letters agree does the second letter matter, and so on. The order is named after the dictionary: <em>lexicographic</em>, from “lexicon”. For pairs it reads:</p>
+    <div class="callout def"><p class="callout-label">Definition (lexicographic order on pairs)</p><p>Given strict total orders on the first and on the second coordinates, \((p, q) &lt;_{\text{lex}} (p', q')\) iff \(p &lt; p'\), or \(p = p'\) and \(q &lt; q'\).</p></div>
+    <p>If the pair (age, name) could be treated as one single key, Theorem 1 would make the borrowed order safe at once. Theorem 1 asks one thing of its keys: that they are compared by a strict total order. So that is what we must check for pairs compared lexicographically.</p>
+    <div class="callout theorem" id="thm-lex"><p class="callout-label">Theorem 2 (lexicographic order is total)</p><p>If both coordinate orders are strict total orders, \(&lt;_{\text{lex}}\) is a strict total order on pairs.</p></div>
+    <div class="callout proof">
+      <p class="callout-label">Proof</p>
+      <p>Irreflexive: \((p,q) &lt;_{\text{lex}} (p,q)\) would need \(p &lt; p\) or \(q &lt; q\).</p>
+      <p>Transitive: let \((p_1,q_1) &lt;_{\text{lex}} (p_2,q_2) &lt;_{\text{lex}} (p_3,q_3)\). The first step gives \(p_1 \le p_2\) and the second \(p_2 \le p_3\). If either step was decided by the first coordinate, then \(p_1 &lt; p_3\) and we are done. Otherwise both steps were ties on the first coordinate, \(p_1 = p_2 = p_3\), and \(q_1 &lt; q_2 &lt; q_3\) gives \(q_1 &lt; q_3\).</p>
+      <p>Total: two different pairs differ in the first coordinate, which decides, or agree there and differ in the second, which decides.</p>
+    </div>
+    <p>The same argument extends to triples and longer sequences by induction. Python compares tuples (and lists and strings) this way: find the first position where they differ, and compare there; if one is a prefix of the other, the shorter is smaller. So <code>key=lambda r: (r.age, r.name)</code> is a key into a totally ordered set, and Theorem 1 makes the induced order a strict weak ordering whose tiers are records with equal age <em>and</em> name.</p>
+    <p>Descending order on a numeric field is a negated key: <code>key=lambda t: (-t[0], t[1])</code> sorts by score descending, then name ascending. On <code>[(90, "Lee"), (85, "Ana"), (90, "Bo"), (70, "Cy")]</code> it gives <code>[(90, 'Bo'), (90, 'Lee'), (85, 'Ana'), (70, 'Cy')]</code>.</p>
+    <details class="deeper common"><summary>Common question · How do I sort descending by a string?</summary><div class="deeper-body">
+      <p>You cannot negate a string. <code>reverse=True</code> reverses the whole order, so it makes <em>every</em> level descending: with <code>key=lambda t: (t[0], t[1])</code> and <code>reverse=True</code> the example above gives <code>[(90, 'Lee'), (90, 'Bo'), (85, 'Ana'), (70, 'Cy')]</code>: names descending too. For mixed directions on strings, either sort twice using stability (lesson 7 explains why that works), or write a comparison function (<a href="#s04">§04</a>).</p>
+    </div></details>
+    <div class="note"><p class="callout-label">Note</p><p>Tuple keys compare later components <strong>only on ties</strong>, and then those components must support <code>&lt;</code>. A heap or list of <code>(priority, record)</code> tuples works until two priorities are equal; then Python compares the records. If they are dictionaries, that raises <code>TypeError: '&lt;' not supported between instances of 'dict' and 'dict'</code>. Exercise E2 below is this bug.</p></div>
+  </section>
+
+  <div class="checkpoint" id="cp1">
+    <p class="label">Checkpoint 1</p>
+    <div class="ex" data-type="mcq" id="l2-cp1-a">
+      <p class="ex-num">Q1</p>
+      <div class="ex-prompt"><p>You want words sorted by length, and words of equal length alphabetically. Which call does it?</p></div>
+      <ul class="ex-options">
+        <li><div class="opt"><code>sorted(words, key=len)</code></div><div class="fb">Ties keep their <em>input</em> order (stability), not alphabetical order. <code>['pear', 'fig', 'kiwi', 'plum', 'apple']</code> gives <code>['fig', 'pear', 'kiwi', 'plum', 'apple']</code>: pear before kiwi.</div></li>
+        <li data-correct><div class="opt"><code>sorted(words, key=lambda w: (len(w), w))</code></div><div class="fb">Lexicographic: length decides, and the word itself decides only among words of equal length. Result: <code>['fig', 'kiwi', 'pear', 'plum', 'apple']</code>.</div></li>
+        <li><div class="opt"><code>sorted(words, key=lambda w: (w, len(w)))</code></div><div class="fb">The first coordinate decides whenever it differs, and different words always differ. Length is never consulted; this is plain alphabetical order.</div></li>
+        <li><div class="opt"><code>sorted(words, key=lambda w: len(w) + w)</code></div><div class="fb"><code>len(w) + w</code> adds an int to a str and raises <code>TypeError</code>. Combining criteria is what tuples are for.</div></li>
+      </ul>
+    </div>
+    <div class="ex" data-type="mcq" id="l2-cp1-b">
+      <p class="ex-num">Q2</p>
+      <div class="ex-prompt"><p>Records are <code>(score, name)</code>. You want the highest score first and, among equal scores, names A to Z. Which works?</p></div>
+      <ul class="ex-options">
+        <li data-correct><div class="opt"><code>key=lambda t: (-t[0], t[1])</code></div><div class="fb">Negating the score reverses only that level.</div></li>
+        <li><div class="opt"><code>key=lambda t: (t[0], t[1]), reverse=True</code></div><div class="fb"><code>reverse=True</code> reverses the whole lexicographic order, so names among equal scores come out Z to A.</div></li>
+        <li><div class="opt"><code>key=lambda t: (-t[0], -t[1])</code></div><div class="fb"><code>-t[1]</code> negates a string and raises <code>TypeError</code>. And the name should not be reversed anyway.</div></li>
+        <li><div class="opt"><code>key=lambda t: t[0], reverse=True</code></div><div class="fb">Equal scores keep their input order, not alphabetical order.</div></li>
+      </ul>
+    </div>
+  </div>
+
+  <section class="lsec" id="s04" data-gate="cp1">
+    <h2 class="sec-head"><span class="sec-num">04</span><span class="sec-title">Comparators and their contract</span></h2>
+    <p>Keys are safe, but some rules are easier to state about a pair than about a single element. All of lesson 1’s rules were of that kind, and here is a Python example, which §06 takes up. To arrange numbers so that writing them side by side gives the largest possible number, the natural rule compares two numbers \(a\) and \(b\) by trying both concatenations, \(ab\) and \(ba\). No key is in sight.</p>
+    <p>For rules like this, Python accepts a comparison function through <code>functools.cmp_to_key(cmp)</code>. The function <code>cmp(a, b)</code> returns a negative number if a should come first, a positive number if b should, and 0 for a tie. <code>cmp_to_key</code> wraps each element in an object whose <code>&lt;</code> calls <code>cmp(a, b) &lt; 0</code>. Since the sort only ever asks <code>&lt;</code>, the relation the sort sees is</p>
+    <div class="eq-row"><div class="eq">\[ a \prec b \iff \texttt{cmp}(a, b) &lt; 0. \]</div></div>
+    <p>By §01, this relation must be a strict weak ordering. One further condition is plain hygiene: swapping the arguments should flip the sign, so that a positive answer means what it says. Together these form the contract that every comparison function must honour.</p>
+    <div class="callout def"><p class="callout-label">Definition (comparator contract)</p><p>A comparison function is <strong>valid</strong> if the relation \(a \prec b \iff \texttt{cmp}(a,b) &lt; 0\) is a strict weak ordering, and its signs agree: \(\texttt{cmp}(a,b) &lt; 0\) exactly when \(\texttt{cmp}(b,a) &gt; 0\).</p></div>
+    <p>Unlike a key, a comparison function can break the contract silently. How would you find out? On a finite sample of values the contract can be checked by brute force: test irreflexivity on every element, transitivity on every triple, and transitivity of ties on every triple. A counterexample is a triple that proves the comparison broken. Passing the check on a sample is evidence about other values, not proof. Listing 2 is the check, and <a href="#fig-1">Fig. 1</a> runs it on seven comparisons.</p>
+    <figure class="listing" id="lst-2">
+      <figcaption><span class="fig-label">Listing 2</span><span class="fig-caption">Checking a relation on a finite sample. Returns None, or the first counterexample.</span></figcaption>
+      <pre class="py">def check_strict_weak(values, before):
+    """Brute-force check of the strict-weak-ordering axioms on a sample."""
+    for x in values:
+        if before(x, x):
+            return ("not irreflexive", x)
+    for x in values:
+        for y in values:
+            for z in values:
+                if before(x, y) and before(y, z) and not before(x, z):
+                    return ("not transitive", x, y, z)
+
+    def tie(x, y):
+        return not before(x, y) and not before(y, x)
+
+    for x in values:
+        for y in values:
+            for z in values:
+                if tie(x, y) and tie(y, z) and not tie(x, z):
+                    return ("ties not transitive", x, y, z)
+    return None</pre>
+    </figure>
+    <figure class="fig" id="fig-1">
+      <figcaption><span class="fig-label">Fig. 1</span><span class="fig-caption">Comparator checker. Pick a comparison and a sample. The table shows every answer to "is the row before the column?"; the verdict is the output of <code>check_strict_weak</code>, computed by a line-by-line port of Listing 2.</span></figcaption>
+      <div id="checker"></div>
+    </figure>
+  </section>
+
+  <section class="lsec" id="s05" data-gate="cp1">
+    <h2 class="sec-head"><span class="sec-num">05</span><span class="sec-title">What happens when the promise breaks</span></h2>
+    <p>Four of the seven comparisons in <a href="#fig-1">Fig. 1</a> fail the check, and each is one that people actually write: a tolerance for floats that are “close enough”, plain <code>&lt;</code> on floats that include NaN, a cyclic “beats”, and <code>&lt;</code> on sets. What does Python do with them? Start with NaN.</p>
+    <div class="predict" id="pr-nan">
+      <p class="label">Predict first</p>
+      <div class="ex" data-type="mcq" id="l2-pr-nan">
+        <div class="ex-prompt"><p><code>nan = float("nan")</code>. What does <code>sorted([3.0, nan, 1.0, 2.0])</code> return?</p></div>
+        <ul class="ex-options">
+          <li><div class="opt"><code>[1.0, 2.0, 3.0, nan]</code></div><div class="fb">A natural guess: "NaN goes last". See below.</div></li>
+          <li><div class="opt"><code>[nan, 1.0, 2.0, 3.0]</code></div><div class="fb">Python has no rule putting NaN first. See below.</div></li>
+          <li data-correct><div class="opt"><code>[3.0, nan, 1.0, 2.0]</code>, unchanged</div><div class="fb">Yes, surprisingly. See below.</div></li>
+          <li><div class="opt">It raises an error.</div><div class="fb">Python raises no error. See below.</div></li>
+        </ul>
+      </div>
+      <div class="reveal">
+        <p>CPython returns the list <strong>unchanged</strong>: <code>[3.0, nan, 1.0, 2.0]</code> <span class="tag t-empirical">empirical</span>. Every comparison involving NaN is false (<code>nan &lt; x</code> and <code>x &lt; nan</code> are both <code>False</code>), so the sort sees NaN as <em>tied</em> with every number. Ties with NaN chain any two numbers together: 1.0 ∼ NaN ∼ 3.0, yet 1.0 &lt; 3.0. That is a broken "ties are transitive" axiom, and lesson 1, <a href="lesson-01.html#s06">§06</a> showed that the neighbour test then lies.</p>
+      </div>
+    </div>
+    <p>The output depends on where NaN starts <span class="tag t-empirical">empirical</span>:</p>
+    <figure class="fig">
+      <figcaption><span class="fig-label">Table 1</span><span class="fig-caption">CPython 3.12.3. Same four values, three starting orders.</span></figcaption>
+      <table class="tbl"><thead><tr><th>Input</th><th><code>sorted(input)</code></th></tr></thead><tbody>
+        <tr><td><code>[3.0, nan, 1.0, 2.0]</code></td><td><code>[3.0, nan, 1.0, 2.0]</code></td></tr>
+        <tr><td><code>[nan, 3.0, 1.0, 2.0]</code></td><td><code>[nan, 1.0, 2.0, 3.0]</code></td></tr>
+        <tr><td><code>[3.0, 1.0, nan, 2.0]</code></td><td><code>[1.0, 2.0, 3.0, nan]</code></td></tr>
+      </tbody></table>
+    </figure>
+    <p>The same happens with <code>max</code> and <code>min</code>, which use comparisons too: <code>max([nan, 1.0, 2.0])</code> is <code>nan</code>, but <code>max([1.0, nan, 2.0])</code> is <code>2.0</code>.</p>
+    <p>The other broken comparisons behave the same way: no error, and an answer that depends on the starting order.</p>
+    <figure class="fig">
+      <figcaption><span class="fig-label">Table 2</span><span class="fig-caption">CPython 3.12.3, broken comparisons. Each output has a pair that is out of order, marked in red (bold and underlined).</span></figcaption>
+      <table class="tbl"><thead><tr><th>Comparison</th><th>Input</th><th>Output</th><th>What is wrong</th></tr></thead><tbody>
+        <tr><td>tolerance 1 (<code>cmp_to_key</code>)</td><td><code>[3.0, 2.4, 1.8, 1.2, 0.6]</code></td><td><code>[<span class="oo">3.0</span>, 2.4, 1.8, 1.2, <span class="oo">0.6</span>]</code></td><td>unchanged: every neighbour pair is a "tie", yet 0.6 is more than 1 below 3.0</td></tr>
+        <tr><td>tolerance 1</td><td><code>[2.2, 1.0, 1.5]</code></td><td><code>[1.0, 2.2, 1.5]</code></td><td>nothing (lucky): this is a valid order of the partial order</td></tr>
+        <tr><td>rock–paper–scissors (<code>cmp_to_key</code>)</td><td><code>['rock', 'paper', 'scissors']</code></td><td><code>[<span class="oo">'scissors'</span>, 'paper', <span class="oo">'rock'</span>]</code></td><td>scissors before rock, but rock beats scissors</td></tr>
+        <tr><td>rock–paper–scissors</td><td><code>['rock', 'scissors', 'paper']</code></td><td><code>[<span class="oo">'rock'</span>, 'scissors', <span class="oo">'paper'</span>]</code></td><td>paper after rock, but paper beats rock</td></tr>
+        <tr><td>sets (<code>&lt;</code> is proper subset)</td><td><code>[{1, 2}, {3}, {1}]</code></td><td><code>[<span class="oo">{1, 2}</span>, {3}, <span class="oo">{1}</span>]</code></td><td>{1} ⊂ {1, 2} but comes after it</td></tr>
+      </tbody></table>
+    </figure>
+    <p>In every run the output was a rearrangement of the input: nothing lost or duplicated <span class="tag t-empirical">empirical</span>. Python's documentation makes no promise about which rearrangement you get when the comparison is inconsistent, so do not rely on any of these outputs.</p>
+    <p>Why does a sort fall into this? It is the failure §01 warned about <span class="tag t-intuition">intuition</span>. A sort never asks about every pair; it relies on the answers it got chaining together. When ties do not chain, a run of “ties” can connect two elements that are in fact ordered, as 3.0 ∼ 2.4 ∼ 1.8 ∼ 1.2 ∼ 0.6 connects 3.0 to 0.6 under the tolerance comparison, and the sort never asks about the pair that would expose it. The algorithm is not at fault; its precondition was violated. (Some languages detect some violations: Java’s library sort sometimes throws “Comparison method violates its general contract!”. Python does not.)</p>
+    <p>The repairs follow from Theorem 1: turn the broken comparison into a key into a totally ordered set, and the result is a strict weak ordering by construction.</p>
+    <figure class="listing" id="lst-3">
+      <figcaption><span class="fig-label">Listing 3</span><span class="fig-caption">Repairs that turn a broken comparison into a key.</span></figcaption>
+      <pre class="py">import math
+
+nan = float("nan")
+data = [3.0, nan, 1.0, 2.0]
+print(sorted(data, key=lambda x: (math.isnan(x), x)))   # [1.0, 2.0, 3.0, nan]
+
+
+def bucket(x, eps=1.0):
+    """Tolerance done safely: round to a grid, then compare exactly."""
+    return round(x / eps)</pre>
+    </figure>
+    <p>The NaN key puts every number in the tier <code>(False, value)</code> and every NaN in the tier <code>(True, nan)</code>, which comes last. Within the NaN tier all elements tie, and that is consistent. The grid key is a genuine key, so it is a strict weak ordering, but it changes the meaning: 0.49 and 0.51 land in different buckets though they are close, while 0.51 and 1.49 land in the same one. That trade-off is unavoidable: "approximately equal" is not transitive, so no strict weak ordering can capture it exactly.</p>
+  </section>
+
+  <div class="checkpoint" id="cp2">
+    <p class="label">Checkpoint 2</p>
+    <div class="ex" data-type="mcq" id="l2-cp2-a">
+      <p class="ex-num">Q3</p>
+      <div class="ex-prompt"><p>Under the tolerance-1 comparator, CPython returned <code>[3.0, 2.4, 1.8, 1.2, 0.6]</code> unchanged. Which statement explains it?</p></div>
+      <ul class="ex-options">
+        <li data-correct><div class="opt">Every neighbour pair differs by less than 1, so each is a "tie"; ties are not transitive here, so the arrangement passes every check the sort makes while 0.6 and 3.0 are out of order.</div><div class="fb">This is lesson 1's "noticeably smaller" trap: the neighbour test is only valid when ties chain.</div></li>
+        <li><div class="opt">Python's sort has a bug with floats.</div><div class="fb">With a valid comparison Python sorts floats correctly. The comparator broke the precondition.</div></li>
+        <li><div class="opt">The comparator is not transitive.</div><div class="fb">Its "strictly before" part <em>is</em> transitive: if b − a ≥ 1 and c − b ≥ 1, then c − a ≥ 2. What fails is transitivity of <em>ties</em>: 3.0 ∼ 2.4 ∼ 1.8 but 1.8 ≺ 3.0.</div></li>
+        <li><div class="opt">The list was already sorted under the comparator.</div><div class="fb">Under the comparator, 0.6 ≺ 3.0 (they differ by 2.4 ≥ 1), and 0.6 comes after 3.0. The arrangement is not sorted; it merely passes the neighbour test.</div></li>
+      </ul>
+    </div>
+    <div class="ex" data-type="lines" id="l2-cp2-b" data-answer="4">
+      <p class="ex-num">Q4</p>
+      <div class="ex-prompt"><p>This prints <code>[3, 1, 2]</code>. Click the line that causes it.</p></div>
+      <pre class="py">from functools import cmp_to_key
+
+def by_value(a, b):
+    return a &lt; b
+
+print(sorted([3, 1, 2], key=cmp_to_key(by_value)))</pre>
+      <div class="fb" data-when="correct"><code>a &lt; b</code> returns a bool: <code>True</code> (= 1, "b first") or <code>False</code> (= 0, "tie"); it is never negative. The sort's relation \(\texttt{cmp}(a,b) &lt; 0\) is therefore empty: every element ties with every other, everything is one tier, and stability returns the input order. A comparator must return a negative number when a comes first: <code>return -1 if a &lt; b else (1 if b &lt; a else 0)</code>, or simply use <code>key=</code>.</div>
+      <div class="fb" data-when="6">The call is fine; <code>cmp_to_key</code> wraps a valid comparator correctly. What does <code>by_value</code> return?</div>
+      <div class="fb" data-when="3">The signature is right: a comparator takes two arguments.</div>
+      <div class="fb" data-when="other">What values can <code>by_value</code> return, and which of them means "a comes first"?</div>
+      <div class="ex-hints"><div class="hint">What does <code>cmp_to_key</code> treat as "a before b"?</div><div class="hint">Can <code>a &lt; b</code> ever be negative?</div></div>
+      <div class="ex-solution"><p>The sort only asks "is cmp(a, b) &lt; 0?". A bool is never negative, so no element is ever before another. With all elements tied, Python's stable sort leaves them in input order.</p></div>
+    </div>
+  </div>
+
+  <section class="lsec" id="s06" data-gate="cp2">
+    <h2 class="sec-head"><span class="sec-num">06</span><span class="sec-title">A comparison whose transitivity is not obvious</span></h2>
+    <p>Now the rule promised in §04. Given non-negative integers, arrange them so that writing them one after another forms the largest possible number. For <code>[3, 30, 34, 5, 9]</code> the answer is <code>9534330</code>. Before reaching for a pairwise rule, try the obvious key.</p>
+    <div class="predict" id="pr-concat">
+      <p class="label">Predict first</p>
+      <div class="ex" data-type="mcq" id="l2-pr-concat">
+        <div class="ex-prompt"><p>Does sorting the numbers as strings in descending order give the answer?</p></div>
+        <ul class="ex-options">
+          <li><div class="opt">Yes.</div><div class="fb">Try it below.</div></li>
+          <li data-correct><div class="opt">No.</div><div class="fb">Right; here is the failure.</div></li>
+        </ul>
+      </div>
+      <div class="reveal">
+        <p>Descending string order gives 9, 5, 34, 30, 3, that is <code>9534303</code>, smaller than <code>9534330</code>. The culprit is 3 versus 30. As strings, <code>"30" &gt; "3"</code> (a longer string with the same prefix is larger), but \(330 &gt; 303\): 3 should come first.</p>
+      </div>
+    </div>
+    <p>So the order of the strings themselves is the wrong key. The right comparison for a pair is the one the problem actually asks about: put \(a\) before \(b\) when writing \(a\) then \(b\) gives the larger number. Write \(ab\) for the number formed by \(a\) followed by \(b\).</p>
+    <div class="eq-row"><div class="eq">\[ a \prec b \iff ab &gt; ba \]</div></div>
+    <p>For example \(3 \prec 30\) because \(330 &gt; 303\). In code this is <code>a + b &gt; b + a</code> on the decimal strings. (The two strings have the same length, and for digit strings of the same length, string order and numeric order agree.)</p>
+    <p>Before sorting by this rule we must know it honours the contract of §04. Irreflexive, yes: \(aa &gt; aa\) is false. Transitive? Suppose \(ab &gt; ba\) and \(bc &gt; cb\). Must \(ac &gt; ca\)? Each comparison glues a different pair of numbers together in two different ways, and there is no obvious quantity that grows along the chain. Pushing digit strings around directly goes nowhere.</p>
+    <p>Theorem 1(b) suggests a different route. If the rule is a strict weak ordering, some key produces it, and if we can find that key, Theorem 1(a) proves the rule safe at once. So look for the key: a number attached to each \(a\) that grows exactly when \(a\) should come earlier.</p>
+    <div class="callout theorem" id="thm-concat"><p class="callout-label">Theorem 3 (the hidden key)</p><p>Let \(|a|\) be the number of decimal digits of \(a\) and \(f(a) = \dfrac{a}{10^{|a|} - 1}\). Then \(ab &gt; ba \iff f(a) &gt; f(b)\). Hence \(\prec\) is induced by a key (sort by \(f\), largest first) and is a strict weak ordering.</p></div>
+    <div class="callout proof">
+      <p class="callout-label">Proof</p>
+      <p>As numbers, \(ab = a \cdot 10^{|b|} + b\) and \(ba = b \cdot 10^{|a|} + a\). So</p>
+      <div class="eq">\[ ab &gt; ba \iff a\,10^{|b|} + b &gt; b\,10^{|a|} + a \iff a\,(10^{|b|} - 1) &gt; b\,(10^{|a|} - 1). \]</div>
+      <p>Both \(10^{|a|} - 1\) and \(10^{|b|} - 1\) are positive, so dividing by their product keeps the direction: \(ab &gt; ba \iff f(a) &gt; f(b)\). Ordering by \(f\) in decreasing order is ordering by the key \(-f(a)\), so Theorem 1(a) applies.</p>
+    </div>
+    <p>Read it back. \(f(a)\) is the value of the infinitely repeated decimal \(0.aaa\ldots\): \(f(3) = 0.333\ldots = 1/3\), \(f(30) = 0.3030\ldots = 30/99\), \(f(34) = 0.3434\ldots = 34/99\). The comparison "which concatenation is larger" is secretly "which infinite repetition is larger". Sanity check on the example: \(f(9) = 1\), \(f(5) = 0.555\ldots\), \(f(34) = 0.3434\ldots\), \(f(3) = 0.333\ldots\), \(f(30) = 0.3030\ldots\), giving 9, 5, 34, 3, 30, which is <code>9534330</code>. Ties are real: \(f(12) = 12/99 = 4/33 = 1212/9999 = f(1212)\), and indeed \(12|1212 = 121212 = 1212|12\).</p>
+    <p>Knowing the rule is safe tells us that sorting by it is meaningful. It does not yet tell us that the sorted arrangement forms the <em>largest</em> number; that is a separate claim, and it needs its own argument.</p>
+    <div class="callout theorem" id="thm-concat-max"><p class="callout-label">Theorem 4 (sorting gives the maximum)</p><p>Every arrangement sorted by \(\prec\) forms the largest possible number.</p></div>
+    <div class="callout proof">
+      <p class="callout-label">Proof</p>
+      <p>Take an arrangement that is <strong>not</strong> sorted. Since \(\prec\) is a strict weak ordering, lesson 1, Lemma 11 gives a neighbour pair out of order: \(b\) immediately followed by \(a\) with \(a \prec b\), that is \(ab &gt; ba\). Swap them. The digits before and after the pair do not move, and the block \(ba\) in the middle becomes \(ab\): the same length, and larger. So the whole number grows: a non-sorted arrangement is never the largest.</p>
+      <p>Among the finitely many arrangements one is the largest; by what we just showed it is sorted. Finally, all sorted arrangements give the same number. They differ only in the order inside tiers (lesson 1, Theorem 10), elements of a tier sit next to each other, and for two elements \(a, b\) of the same tier \(ab = ba\), so swapping neighbours inside a tier never changes the digits. Any order of a tier can be reached by such swaps. So every sorted arrangement gives the maximum.</p>
+    </div>
+    <p>This is an <strong>exchange argument</strong>: show that any solution breaking the rule can be strictly improved by exchanging two neighbouring elements. It is the standard way to prove that a greedy "sort by the right key, then take them in order" strategy is optimal, and it returns in lesson 21.</p>
+    <figure class="listing" id="lst-4">
+      <figcaption><span class="fig-label">Listing 4</span><span class="fig-caption">Largest number by concatenation. Precondition: at least one number, all non-negative.</span></figcaption>
+      <pre class="py">from functools import cmp_to_key
+
+
+def largest_number(nums):
+    strs = [str(x) for x in nums]
+
+    def cmp(a, b):
+        # a goes first iff a+b &gt; b+a. A strict weak ordering: the key is a / (10**len(a) - 1).
+        if a + b &gt; b + a:
+            return -1
+        if a + b &lt; b + a:
+            return 1
+        return 0
+
+    strs.sort(key=cmp_to_key(cmp))
+    result = "".join(strs)
+    return "0" if result[0] == "0" else result   # all zeros: "00" must become "0"
+
+
+print(largest_number([3, 30, 34, 5, 9]))   # 9534330
+print(largest_number([0, 0]))              # 0</pre>
+    </figure>
+    <p>The proof also hands us a key directly, so <code>cmp_to_key</code> is not needed: <code>sorted(strs, key=lambda s: Fraction(int(s), 10 ** len(s) - 1), reverse=True)</code> with <code>from fractions import Fraction</code>. Use <code>Fraction</code>, not floats: a float keeps only about 16 significant digits, so for long numbers two different keys can round to the same float.</p>
+  </section>
+
+  <section class="lsec" id="s07" data-gate="cp2">
+    <h2 class="sec-head"><span class="sec-num">07</span><span class="sec-title">In Python: summary of the contract</span></h2>
+    <ul>
+      <li><code>sorted</code> and <code>list.sort</code> ask only <code>&lt;</code>. The result is meaningful when that <code>&lt;</code> is a strict weak ordering; otherwise you get some rearrangement, with no error.</li>
+      <li>A <code>key=</code> function always yields a strict weak ordering, provided the key values are totally ordered: plain numbers without NaN, strings, and tuples of such values.</li>
+      <li>Tuples break ties lexicographically. Later components are compared only on ties, and then they must support <code>&lt;</code>.</li>
+      <li><code>cmp_to_key(cmp)</code> is the tool for pairwise rules. The contract: \(\texttt{cmp}(a,b) &lt; 0\) must be a strict weak ordering, with consistent signs. Check a comparator on a sample with <code>check_strict_weak</code> (Listing 2) when in doubt.</li>
+      <li>To prove a pairwise rule is well behaved, look for a key (Theorem 1(b)). To prove sorting by it is optimal for some goal, use an exchange argument.</li>
+    </ul>
+  </section>
+
+  <section class="lsec" id="exercises">
+    <h2 class="ledger-head">Exercises</h2>
+
+    <div class="ex" data-type="numeric" id="l2-ex-12-121" data-answer="12121">
+      <p class="ex-num">E1</p>
+      <div class="ex-prompt"><p>What does <code>largest_number([12, 121])</code> return? Type the digits.</p></div>
+      <div class="fb" data-when="correct">Compare the two concatenations: 12|121 = 12121 and 121|12 = 12112. The first is larger, so 12 goes first. Check with the key: \(f(12) = 12/99 \approx 0.1212\) and \(f(121) = 121/999 \approx 0.1211\).</div>
+      <div class="fb" data-when="12112">That puts 121 first, perhaps because <code>"121" &gt; "12"</code> as strings. The rule compares concatenations, not the numbers or strings themselves: 12121 &gt; 12112.</div>
+      <div class="fb" data-when="other">Only two arrangements exist. Write both concatenations and compare them.</div>
+    </div>
+
+    <div class="ex" data-type="lines" id="l2-ex-dict-tie" data-answer="2">
+      <p class="ex-num">E2</p>
+      <div class="ex-prompt"><p>This raises <code>TypeError</code>. Click the line responsible.</p></div>
+      <pre class="py">tasks = [(2, {"id": 1}), (1, {"id": 2}), (2, {"id": 7})]
+tasks.sort()
+for priority, task in tasks:
+    print(priority, task["id"])</pre>
+      <div class="fb" data-when="correct">Sorting the tuples compares them lexicographically. Two tuples have priority 2, so Python goes on to compare their dictionaries, and dicts do not support <code>&lt;</code>: <code>TypeError: '&lt;' not supported between instances of 'dict' and 'dict'</code>. Fix: <code>tasks.sort(key=lambda t: t[0])</code>, or add a unique tie-breaker such as an index: <code>(priority, index, task)</code>.</div>
+      <div class="fb" data-when="1">Storing <code>(priority, record)</code> pairs is a common and fine pattern. The problem is how they are compared.</div>
+      <div class="fb" data-when="4"><code>task["id"]</code> is valid for these dicts. The error happens before the loop runs.</div>
+      <div class="fb" data-when="other">Which line compares tuples, and what happens when the first components are equal?</div>
+    </div>
+
+    <div class="ex" data-type="mcq" id="l2-ex-sets">
+      <p class="ex-num">E3</p>
+      <div class="ex-prompt"><p><code>sorted([{1, 2}, {3}, {1}])</code> returns <code>[{1, 2}, {3}, {1}]</code> unchanged. Which axiom does <code>&lt;</code> on sets break, and where?</p></div>
+      <ul class="ex-options">
+        <li data-correct><div class="opt">Ties are not transitive: {1} ties {3} and {3} ties {1, 2}, yet {1} &lt; {1, 2}.</div><div class="fb">For sets, <code>&lt;</code> means proper subset: a strict partial order, but not a strict weak ordering. Sorting sets by subset order is a lesson 35 problem (one valid order of a partial order), and <code>sorted</code> does not solve it.</div></li>
+        <li><div class="opt"><code>&lt;</code> on sets is not transitive.</div><div class="fb">Proper subset is transitive: \(A \subsetneq B \subsetneq C\) gives \(A \subsetneq C\). The failing axiom is the one about ties.</div></li>
+        <li><div class="opt"><code>&lt;</code> on sets is not irreflexive.</div><div class="fb">No set is a proper subset of itself.</div></li>
+        <li><div class="opt">Nothing is wrong; the output is sorted.</div><div class="fb">{1} ⊂ {1, 2}, so {1} must come before {1, 2}, and it comes after.</div></li>
+      </ul>
+    </div>
+
+    <div class="ex" data-type="order" id="l2-ex-proof">
+      <p class="ex-num">E4</p>
+      <div class="ex-prompt"><p>Arrange the steps proving that the concatenation rule is a strict weak ordering, and exclude the false steps.</p></div>
+      <ol class="ex-steps">
+        <li data-pos="1">As numbers, \(ab = a \cdot 10^{|b|} + b\) and \(ba = b \cdot 10^{|a|} + a\).</li>
+        <li data-pos="2">So \(ab &gt; ba\) iff \(a(10^{|b|} - 1) &gt; b(10^{|a|} - 1)\).</li>
+        <li data-pos="3">Dividing by the positive number \((10^{|a|}-1)(10^{|b|}-1)\): iff \(f(a) &gt; f(b)\) with \(f(a) = a/(10^{|a|}-1)\).</li>
+        <li data-pos="4">So the rule is induced by a key, and every key-induced relation is a strict weak ordering (Theorem 1).</li>
+        <li data-pos="0" data-why="3 &lt; 30, yet 330 &gt; 303.">\(ab &gt; ba\) iff \(a &gt; b\) as numbers.</li>
+        <li data-pos="0" data-why="'30' &gt; '3' as strings, yet 303 &lt; 330.">\(ab &gt; ba\) iff \(a &gt; b\) as strings.</li>
+      </ol>
+      <div class="fb" data-when="correct">Translate to numbers (1), rearrange (2), find the key (3), apply Theorem 1 (4).</div>
+    </div>
+
+    <div class="ex" data-type="mcq" id="l2-ex-reverse">
+      <p class="ex-num">E5</p>
+      <div class="ex-prompt"><p>Theorem 4's proof needed a neighbour pair out of order in every non-sorted arrangement. Which earlier result supplied it, and why does it apply?</p></div>
+      <ul class="ex-options">
+        <li data-correct><div class="opt">Lesson 1, Lemma 11, because the rule is a strict weak ordering (Theorem 3).</div><div class="fb">Without Theorem 3, a non-sorted arrangement might have no out-of-order neighbours (as in the tasks of lesson 1), and swapping neighbours would not be enough.</div></li>
+        <li><div class="opt">Lesson 1, Lemma 8, because the rule is a strict total order.</div><div class="fb">It is not total: 12 and 1212 tie. Lemma 11 is the version that allows ties.</div></li>
+        <li><div class="opt">Theorem 2, because concatenation is lexicographic.</div><div class="fb">Theorem 2 is about tuples; concatenation compares different strings for each pair.</div></li>
+        <li><div class="opt">No earlier result is needed: any unsorted list has an out-of-order neighbour pair.</div><div class="fb">False for partial orders: d, a, b, c in lesson 1 is unsorted with no out-of-order neighbours. It needs ties to be transitive.</div></li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="ledger" id="ledger">
+    <h2 class="ledger-head">Ledger</h2>
+    <div class="ledger-block"><p class="label">Established</p><ul>
+      <li>Python's sort asks only <code>&lt;</code>; the result is meaningful when <code>&lt;</code> is a strict weak ordering (documented guarantee + lesson 1). <a href="#s01">§01</a></li>
+      <li>The relations induced by keys are exactly the strict weak orderings; tiers are the sets of equal keys. <span class="tag t-proof">proof</span> <a href="#s02">§02</a></li>
+      <li>Lexicographic order of strict total orders is a strict total order, so tuple keys are safe. <span class="tag t-proof">proof</span> <a href="#s03">§03</a></li>
+      <li>A comparator for <code>cmp_to_key</code> must make \(\texttt{cmp}(a,b) &lt; 0\) a strict weak ordering (the contract). <a href="#s04">§04</a></li>
+      <li>When the contract is broken (tolerance, NaN, cycles, subset order), CPython 3.12 raises no error and returns some rearrangement that depends on the starting order. <span class="tag t-empirical">empirical</span> <a href="#s05">§05</a></li>
+      <li>The concatenation rule is induced by the key \(a/(10^{|a|}-1)\) <span class="tag t-proof">proof</span>; sorting by it gives the largest number <span class="tag t-proof">proof</span> (exchange argument). <a href="#s06">§06</a></li>
+    </ul></div>
+    <div class="ledger-block"><p class="label">Assumptions in force</p><ul><li>From now on every comparison is assumed to be a strict weak ordering (the precondition of every sort).</li></ul></div>
+    <div class="ledger-block"><p class="label">Lenses in use</p><ul><li>None yet.</li></ul></div>
+    <div class="ledger-block"><p class="label">Reasoning tools acquired</p><ul>
+      <li>Proving a pairwise rule is well behaved by finding a hidden key.</li>
+      <li>Checking a comparator on a finite sample; a counterexample triple refutes it.</li>
+      <li>Exchange arguments: any solution breaking the rule can be strictly improved by swapping two neighbours.</li>
+    </ul></div>
+    <div class="ledger-block"><p class="label">Open gaps</p><div class="gaps"></div></div>
+    <div class="open-question"><p class="callout-label">Open question</p><p class="oq">We now have a comparison we can trust. What exactly is the task of sorting: what must the output satisfy, what is an algorithm allowed to do to produce it, and how do we measure what that costs?</p></div>
+  </section>
+  <nav class="bridge"><a href="lesson-03.html"><span class="label">Next · Lesson 3</span><span class="bridge-title">What exactly is the sorting problem, and what may an algorithm do?</span></a></nav>
+  <footer class="foot"><p>Order and Sorting from First Principles · Lesson 2</p></footer>
+</main>
+<script src="assets/vendor/katex/katex.min.js"></script>
+<script src="assets/vendor/katex/contrib/auto-render.min.js"></script>
+<script src="assets/vendor/prism/prism-core.min.js"></script>
+<script src="assets/vendor/prism/prism-python.min.js"></script>
+<script src="assets/course.js"></script>
+<script src="lesson-02.js"></script>
+</body>
+</html>

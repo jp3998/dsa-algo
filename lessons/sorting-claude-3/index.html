@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Order and Sorting from First Principles</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;600;800&family=IBM+Plex+Mono:ital,wght@0,400;0,600;1,400&display=swap">
+<link rel="stylesheet" href="assets/vendor/katex/katex.min.css">
+<link rel="stylesheet" href="assets/course.css">
+</head>
+<body>
+<main class="page" data-lesson="index">
+  <header class="idx-head">
+    <p class="idx-kicker">An interactive course · 38 lessons</p>
+    <h1 class="idx-title">Order and Sorting from First Principles</h1>
+    <p class="idx-intro">One line of inquiry in 38 lessons: what it means to put things in order, what that costs, why it costs that much, and what changes when the assumptions change. Algorithms appear as consequences of the questions. That is why every title is a question, and why no algorithm is named before you have built it.</p>
+  </header>
+
+  <section class="idx-sec" id="how">
+    <h2>How a lesson works</h2>
+    <ol class="how">
+      <li><span>The title is the question the lesson answers; “Where we are” names the question handed over by the previous lesson.</span></li>
+      <li><span>A prerequisite check links back to exactly what to revisit.</span></li>
+      <li><span>Predict-first blocks ask you to commit to an answer before the explanation unlocks.</span></li>
+      <li><span>Checkpoints gate the next section. You may continue anyway; the skipped checkpoint is recorded as an open gap.</span></li>
+      <li><span>Every non-trivial claim carries a tag saying what kind of claim it is.</span></li>
+      <li><span>Python appears after the idea, the proof and the cost; every visualization runs a faithful port of that Python.</span></li>
+      <li><span>The ledger at the end records what is established, what is assumed, which lenses are in use, and the open question for the next lesson.</span></li>
+    </ol>
+    <p class="label">The tags</p>
+    <dl class="tag-legend">
+      <dt><span class="tag t-proof">proof</span></dt><dd>A guarantee, valid under the stated assumptions.</dd>
+      <dt><span class="tag t-sketch">proof sketch</span></dt><dd>The structure of a proof with details omitted.</dd>
+      <dt><span class="tag t-empirical">empirical</span></dt><dd>Measured on particular inputs, hardware or implementations.</dd>
+      <dt><span class="tag t-heuristic">heuristic</span></dt><dd>A design choice that usually helps but guarantees nothing.</dd>
+      <dt><span class="tag t-intuition">intuition</span></dt><dd>A reason to expect something, not a guarantee.</dd>
+    </dl>
+  </section>
+
+  <section class="idx-sec" id="lessons">
+    <h2>The lessons</h2>
+    <ol class="idx-rows">
+      <li class="idx-row avail" data-n="1"><span class="idx-num">01</span><div><span class="idx-status">Available<span class="idx-prog" data-prog="1"></span></span><h3 class="idx-name"><a href="lesson-01.html">What does it mean for things to be in order?</a></h3><p class="idx-desc">What property must the output of “put these in order” have?</p></div></li>
+      <li class="idx-row avail" data-n="2"><span class="idx-num">02</span><div><span class="idx-status">Available<span class="idx-prog" data-prog="2"></span></span><h3 class="idx-name"><a href="lesson-02.html">What must a comparison promise?</a></h3><p class="idx-desc">What must the code behind “is a before b?” satisfy?</p></div></li>
+      <li class="idx-row avail" data-n="3"><span class="idx-num">03</span><div><span class="idx-status">Available<span class="idx-prog" data-prog="3"></span></span><h3 class="idx-name"><a href="lesson-03.html">What exactly is the sorting problem, and what may an algorithm do?</a></h3><p class="idx-desc">Specify the task and the operations an algorithm may use.</p></div></li>
+      <li class="idx-row avail" data-n="4"><span class="idx-num">04</span><div><span class="idx-status">Available<span class="idx-prog" data-prog="4"></span></span><h3 class="idx-name"><a href="lesson-04.html">What is the simplest certainly-correct way to sort, and what does it waste?</a></h3><p class="idx-desc">The simplest method that is certainly correct, and what it costs.</p></div></li>
+      <li class="idx-row soon"><span class="idx-num">05</span><div><h3 class="idx-name">How many comparisons does it take to check order, or to find the smallest?</h3><p class="idx-desc">The smallest questions: is it sorted? which element is smallest?</p></div></li>
+      <li class="idx-row soon"><span class="idx-num">06</span><div><h3 class="idx-name">Can one set of comparisons answer two questions at once?</h3><p class="idx-desc">The smallest and the largest together, and the runner-up.</p></div></li>
+      <li class="idx-row soon"><span class="idx-num">07</span><div><h3 class="idx-name">What does sorting by repeated "find the smallest" cost, and what does it forget?</h3><p class="idx-desc">Building the order by repeating one small question.</p></div></li>
+      <li class="idx-row soon"><span class="idx-num">08</span><div><h3 class="idx-name">How can we measure disorder, and what does one local repair buy?</h3><p class="idx-desc">A measure of disorder, and what one local repair buys.</p></div></li>
+      <li class="idx-row soon"><span class="idx-num">09</span><div><h3 class="idx-name">What if we grow a sorted prefix one element at a time?</h3><p class="idx-desc">Growing a sorted prefix one element at a time.</p></div></li>
+      <li class="idx-row soon"><span class="idx-num">10</span><div><h3 class="idx-name">How disordered is a typical input?</h3><p class="idx-desc">The expected disorder of a random arrangement.</p></div></li>
+      <li class="idx-row soon"><span class="idx-num">11</span><div><h3 class="idx-name">Can any neighbour-swapping method escape quadratic cost?</h3><p class="idx-desc">A lower bound for a whole class of methods.</p></div></li>
+      <li class="idx-row soon"><span class="idx-num">12</span><div><h3 class="idx-name">Can we find each element's place with fewer comparisons?</h3><p class="idx-desc">Halving the search for each element’s place in the growing prefix.</p></div></li>
+      <li class="idx-row soon"><span class="idx-num">13</span><div><h3 class="idx-name">What does rearranging cost when any two elements may trade places?</h3><p class="idx-desc">Arbitrary swaps and the cycle structure of a permutation.</p></div></li>
+      <li class="idx-row soon"><span class="idx-num">14</span><div><h3 class="idx-name">What if the only allowed move is flipping a prefix?</h3><p class="idx-desc">Prefix reversals, and the geometry of move sets.</p></div></li>
+      <li class="idx-row soon"><span class="idx-num">15</span><div><h3 class="idx-name">Is there a floor on the number of comparisons?</h3><p class="idx-desc">Decision trees and adversaries.</p></div></li>
+      <li class="idx-row soon"><span class="idx-num">16</span><div><h3 class="idx-name">How large is log₂ n!, and how close have we come?</h3><p class="idx-desc">Bounding n! and auditing the bits each comparison buys.</p></div></li>
+      <li class="idx-row soon"><span class="idx-num">17</span><div><h3 class="idx-name">Can the prefix-growing method take long steps?</h3><p class="idx-desc">Long moves inside the prefix-growing method.</p></div></li>
+      <li class="idx-row soon"><span class="idx-num">18</span><div><h3 class="idx-name">What if we split by position and combine sorted halves?</h3><p class="idx-desc">Combining two ordered lists, and recursion.</p></div></li>
+      <li class="idx-row soon"><span class="idx-num">19</span><div><h3 class="idx-name">What else does combining give us, and what does it cost?</h3><p class="idx-desc">Building from the bottom up, stability, inversions and a lower bound for combining.</p></div></li>
+      <li class="idx-row soon"><span class="idx-num">20</span><div><h3 class="idx-name">What if the data does not fit in memory?</h3><p class="idx-desc">A two-level memory.</p></div></li>
+      <li class="idx-row soon"><span class="idx-num">21</span><div><h3 class="idx-name">What does sorted order make cheap?</h3><p class="idx-desc">Sort-then-scan patterns and exchange arguments.</p></div></li>
+      <li class="idx-row soon"><span class="idx-num">22</span><div><h3 class="idx-name">What if we split by value instead of position?</h3><p class="idx-desc">Partitioning around a pivot.</p></div></li>
+      <li class="idx-row soon"><span class="idx-num">23</span><div><h3 class="idx-name">Can partitioning use fewer moves, and why is it so easy to get wrong?</h3><p class="idx-desc">A second partition scheme and its subtle invariant.</p></div></li>
+      <li class="idx-row soon"><span class="idx-num">24</span><div><h3 class="idx-name">What does splitting by value cost on typical inputs, and with random pivots?</h3><p class="idx-desc">Average cost versus expected cost, and indicator variables.</p></div></li>
+      <li class="idx-row soon"><span class="idx-num">25</span><div><h3 class="idx-name">What breaks value-splitting in practice?</h3><p class="idx-desc">Recursion depth, duplicate keys and adversarial inputs.</p></div></li>
+      <li class="idx-row soon"><span class="idx-num">26</span><div><h3 class="idx-name">How much order do we need to find the k-th smallest?</h3><p class="idx-desc">Finding the k-th smallest without sorting everything.</p></div></li>
+      <li class="idx-row soon"><span class="idx-num">27</span><div><h3 class="idx-name">What if repeated selection kept what it learned?</h3><p class="idx-desc">A partial order that is cheap to maintain.</p></div></li>
+      <li class="idx-row soon"><span class="idx-num">28</span><div><h3 class="idx-name">What else can a cheaply maintained partial order do?</h3><p class="idx-desc">Repeatedly taking the smallest of a changing collection, in practice.</p></div></li>
+      <li class="idx-row soon"><span class="idx-num">29</span><div><h3 class="idx-name">Three roads to n log n: what actually differs?</h3><p class="idx-desc">Contrast on every dimension, with measurements in Python.</p></div></li>
+      <li class="idx-row soon"><span class="idx-num">30</span><div><h3 class="idx-name">What if we may look inside the keys?</h3><p class="idx-desc">Keys used as indices.</p></div></li>
+      <li class="idx-row soon"><span class="idx-num">31</span><div><h3 class="idx-name">How do we sort long keys one digit at a time?</h3><p class="idx-desc">Digit passes, and why stability is required.</p></div></li>
+      <li class="idx-row soon"><span class="idx-num">32</span><div><h3 class="idx-name">What if we know how the keys are distributed?</h3><p class="idx-desc">Distribution assumptions and the “linear-time” label.</p></div></li>
+      <li class="idx-row soon"><span class="idx-num">33</span><div><h3 class="idx-name">What is the floor when inputs are not arbitrary?</h3><p class="idx-desc">Duplicates and presortedness refine the information bound.</p></div></li>
+      <li class="idx-row soon"><span class="idx-num">34</span><div><h3 class="idx-name">How does Python itself sort?</h3><p class="idx-desc">Order already present in the data, and a bug found by formal verification.</p></div></li>
+      <li class="idx-row soon"><span class="idx-num">35</span><div><h3 class="idx-name">What if only some pairs must be ordered?</h3><p class="idx-desc">Sorting under a partial order.</p></div></li>
+      <li class="idx-row soon"><span class="idx-num">36</span><div><h3 class="idx-name">How long can an increasing subsequence be?</h3><p class="idx-desc">Chains, antichains and piles.</p></div></li>
+      <li class="idx-row soon"><span class="idx-num">37</span><div><h3 class="idx-name">What changes beyond one processor and flat memory?</h3><p class="idx-desc">Oblivious comparisons, parallel depth and caches.</p></div></li>
+      <li class="idx-row soon"><span class="idx-num">38</span><div><h3 class="idx-name">What is the whole map?</h3><p class="idx-desc">Synthesis.</p></div></li>
+    </ol>
+  </section>
+
+  <section class="idx-sec" id="chain">
+    <h2>The chain of questions</h2>
+    <p>Each lesson ends by handing a question to the next. Read in order, they make one argument.</p>
+    <ol class="chain">
+      <li class="avail"><span class="from">From lesson 1</span><a href="lesson-01.html">A program only ever asks about one pair at a time. What must its answers satisfy?</a></li>
+      <li class="avail"><span class="from">From lesson 2</span><a href="lesson-02.html">With a trustworthy comparison, what exactly is the task, and what may an algorithm do?</a></li>
+      <li class="avail"><span class="from">From lesson 3</span><a href="lesson-03.html">What is the simplest certainly-correct algorithm, and what does it cost?</a></li>
+      <li class="avail"><span class="from">From lesson 4</span><a href="lesson-04.html">Asking every pair is n(n−1)/2, but 3 answers proved 4 sorted elements. How many comparisons are truly needed, even for the smallest questions?</a></li>
+      <li class="soon"><span class="from">From lesson 5</span>Can one set of comparisons answer two questions at once?</li>
+      <li class="soon"><span class="from">From lesson 6</span>Sorting is repeated "find the smallest of what remains". What does that cost, and what does it forget?</li>
+      <li class="soon"><span class="from">From lesson 7</span>Can we instead measure disorder and repair it locally?</li>
+      <li class="soon"><span class="from">From lesson 8</span>Can we keep a sorted prefix and grow it, paying only for the disorder present?</li>
+      <li class="soon"><span class="from">From lesson 9</span>How disordered is a typical input?</li>
+      <li class="soon"><span class="from">From lesson 10</span>Can any method that only swaps neighbours escape n² moves?</li>
+      <li class="soon"><span class="from">From lesson 11</span>Could we at least find each element's place with fewer comparisons?</li>
+      <li class="soon"><span class="from">From lesson 12</span>Comparisons fell, moves did not. What does rearranging cost under other moves?</li>
+      <li class="soon"><span class="from">From lesson 13</span>What if the only move is flipping a prefix?</li>
+      <li class="soon"><span class="from">From lesson 14</span>Moving is cheap; knowing is hard. Is there a floor on comparisons?</li>
+      <li class="soon"><span class="from">From lesson 15</span>How large is log₂ n!, and how close have we come?</li>
+      <li class="soon"><span class="from">From lesson 16</span>Can we get near-optimal comparisons and cheap movement at once? Start inside the prefix-growing method.</li>
+      <li class="soon"><span class="from">From lesson 17</span>Rather than repair, can we divide the array and combine?</li>
+      <li class="soon"><span class="from">From lesson 18</span>What else does combining give us, and what does it cost in space?</li>
+      <li class="soon"><span class="from">From lesson 19</span>What if the data does not fit in memory?</li>
+      <li class="soon"><span class="from">From lesson 20</span>With an n log n guarantee in hand: what does sorted order make cheap?</li>
+      <li class="soon"><span class="from">From lesson 21</span>Splitting by position puts all the work into combining. What if the work happened while splitting?</li>
+      <li class="soon"><span class="from">From lesson 22</span>Can partitioning be done with fewer moves, and why is it so easy to get wrong?</li>
+      <li class="soon"><span class="from">From lesson 23</span>What does value-splitting cost on typical inputs, and with random pivots?</li>
+      <li class="soon"><span class="from">From lesson 24</span>What breaks it in practice?</li>
+      <li class="soon"><span class="from">From lesson 25</span>How much order do we need to find the k-th smallest?</li>
+      <li class="soon"><span class="from">From lesson 26</span>What if repeated selection kept what it learned?</li>
+      <li class="soon"><span class="from">From lesson 27</span>What else can that structure do besides sort?</li>
+      <li class="soon"><span class="from">From lesson 28</span>Three different routes reach n log n. What actually differs?</li>
+      <li class="soon"><span class="from">From lesson 29</span>Every bound so far assumed keys are opaque. What if they are not?</li>
+      <li class="soon"><span class="from">From lesson 30</span>How do we handle long keys one digit at a time?</li>
+      <li class="soon"><span class="from">From lesson 31</span>What if we know how the keys are distributed?</li>
+      <li class="soon"><span class="from">From lesson 32</span>The floor log₂ n! assumed every arrangement possible. What if inputs are not arbitrary?</li>
+      <li class="soon"><span class="from">From lesson 33</span>How does Python itself exploit this?</li>
+      <li class="soon"><span class="from">From lesson 34</span>What if only some pairs must be ordered?</li>
+      <li class="soon"><span class="from">From lesson 35</span>How long can a chain be, and how few antichains cover everything?</li>
+      <li class="soon"><span class="from">From lesson 36</span>What changes beyond one processor and flat memory?</li>
+      <li class="soon"><span class="from">From lesson 37</span>Assemble the whole map.</li>
+      <li class="soon"><span class="from">From lesson 38</span>This is the last lesson: the chain ends with the whole map.</li>
+    </ol>
+  </section>
+
+  <footer class="foot"><p>Order and Sorting from First Principles</p></footer>
+</main>
+<script src="assets/course.js"></script>
+<script>
+(function () {
+  try {
+    document.querySelectorAll('[data-prog]').forEach(function (s) {
+      var p = window.Course.getProgress(s.getAttribute('data-prog'));
+      var n = p.attempted.length;
+      if (n > 0) s.textContent = ' · ' + n + (n === 1 ? ' exercise attempted' : ' exercises attempted');
+    });
+  } catch (e) { /* progress is optional */ }
+})();
+</script>
+</body>
+</html>

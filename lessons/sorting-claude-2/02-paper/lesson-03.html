@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lesson 3 · Order &amp; Sorting</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<link rel="stylesheet" href="theme.css">
+</head>
+<body data-page="lesson">
+<div class="page">
+
+  <div class="runhead">
+    <span>Order &amp; Sorting &middot; Lecture Notes</span>
+    <a href="index.html">Contents</a>
+  </div>
+
+  <div class="titleblock">
+    <div class="kicker">Lecture 3</div>
+    <h1>How far is an array from sorted, and what does a local fix buy?</h1>
+    <div class="byline">Order &amp; Sorting &middot; lecture notes</div>
+    <div class="metaline">Builds on Lessons 1&ndash;2 &middot; about 45 minutes</div>
+    <div class="navline">
+      <a href="index.html">&larr; All lessons</a>
+      &nbsp;&middot;&nbsp; <span class="notyet">Lesson 2 &mdash; not yet available</span>
+      &nbsp;&middot;&nbsp; <span class="notyet">Lesson 4 &mdash; not yet available</span>
+    </div>
+  </div>
+
+  <div class="abstract">
+    <span class="abslabel">Where we are</span>
+    <p>Lesson 2 ended with an uncomfortable fact. Repeatedly selecting the smallest remaining element always makes exactly $\binom{n}{2} = \frac{n(n-1)}{2}$ comparisons, even when the array is already sorted. Yet Lesson 1 showed that merely <em>checking</em> whether an array is sorted takes only $n-1$. So the open question was:</p>
+    <div class="callout openq">
+      <span class="label">Open question.</span>
+      <span class="body">Can an algorithm's cost depend on how unsorted its input actually is?</span>
+    </div>
+    <p>Results this lesson relies on:</p>
+    <ul>
+      <li><strong>L1.</strong> Verifying that $n$ distinct keys are sorted needs exactly $n-1$ comparisons. <span class="tag">[proof]</span></li>
+      <li><strong>L2.</strong> Repeated selection makes exactly $n(n-1)/2$ comparisons on every input. <span class="tag">[proof]</span></li>
+      <li><strong>L0.</strong> Keys are distinct, and we learn about them only by comparing them. (Assumption.)</li>
+    </ul>
+  </div>
+
+  <div id="c-prereq-check"></div>
+
+  <div class="prose">
+
+    <h2 class="sec-head"><span class="sec-num">1</span>A number for disorder</h2>
+
+    <p class="noindent">To make cost depend on how unsorted the input is, we first need a precise measure of <em>how unsorted</em> it is. Two obvious candidates fail, and seeing why tells us what the right measure must capture.</p>
+
+    <p><strong>Candidate A: count the elements that are not in their final position.</strong> The arrays $[2,1,4,3,6,5]$ and $[6,5,4,3,2,1]$ both score 6: every element is misplaced. But the first is fixed by three swaps of neighbours, while the second, as we'll see, needs fifteen. The measure can't tell them apart.</p>
+
+    <p><strong>Candidate B: count adjacent descents</strong>, positions $k$ with $a[k] > a[k+1]$. Now $[2,3,4,5,6,1]$ scores 1 and $[2,1,4,3,6,5]$ scores 3. Yet in the first array the 1 must travel past five elements, one neighbour at a time. The measure ranks them the wrong way round.</p>
+
+    <p>Both candidates look at positions one at a time, or at neighbours. But order is a relation between <em>pairs</em> of elements. So count pairs.</p>
+
+    <div class="callout definition">
+      <span class="label">Definition (inversion).</span>
+      <span class="body">An <em>inversion</em> in an array $a$ is a pair of positions $(i, j)$ with $i < j$ and $a[i] > a[j]$: two elements that appear in the wrong relative order. Write $I(a)$ for the number of inversions of $a$.</span>
+    </div>
+
+    <div id="c-predict-inversions"></div>
+
+    <div id="gate-inversions">
+      <div id="c-inversion-diagram"></div>
+
+      <p class="noindent">Two facts follow directly from the definition:</p>
+      <ul>
+        <li>$I(a) = 0$ exactly when $a$ is sorted. <span class="tag">[proof]</span> If no pair is out of order, then no adjacent pair is, and that is what sorted means (Lesson 1). Conversely, in a sorted array transitivity puts every pair in order.</li>
+        <li>$I(a) \le \binom{n}{2}$, with equality exactly for the reversed array. <span class="tag">[proof]</span> There are only $\binom{n}{2}$ pairs, and all of them are inverted only when the array runs in decreasing order.</li>
+      </ul>
+
+      <p>So $I$ ranges from $0$ to $\frac{n(n-1)}{2}$. Those are exactly the two costs we've met so far: verification and repeated selection. That's a hint, not yet an argument. <span class="tag">[intuition]</span></p>
+    </div>
+
+    <h2 class="sec-head"><span class="sec-num">2</span>What does one local fix change?</h2>
+
+    <p class="noindent">The cheapest physical repair is to swap two neighbours. Suppose $a[k] > a[k+1]$, an adjacent inversion, and we swap them.</p>
+
+    <div id="c-predict-swap"></div>
+
+    <div id="gate-swap">
+      <div class="callout theorem-like">
+        <span class="label">Lemma 1.</span>
+        <span class="body">Swapping an adjacent inverted pair reduces $I$ by exactly one.</span>
+        <span class="tag">[proof]</span>
+      </div>
+
+      <div class="proof">
+        <span class="plabel">Proof.</span>
+        Ask which pairs can change status. A pair's status depends only on the relative order of its two elements. Take any pair other than the two swapped elements. If neither of its elements sits at position $k$ or $k+1$, nothing about it moved. If one of them does, the other is either to the left of both positions or to the right of both, so the two stay on the same side of each other after the swap. Only the swapped pair itself changes, and it goes from inverted to not inverted.
+        <span class="qed">&#8718;</span>
+      </div>
+    </div>
+
+    <p>The same argument shows that swapping a <em>non</em>-inverted neighbouring pair creates exactly one inversion. Either way, one adjacent swap changes $I$ by exactly one.</p>
+
+    <div class="callout theorem-like">
+      <span class="label">Theorem 1.</span>
+      <span class="body">Any algorithm that rearranges elements only by swapping neighbours needs at least $I(a)$ swaps on input $a$. On the reversed array that is $\frac{n(n-1)}{2}$.</span>
+      <span class="tag">[proof]</span>
+    </div>
+
+    <div class="proof">
+      <span class="plabel">Proof.</span>
+      Each swap changes $I$ by exactly one. We start at $I(a)$ and must reach $0$.
+      <span class="qed">&#8718;</span>
+    </div>
+
+    <div class="callout remark">
+      <span class="label">Remark.</span>
+      <span class="body">Theorem 1 is a lower bound on a <em>class of algorithms</em>: those that move elements only between neighbours. It says nothing yet about sorting in general. An algorithm allowed to move an element far in a single step is not covered. Keep that loophole in mind.</span>
+    </div>
+
+    <h2 class="sec-head"><span class="sec-num">3</span>Building an algorithm from the lemma</h2>
+
+    <p class="noindent">Lemma 1 suggests a goal: never waste a swap. If every swap removes an inversion, the total is exactly $I(a)$, the minimum Theorem 1 allows. The difficulty is <em>finding</em> an inverted neighbour without rescanning the array after every swap.</p>
+
+    <p>Some structure helps. Keep a prefix $a[0:i]$ sorted. A new element $a[i]$ is inverted with exactly the prefix elements larger than it, and because the prefix is sorted those elements sit in a block immediately to its left. Swapping $a[i]$ leftward while its left neighbour is larger removes those inversions one at a time, and stops at the first neighbour that is smaller.</p>
+
+    <div id="c-predict-total-swaps"></div>
+
+    <div id="gate-total-swaps">
+      <p class="noindent">This procedure is called <strong>insertion sort</strong>: each step <em>inserts</em> the next element into the sorted prefix.</p>
+
+      <div id="c-stepper"></div>
+    </div>
+
+    <h2 class="sec-head"><span class="sec-num">4</span>Why it works</h2>
+
+    <p class="noindent">Here is the array after each pass of the outer loop, on the input $[4,1,3,5,2]$:</p>
+
+    <div id="c-trace-table"></div>
+
+    <p class="noindent">What stays true from pass to pass? A tempting guess: <em>the prefix holds the smallest elements.</em> That is <strong>false</strong>. After $i = 1$ the prefix is $[1, 4]$, but $2$ and $3$ are both smaller than $4$. What the prefix actually holds is the <em>first</em> elements of the input, rearranged into sorted order. That is the invariant.</p>
+
+    <div class="callout invariant">
+      <span class="label">Invariant.</span>
+      <span class="body">At the start of the iteration with index $i$:</span>
+      <ol>
+        <li><span class="tagc">(a)</span> $a[0:i]$ is sorted;</li>
+        <li><span class="tagc">(b)</span> $a[0:i]$ is a rearrangement of the original first $i$ elements;</li>
+        <li><span class="tagc">(c)</span> $a[i:n]$ is untouched.</li>
+      </ol>
+    </div>
+
+    <p class="noindent">Why do we need (b) and (c)? Without them, an "algorithm" that overwrote every element with zero would satisfy (a). Sorting means <em>ordered and a permutation of the input</em> (Lesson 0).</p>
+
+    <div class="callout theorem-like">
+      <span class="label">Theorem 2.</span>
+      <span class="body"><code>insertion_sort</code> returns its input in sorted order.</span>
+      <span class="tag">[proof]</span>
+    </div>
+
+    <div class="proof">
+      <span class="plabel">Proof.</span>
+      <p class="noindent"><em>Initialization.</em> When $i = 1$, the prefix $a[0:1]$ has one element, so it is sorted, and nothing has moved.</p>
+      <p class="noindent"><em>Maintenance.</em> We need to know what holds <em>while</em> the key, the original value of $a[i]$, travels left. The elements it has passed form a block to its right, and all of them are larger than it. That gives an inner invariant: $a[0:j]$ is sorted; $a[j+1:i+1]$ is sorted; and every element of $a[j+1:i+1]$ is larger than the key at $a[j]$. It holds when $j = i$, because the block is empty. A swap moves one larger element from the left of the key to the front of the block, and since the prefix was sorted, that element is no larger than anything already in the block. The loop stops either because $j = 0$, or because $a[j-1] < a[j]$ (keys are distinct). In both cases $a[0:j]$, then the key, then $a[j+1:i+1]$ are in order, so $a[0:i+1]$ is sorted: (a) holds for $i+1$. Swaps only exchange elements, so (b) holds, and positions from $i+1$ on were never touched, so (c) holds.</p>
+      <p class="noindent"><em>Termination.</em> The inner loop's $j$ strictly decreases and cannot go below $0$. The outer loop runs $n - 1$ times. At exit $i = n$, so (a) and (b) together say the whole array is a sorted rearrangement of the input. <span class="qed">&#8718;</span></p>
+    </div>
+
+    <h2 class="sec-head"><span class="sec-num">5</span>What it costs</h2>
+
+    <p class="noindent">We count two things separately: swaps, which move elements, and comparisons, which gather information. Lesson 2 showed that these can behave very differently.</p>
+
+    <p><strong>Swaps.</strong> Every swap removes one inversion, and the algorithm stops when none are left, so it makes exactly $I(a)$ swaps. By Theorem 1, no adjacent-swap algorithm can do better. <span class="tag">[proof]</span></p>
+
+    <p><strong>Comparisons.</strong> Each test <code>a[j - 1] &gt; a[j]</code> that comes out true is followed by a swap, which accounts for $I(a)$ comparisons. Each of the $n - 1$ insertions also ends with at most one test that comes out false. There is none when the key reaches position $0$, because then <code>j &gt; 0</code> fails first and Python never evaluates the comparison. So, writing $C(a)$ for the number of comparisons,</p>
+
+    <div class="display-eq-wrap">
+      $$I(a) \;\le\; C(a) \;\le\; I(a) + (n-1).$$
+      <div class="eqtag-row"><span class="tag">[proof]</span></div>
+    </div>
+
+    <p class="noindent">Read it back: the cost is the disorder, plus at most one extra comparison per element. On sorted input, $I = 0$ and the algorithm makes $n - 1$ comparisons, exactly Lesson 1's cost for merely <em>verifying</em> sortedness. So the answer to the open question is <strong>yes</strong>. An algorithm whose cost tracks how unsorted its input is is called <strong>adaptive</strong>.</p>
+
+    <p><strong>Worst case.</strong> On the reversed array, $I = \frac{n(n-1)}{2}$, and every key travels all the way to position $0$, so no test ever comes out false. Hence $C = \frac{n(n-1)}{2}$. <span class="tag">[proof]</span></p>
+
+    <p><strong>Average case.</strong> What about a "typical" input? To make "typical" precise we must choose a distribution. Assume every ordering of the $n$ distinct keys is equally likely: a uniformly random permutation. That is an assumption about the <em>inputs</em>, so the result will be an <strong>average case</strong>, not a guarantee for any particular input.</p>
+
+    <p class="noindent">Why we need a tool here: averaging $I$ directly over all $n!$ orderings is hopeless for large $n$. But $I$ is a sum of small pieces, one for each pair, and the average of a sum is the sum of the averages. That is <em>linearity of expectation</em>, and it needs no independence between the pieces.</p>
+
+    <div class="display-eq-wrap">
+      $$I = \sum_{i&lt;j} X_{ij}, \qquad X_{ij} = \begin{cases} 1 & \text{if } a[i] > a[j],\\ 0 & \text{otherwise.}\end{cases}$$
+    </div>
+
+    <p class="noindent">Each pair is inverted with probability one half. Swapping the values at positions $i$ and $j$ pairs every ordering in which the pair is inverted with exactly one in which it isn't. So</p>
+
+    <div class="display-eq-wrap">
+      $$\mathbb{E}[X_{ij}] = \Pr\big[a[i] > a[j]\big] = \tfrac12, \qquad \mathbb{E}[I] = \sum_{i&lt;j} \tfrac12 = \binom{n}{2}\cdot\tfrac12 = \frac{n(n-1)}{4}.$$
+      <div class="eqtag-row"><span class="tag">[proof]</span></div>
+    </div>
+
+    <p class="noindent"><em>Sanity check.</em> For $n = 3$ the six orderings have $0, 1, 1, 2, 2, 3$ inversions. Their average is $9/6 = 1.5 = \frac{3 \cdot 2}{4}$.</p>
+
+    <p class="noindent">So on average insertion sort does about half its worst-case work, which is still $\Theta(n^2)$. And by Theorem 1, <em>every</em> adjacent-swap algorithm needs at least $\frac{n(n-1)}{4}$ swaps on average.</p>
+
+    <div id="c-going-deeper"></div>
+
+    <div id="c-cost-plot"></div>
+
+    <h2 class="sec-head"><span class="sec-num">6</span>What does the algorithm know?</h2>
+
+    <p class="noindent">One more view. After each comparison, what does insertion sort actually know? Exactly the relations it has observed, plus whatever follows from them by transitivity. The figure draws that knowledge: a line from $x$ up to $y$ means "known: $x < y$". Beside it is the number of orderings of the five keys still consistent with that knowledge.</p>
+
+    <div id="c-knowledge-view"></div>
+
+    <p class="noindent">The count starts at $5! = 120$ and must reach $1$. Insertion sort gets there in $8$ comparisons. But notice how unevenly they work. The fourth comparison, $4$ vs $5$, cuts the count from $20$ to $5$, while the fifth, $2$ vs $5$, only takes it from $5$ to $4$. Since $\log_2 120 \approx 6.9$, it's natural to ask whether $7$ well-chosen comparisons could always suffice, and what "well-chosen" would mean. That is Lesson 5's question. <span class="tag">[intuition]</span></p>
+
+    <h2 class="sec-head"><span class="sec-num">7</span>Checkpoint</h2>
+
+    <div id="c-checkpoint"></div>
+
+    <div id="gate-after-checkpoint">
+      <h2 class="sec-head">Ledger</h2>
+      <div id="c-ledger"></div>
+
+      <p class="noindent"><strong>Next:</strong> Lesson 4, "Is knowing the order the same as moving into it?" (not yet written).</p>
+    </div>
+
+  </div>
+
+  <footer class="pagefoot">Order &amp; Sorting &middot; Lecture notes &middot; Lesson 3 of 17</footer>
+</div>
+
+<script src="engine.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+<script src="theme.js"></script>
+</body>
+</html>

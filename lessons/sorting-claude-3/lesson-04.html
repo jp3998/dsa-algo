@@ -1,0 +1,557 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lesson 4 · What is the simplest certainly-correct way to sort, and what does it waste?</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;600;800&family=IBM+Plex+Mono:ital,wght@0,400;0,600;1,400&display=swap">
+<link rel="stylesheet" href="assets/vendor/katex/katex.min.css">
+<link rel="stylesheet" href="assets/course.css">
+<style>
+#fig1-poset { margin-top: var(--sp-5); }
+#fig1-status { margin-top: var(--sp-3); }
+#fig1-status .fig1-waste { display: block; margin-top: var(--sp-1); }
+</style>
+</head>
+<body>
+<main class="page" data-lesson="4">
+  <header class="lesson-header">
+    <nav class="lesson-nav">
+      <a href="index.html">← All lessons</a>
+      <a href="lesson-03.html">← Lesson 3</a>
+      <span class="na">Lesson 5: not yet available</span>
+    </nav>
+    <p class="kicker">Lesson 4</p>
+    <h1 class="title">What is the simplest certainly-correct way to sort, and what does it waste?</h1>
+    <p class="meta">Stage 0 · Foundations</p>
+  </header>
+
+  <section class="where" id="where">
+    <p class="label">Where we are</p>
+    <p>Lesson 3 made the task exact: find the one sorted arrangement among \(n!\) candidates (Assumption A1: distinct keys), learning about the elements only by asking “is \(a_i &lt; a_j\)?”, and paying one unit per question. Lesson 1 gave a way to check a candidate: \(n - 1\) neighbour comparisons.</p>
+    <p>That is already enough to write an algorithm. This lesson builds the most direct one, proves it correct, derives exactly what it costs, and then asks the question that will organise the whole course: <strong>what does the algorithm know at each moment, and does it use it?</strong></p>
+    <p class="label">Depends on</p>
+    <ul class="deps">
+      <li><a href="lesson-01.html#s06">Lesson 1 §05–06: neighbour checks suffice</a></li>
+      <li><a href="lesson-01.html#s04">Lesson 1 §04: linear extensions, Corollary 6</a></li>
+      <li><a href="lesson-03.html#s03">Lesson 3 §03: the comparison model; worst and best case</a></li>
+    </ul>
+  </section>
+
+  <section class="prereq" id="prereq">
+    <p class="label">Prerequisite check</p>
+    <div class="ex" data-type="numeric" id="l4-pre-1" data-answer="5" data-remedy="lesson-01.html#s05">
+      <p class="ex-num">P1</p>
+      <div class="ex-prompt"><p>At most how many neighbour comparisons does it take to check whether an arrangement of 6 distinct elements is sorted?</p></div>
+      <div class="fb" data-when="correct">6 elements have 5 neighbour pairs, and lesson 1, Lemma 8 says those suffice.</div>
+      <div class="fb" data-when="15">15 is every pair. Transitivity makes the non-neighbour pairs unnecessary.</div>
+      <div class="fb" data-when="6">Off by one: 6 elements have 5 neighbour pairs.</div>
+      <div class="fb" data-when="other">Count the neighbour pairs (0,1), (1,2), …, (4,5).</div>
+    </div>
+    <div class="ex" data-type="mcq" id="l4-pre-2" data-remedy="lesson-03.html#s03">
+      <p class="ex-num">P2</p>
+      <div class="ex-prompt"><p>What is the worst-case cost \(W_A(n)\) of an algorithm \(A\)?</p></div>
+      <ul class="ex-options">
+        <li data-correct><div class="opt">The largest number of comparisons \(A\) makes on any input of size \(n\).</div><div class="fb">A maximum over all inputs (by lesson 3, Lemma 3, over the \(n!\) rank patterns).</div></li>
+        <li><div class="opt">The number of comparisons on the reversed input.</div><div class="fb">For some algorithms the reversed input is a worst case, but that has to be proved; the definition is a maximum over all inputs.</div></li>
+        <li><div class="opt">The average number of comparisons over all inputs.</div><div class="fb">That is an average, which needs a stated distribution (lesson 10). The worst case is a maximum.</div></li>
+        <li><div class="opt">The number of comparisons needed to sort any input by the best possible algorithm.</div><div class="fb">That is a property of the <em>problem</em>, not of one algorithm. We will get there (lesson 15); \(W_A\) is about algorithm \(A\).</div></li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="lsec" id="s01">
+    <h2 class="sec-head"><span class="sec-num">01</span><span class="sec-title">The most direct idea</span></h2>
+    <p>We have two facts. Exactly one of the \(n!\) arrangements is sorted (lesson 1, Theorem 7). And checking whether one arrangement is sorted costs at most \(n - 1\) comparisons (lesson 1, Lemma 8). The most direct algorithm follows: <strong>generate the arrangements one by one, check each, and stop at the first that passes.</strong></p>
+
+    <div class="predict" id="pr-candidates">
+      <p class="label">Predict first</p>
+      <div class="ex" data-type="numeric" id="l4-pr-candidates" data-answer="24">
+        <div class="ex-prompt"><p>For \(n = 4\), how many candidates might the algorithm have to check in the worst case?</p></div>
+        <div class="fb" data-when="correct">Right: all \(4! = 24\), if the sorted arrangement happens to be generated last.</div>
+        <div class="fb" data-when="1">That is the best case: the first candidate generated happens to be the sorted one.</div>
+        <div class="fb" data-when="12">Half is a reasonable guess for an average, but in the worst case the sorted arrangement can be the very last one.</div>
+        <div class="fb" data-when="3">3 is the cost of checking <em>one</em> candidate. The question is how many candidates.</div>
+        <div class="fb" data-when="other">How many arrangements of 4 elements are there, and where in the sequence could the sorted one be?</div>
+      </div>
+      <div class="reveal">
+        <p>All 24, if the sorted arrangement comes last. <em>Which</em> inputs put it last depends on the order in which arrangements are generated, so to analyse the algorithm we must fix that order.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="lsec" id="s02">
+    <h2 class="sec-head"><span class="sec-num">02</span><span class="sec-title">Construction</span></h2>
+    <p>Three ingredients.</p>
+    <ol>
+      <li><strong>Generate every arrangement exactly once.</strong> Python’s <code>itertools.permutations(a)</code> yields the \(n!\) arrangements of <code>a</code> as tuples. It works on <em>positions</em>, not values, and yields them in lexicographic order of the position tuples: for \(n = 3\), positions (0,1,2), (0,2,1), (1,0,2), (1,2,0), (2,0,1), (2,1,0).</li>
+      <li><strong>Check a candidate with neighbour comparisons</strong>, stopping at the first neighbour pair that is out of order. To respect Python’s convention, ask only <code>&lt;</code>: “is \(b_{i+1} &lt; b_i\)?”</li>
+      <li><strong>Return the first candidate that passes.</strong></li>
+    </ol>
+
+    <figure class="listing" id="lst-1">
+      <figcaption><span class="fig-label">Listing 1</span><span class="fig-caption">The direct algorithm. The stepper below runs a line-by-line JavaScript port of exactly this code.</span></figcaption>
+      <pre class="py">from itertools import permutations
+
+
+def is_sorted(b):
+    for i in range(len(b) - 1):
+        if b[i + 1] &lt; b[i]:
+            return False
+    return True
+
+
+def permutation_sort(a):
+    for candidate in permutations(a):
+        if is_sorted(candidate):
+            return list(candidate)</pre>
+    </figure>
+
+    <p>This algorithm is usually called <strong>permutation sort</strong>, or brute-force sort.</p>
+
+    <details class="deeper"><summary>Going deeper · Its randomised cousin</summary><div class="deeper-body">
+      <p>Instead of generating arrangements in order, one could shuffle at random until the result is sorted (“bogosort”). It can examine the same arrangement many times and has no worst-case bound at all: for any number \(N\), there is a positive probability that the first \(N\) shuffles all fail <span class="tag t-proof">proof</span>. Its expected cost needs the tools of lesson 10. The enumerating version at least guarantees termination.</p>
+    </div></details>
+  </section>
+
+  <section class="lsec" id="s03">
+    <h2 class="sec-head"><span class="sec-num">03</span><span class="sec-title">A trace</span></h2>
+
+    <figure class="fig" id="fig-1">
+      <figcaption><span class="fig-label">Fig. 1</span><span class="fig-caption">Permutation sort on your input (distinct values, at most 6). The bottom row is the current candidate: red cells are being compared, gray cells passed the check so far. The diagram below the stepper is lesson 1’s Hasse diagram, now showing what the algorithm has learned.</span></figcaption>
+      <div id="fig1-stepper"></div>
+      <div id="fig1-poset"></div>
+      <div id="fig1-status" class="st-msg" role="status" aria-live="polite"></div>
+    </figure>
+
+    <p>On the default input <code>[3, 1, 2]</code> the algorithm examines 4 candidates and makes 6 comparisons:</p>
+
+    <figure class="fig" id="tbl-1">
+      <figcaption><span class="fig-label">Table 1</span><span class="fig-caption">Permutation sort on [3, 1, 2].</span></figcaption>
+      <table class="tbl">
+        <thead><tr><th>#</th><th>Candidate</th><th>Questions asked</th><th>Result</th></tr></thead>
+        <tbody>
+          <tr><td>1</td><td>3, 1, 2</td><td>1 &lt; 3? yes</td><td>fail</td></tr>
+          <tr><td>2</td><td>3, 2, 1</td><td>2 &lt; 3? yes</td><td>fail</td></tr>
+          <tr><td>3</td><td>1, 3, 2</td><td>3 &lt; 1? no; 2 &lt; 3? yes</td><td>fail</td></tr>
+          <tr><td>4</td><td>1, 2, 3</td><td>2 &lt; 1? no; 3 &lt; 2? no</td><td>pass: return [1, 2, 3]</td></tr>
+        </tbody>
+      </table>
+    </figure>
+  </section>
+
+  <section class="lsec" id="s04">
+    <h2 class="sec-head"><span class="sec-num">04</span><span class="sec-title">Correctness</span></h2>
+    <p><strong>Specification</strong> (lesson 3): given a list <code>a</code> and a strict weak ordering <code>&lt;</code>, return a sorted permutation of <code>a</code>.</p>
+    <p><strong>Finding the argument.</strong> What is true each time the loop moves on to a new candidate? Every candidate examined so far failed the check. What does failing mean? By lesson 1, Lemma 11, “some neighbour pair is out of order” is equivalent to “not sorted”, because <code>&lt;</code> is a strict weak ordering. So the loop maintains a simple fact: every candidate examined so far is not sorted. That fact alone does not prove anything; what we need are three separate claims about the value returned and one about termination.</p>
+
+    <div class="callout theorem" id="thm-correct"><p class="callout-label">Theorem 1 (permutation sort is correct)</p>
+      <p>For every list <code>a</code> and every strict weak ordering <code>&lt;</code>, <code>permutation_sort(a)</code> returns a sorted permutation of <code>a</code>.</p></div>
+
+    <div class="callout proof"><p class="callout-label">Proof</p>
+      <p><em>It returns a permutation.</em> Every candidate is an arrangement of the positions of <code>a</code>.</p>
+      <p><em>What it returns is sorted.</em> It returns a candidate only when <code>is_sorted</code> returned <code>True</code>, that is, when no neighbour pair is out of order. Since <code>&lt;</code> is a strict weak ordering, lesson 1, Lemma 11 makes that equivalent to sorted.</p>
+      <p><em>It returns.</em> The candidates are all \(n!\) arrangements, finitely many, generated one per iteration (termination measure: the number of arrangements not yet generated, which drops by 1 each iteration). At least one arrangement is sorted (lesson 1, Theorem 10; with distinct keys, Theorem 7), and it passes the check. So the loop reaches a passing candidate and returns it, possibly an earlier passing one.</p></div>
+
+    <p>The proof never used distinctness: the algorithm is correct with ties, because the check asks “is \(b_{i+1} &lt; b_i\)?” and not “is \(b_i &lt; b_{i+1}\)?”.</p>
+
+    <p><strong>Stress.</strong> Two plausible mistakes, and where the proof catches each one.</p>
+    <ol>
+      <li><em>Checking strict increase:</em> <code>if not b[i] &lt; b[i + 1]: return False</code>. With distinct keys this is equivalent. With a tie, two equal neighbours fail the check, so <em>no</em> candidate passes; the loop ends and the function returns <code>None</code>. On <code>[2, 1, 2]</code> it returns <code>None</code>. The proof breaks at “the sorted arrangement passes the check”: with ties, a sorted arrangement need not be strictly increasing.</li>
+      <li><em>Stopping one pair early:</em> <code>for i in range(len(b) - 2)</code>. The last neighbour pair is never compared, so on <code>[1, 3, 2]</code> the very first candidate passes and <code>[1, 3, 2]</code> is returned. The proof breaks at “passes the check implies sorted”: Lemma 11 needs every neighbour pair.</li>
+    </ol>
+
+    <p><strong>Edge cases</strong> <span class="tag t-proof">proof</span> (each follows from the proof; the builder also runs them):</p>
+    <ul>
+      <li><code>[]</code>: <code>permutations([])</code> yields one empty tuple, which passes: returns <code>[]</code>, 0 comparisons.</li>
+      <li><code>[x]</code>: returns <code>[x]</code>, 0 comparisons.</li>
+      <li>All equal, <code>[5, 5, 5]</code>: the first candidate passes after 2 comparisons.</li>
+      <li>Already sorted: the first candidate passes after \(n - 1\) comparisons.</li>
+      <li>Duplicates, <code>[2, 1, 2]</code>: returns <code>[1, 2, 2]</code> after 3 candidates and 5 comparisons.</li>
+    </ul>
+  </section>
+
+  <section class="lsec" id="s05">
+    <h2 class="sec-head"><span class="sec-num">05</span><span class="sec-title">Cost</span></h2>
+    <p><strong>What to count.</strong> Comparisons, the measure of the model. We also count candidates, because the cost per candidate turns out to be small and the number of candidates is what explodes. (Generating each candidate also copies \(n\) element references into a new tuple; those moves are not counted as comparisons, but they are real work.)</p>
+    <p><strong>Best case.</strong> Every call ends with a candidate that passes, and a passing candidate costs exactly \(n - 1\) comparisons. On sorted input the very first candidate passes. So \(B(n) = n - 1\) for \(n \ge 1\) <span class="tag t-proof">proof</span>.</p>
+    <p><strong>Worst case.</strong></p>
+
+    <div class="predict" id="pr-reversed4">
+      <p class="label">Predict first</p>
+      <div class="ex" data-type="numeric" id="l4-pr-reversed4" data-answer="40">
+        <div class="ex-prompt"><p>How many comparisons does permutation sort make on the reversed input <code>[4, 3, 2, 1]</code>?</p></div>
+        <div class="fb" data-when="correct">Right. The derivation below shows where 40 comes from.</div>
+        <div class="fb" data-when="24">24 is the number of candidates. Each costs at least one comparison, and some cost more.</div>
+        <div class="fb" data-when="72">72 = 24 × 3 assumes each candidate costs the full 3 comparisons. Most fail at the first or second neighbour pair.</div>
+        <div class="fb" data-when="other">Two questions: how many candidates are examined, and how many comparisons does each cost?</div>
+      </div>
+      <div class="reveal">
+        <p>Forty. Here is the derivation, in four steps.</p>
+        <p><em>Step 1: which candidates are examined?</em> In <code>[4, 3, 2, 1]</code> the sorted arrangement takes positions (3, 2, 1, 0) in that order, which is the last tuple in lexicographic order. So every one of the 24 candidates is examined.</p>
+        <p><em>Step 2: what does one candidate cost?</em> The check makes comparison number \(j\) (of positions \(j-1\) and \(j\), for \(j = 1, \ldots, n-1\)) exactly when all earlier comparisons answered “no”, that is, when the first \(j\) entries of the candidate are increasing.</p>
+        <p><em>Step 3: add over all candidates.</em> How many of the \(n!\) arrangements of distinct elements have their first \(j\) entries increasing? Choose which \(j\) elements go first, \(\binom{n}{j}\) ways; they must appear in increasing order, 1 way; the rest go in any order, \((n-j)!\) ways. That is \(\binom{n}{j}(n-j)! = n!/j!\). So comparison \(j\) is made on \(n!/j!\) candidates, and the total over all candidates is</p>
+        <div class="eq-row"><div class="eq">\[ T(n) \;=\; \sum_{j=1}^{n-1} \frac{n!}{j!}. \]</div><span class="tag t-proof">proof</span></div>
+        <p>Read it back: the \(j\)-th term counts candidates that survive long enough to be asked their \(j\)-th question. Sanity check, \(n = 3\): \(6/1 + 6/2 = 9\). For \(n = 4\): \(24 + 12 + 4 = 40\).</p>
+        <p><em>Step 4: no input is worse.</em> For any input of distinct elements, the candidates are the same \(n!\) arrangements of its values, and Step 3 applies to them unchanged: the total cost of checking <em>all</em> of them is \(T(n)\), whatever the input. An input stops somewhere in that sequence, so it costs at most \(T(n)\); the reversed input stops at the very end.</p>
+      </div>
+    </div>
+
+    <div class="callout theorem" id="thm-cost"><p class="callout-label">Theorem 2 (exact cost)</p>
+      <p>With distinct keys, permutation sort makes \(B(n) = n - 1\) comparisons in the best case (sorted input) and \(W(n) = T(n) = \sum_{j=1}^{n-1} n!/j!\) in the worst case (reversed input). Moreover \(T(n) &lt; 2 \cdot n!\).</p></div>
+
+    <div class="callout proof"><p class="callout-label">Proof</p>
+      <p>The best and worst cases were derived above. For the bound, write \(T(n) = n!\,\bigl(\tfrac{1}{1!} + \tfrac{1}{2!} + \cdots + \tfrac{1}{(n-1)!}\bigr)\). Since \(j! \ge 2^{j-1}\) (each of the factors \(2, \ldots, j\) is at least 2), each term is at most \(1/2^{j-1}\), and the bracket is less than \(1 + \tfrac12 + \tfrac14 + \cdots = 2\).</p></div>
+
+    <p>Read it back. Checking costs <strong>fewer than two comparisons per candidate</strong> on average over the candidates: most fail at the first or second neighbour pair. The explosion comes entirely from the number of candidates.</p>
+
+    <details class="deeper"><summary>Going deeper · The constant is e − 1</summary><div class="deeper-body">
+      <p>The bracket \(\sum_{j \ge 1} 1/j!\) converges to \(e - 1 \approx 1.71828\), because \(e = \sum_{j \ge 0} 1/j!\). So \(T(n)/n! \to e - 1\) <span class="tag t-sketch">proof sketch</span>; Table 2 shows it agreeing to four decimals by \(n = 8\).</p>
+    </div></details>
+
+    <figure class="fig" id="tbl-2">
+      <figcaption><span class="fig-label">Table 2</span><span class="fig-caption">Exact counts <span class="tag t-proof">proof</span>. Computed from the formula and checked against the instrumented Python for n ≤ 8.</span></figcaption>
+      <table class="tbl">
+        <thead><tr><th>n</th><th>n!</th><th>T(n)</th><th>T(n)/n!</th><th>n(n−1)/2</th></tr></thead>
+        <tbody>
+          <tr><td>1</td><td>1</td><td>0</td><td>0</td><td>0</td></tr>
+          <tr><td>2</td><td>2</td><td>2</td><td>1.0000</td><td>1</td></tr>
+          <tr><td>3</td><td>6</td><td>9</td><td>1.5000</td><td>3</td></tr>
+          <tr><td>4</td><td>24</td><td>40</td><td>1.6667</td><td>6</td></tr>
+          <tr><td>5</td><td>120</td><td>205</td><td>1.7083</td><td>10</td></tr>
+          <tr><td>6</td><td>720</td><td>1&thinsp;236</td><td>1.7167</td><td>15</td></tr>
+          <tr><td>7</td><td>5&thinsp;040</td><td>8&thinsp;659</td><td>1.7181</td><td>21</td></tr>
+          <tr><td>8</td><td>40&thinsp;320</td><td>69&thinsp;280</td><td>1.7183</td><td>28</td></tr>
+          <tr><td>9</td><td>362&thinsp;880</td><td>623&thinsp;529</td><td>1.7183</td><td>36</td></tr>
+          <tr><td>10</td><td>3&thinsp;628&thinsp;800</td><td>6&thinsp;235&thinsp;300</td><td>1.7183</td><td>45</td></tr>
+        </tbody>
+      </table>
+    </figure>
+
+    <p>For scale: \(T(20) \approx 4.18 \times 10^{18}\). At a billion comparisons per second (an assumed rate, not a measurement), that is about 132 years, to sort 20 numbers.</p>
+
+    <figure class="fig" id="fig-2">
+      <figcaption><span class="fig-label">Fig. 2</span><span class="fig-caption">Comparisons against n, logarithmic vertical axis. The exact worst case \(T(n)\) <span class="tag t-proof">proof</span>; sampled random inputs, mean with min–max range <span class="tag t-empirical">empirical</span>; and the number of pairs \(n(n-1)/2\) for reference.</span></figcaption>
+      <div id="fig2-plot"></div>
+    </figure>
+
+    <div class="checkpoint" id="cp1">
+      <p class="label">Checkpoint 1</p>
+
+      <div class="ex" data-type="numeric" id="l4-cp1-a" data-answer="5">
+        <p class="ex-num">Q1</p>
+        <div class="ex-prompt"><p>How many comparisons does permutation sort make on <code>[2, 1, 3]</code>?</p></div>
+        <div class="fb" data-when="correct">Candidates (2, 1, 3): 1 &lt; 2? yes, fail (1). (2, 3, 1): 3 &lt; 2? no; 1 &lt; 3? yes, fail (2). (1, 2, 3): 2 &lt; 1? no; 3 &lt; 2? no, pass (2). Total 5.</div>
+        <div class="fb" data-when="3">That counts candidates. Each candidate costs one or more comparisons.</div>
+        <div class="fb" data-when="2">2 is the cost of the final, passing candidate alone. The two failed candidates cost comparisons too.</div>
+        <div class="fb" data-when="9">9 is the worst case for \(n = 3\), reached only when all 6 candidates are examined. Here the sorted arrangement is the third candidate.</div>
+        <div class="fb" data-when="other">List the candidates in the order <code>permutations</code> generates them (by positions: (0,1,2), (0,2,1), (1,0,2), …) and stop at the first sorted one.</div>
+      </div>
+
+      <div class="ex" data-type="mcq" id="l4-cp1-b">
+        <p class="ex-num">Q2</p>
+        <div class="ex-prompt"><p><code>[2, 3, 4, 1]</code> and <code>[1, 4, 3, 2]</code> each have exactly 3 out-of-order pairs. Permutation sort examines 19 candidates on the first and 6 on the second. Why so different?</p></div>
+        <ul class="ex-options">
+          <li data-correct><div class="opt">The cost depends on where the sorted arrangement falls in the generation order, not on how disordered the input is.</div><div class="fb">For <code>[2, 3, 4, 1]</code> the sorted order takes positions (3, 0, 1, 2), which comes late in lexicographic order; for <code>[1, 4, 3, 2]</code> it takes (0, 3, 2, 1), which comes early. The algorithm never measures disorder at all.</div></li>
+          <li><div class="opt">The first input has more disorder.</div><div class="fb">Both have exactly 3 out-of-order pairs. Disorder is the wrong lens for this algorithm.</div></li>
+          <li><div class="opt">The second input is closer to sorted, so the check passes sooner.</div><div class="fb">Every failing candidate is checked from scratch; nothing carries over from the input’s own order except the position of the answer in the sequence.</div></li>
+          <li><div class="opt">Random variation.</div><div class="fb">The algorithm is deterministic. The same input always gives the same count.</div></li>
+        </ul>
+      </div>
+
+      <div class="ex" data-type="custom" id="l4-cp1-c" data-check="L04.checkSevenCandidates" data-placeholder="2 1 3 4">
+        <p class="ex-num">Q3</p>
+        <div class="ex-prompt"><p>Build an input of 4 distinct numbers on which permutation sort examines <strong>exactly 7</strong> candidates.</p></div>
+        <div class="ex-hints">
+          <div class="hint">List the position tuples in lexicographic order: six start with 0.</div>
+          <div class="hint">The 7th is (1, 0, 2, 3): the smallest element at position 1, then position 0, then 2, then 3.</div>
+        </div>
+        <div class="ex-solution"><p>Any input with \(a_1 &lt; a_0 &lt; a_2 &lt; a_3\), such as <code>[2, 1, 3, 4]</code>, makes the sorted arrangement the 7th candidate.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="lsec" id="s06" data-gate="cp1">
+    <h2 class="sec-head"><span class="sec-num">06</span><span class="sec-title">What it knows, and what it wastes</span></h2>
+    <p>The cost is absurd. But where exactly does the waste come from? Not from the check, which costs fewer than two comparisons per candidate. It must come from the comparisons themselves: some of them, it seems, tell the algorithm nothing it did not already know. To make “already know” precise, we need to say what the algorithm knows at each moment.</p>
+
+    <div class="predict" id="pr-knows">
+      <p class="label">Predict first</p>
+      <div class="ex" data-type="numeric" id="l4-pr-knows" data-answer="3">
+        <div class="ex-prompt"><p>On <code>[2, 3, 1]</code>, permutation sort makes 7 comparisons. After how many of them does it have enough information to determine the sorted order? Step through Fig. 1 with the preset <code>[2, 3, 1]</code> if you like.</p></div>
+        <div class="fb" data-when="correct">Right: after 3. The last 4 comparisons teach it nothing.</div>
+        <div class="fb" data-when="7">It only <em>stops</em> after 7. Watch the diagram in Fig. 1: when does it become a single chain?</div>
+        <div class="fb" data-when="2">After 2 comparisons it knows 2 &lt; 3 and 1 &lt; 3, but not yet how 1 and 2 compare.</div>
+        <div class="fb" data-when="other">Track which pairs have been compared, and what follows from them by transitivity.</div>
+      </div>
+      <div class="reveal">
+        <p>The first three questions are 3 &lt; 2? (no), 1 &lt; 3? (yes), 1 &lt; 2? (yes). After them the algorithm knows 1 &lt; 2 &lt; 3, the whole order. It then examines two more candidates, (3, 2, 1) and (3, 1, 2), that contradict what it already knows, and asks four more questions whose answers it already has.</p>
+      </div>
+    </div>
+
+    <p>What exactly does the algorithm know? Each comparison returns one fact, \(x &lt; y\) or \(y &lt; x\). Facts also combine: from \(1 &lt; 2\) and \(2 &lt; 3\) the algorithm may conclude \(1 &lt; 3\) without asking, by transitivity. Nothing else can be learned in the comparison model: the elements themselves are invisible (lesson 3, §03).</p>
+    <p>Lesson 1 already has the object that holds exactly this kind of information. A set of facts “\(x\) before \(y\)”, together with everything transitivity adds, is a strict partial order (no cycles can arise, since the facts are true of one real input), the kind lesson 1 drew as a Hasse diagram. And the arrangements consistent with a partial order are its linear extensions, \(e(P)\) of them. So the natural guess is: what the algorithm knows <em>is</em> a partial order, and the inputs it cannot yet rule out are its linear extensions. Fig. 1 has been drawing exactly this partial order below the stepper. The guess is right:</p>
+
+    <div class="callout theorem" id="thm-knowledge"><p class="callout-label">Theorem 3 (knowledge is a partial order)</p>
+      <p>Let \(O\) be the outcomes of the comparisons made so far on some input with distinct keys, and \(P\) the strict partial order they generate (their transitive closure). Then:</p>
+      <p>(a) the inputs (rank patterns) that would have produced exactly these outcomes are those whose sorted order is a linear extension of \(P\); there are \(e(P)\) of them;</p>
+      <p>(b) if \(x\) and \(y\) are unrelated in \(P\), some input consistent with \(O\) has \(x &lt; y\) and another has \(y &lt; x\).</p></div>
+
+    <div class="callout proof"><p class="callout-label">Proof</p>
+      <p>(a) A rank pattern is a strict total order on the elements. It produces the observed outcomes exactly when it agrees with every outcome in \(O\). A total order is transitive, so agreeing with \(O\) is the same as agreeing with everything \(O\) implies, that is, with \(P\); and a total order agreeing with \(P\) is precisely one whose sorted arrangement is a linear extension of \(P\).</p>
+      <p>(b) Adding \(x \prec y\) to \(P\) creates no cycle, because a cycle through the new pair would need \(y \prec x\) in \(P\) already. By lesson 1, Corollary 6, some linear extension puts \(x\) before \(y\). Symmetrically, some puts \(y\) before \(x\). By (a), both are consistent inputs.</p></div>
+
+    <p>Read it back. At any moment the algorithm’s knowledge <strong>is</strong> a partial order \(P\): the facts it observed and their consequences, nothing more. The inputs it still cannot rule out number \(e(P)\). It can be certain of the sorted order exactly when \(e(P) = 1\), that is, when \(P\) has become a total order. A comparison whose answer is already in \(P\), because the same pair was asked before or because transitivity implies it, cannot change \(P\): it teaches nothing.</p>
+
+    <p>This is the <strong>knowledge lens</strong>, and it will be the main lens of the course. For every algorithm we will ask: what partial order does it hold, what shape does it have, and does each comparison change it?</p>
+
+    <p>Through this lens, permutation sort wastes in two ways:</p>
+    <ul>
+      <li><strong>It asks questions it can already answer.</strong> On the reversed input of size 4 it makes 40 comparisons, but only \(\binom{4}{2} = 6\) pairs exist: at least 34 of its comparisons ask about a pair already asked. It has the full order after comparison 24 and keeps going for 16 more.</li>
+      <li><strong>It tests candidates its knowledge has already ruled out.</strong> On <code>[2, 3, 1]</code> it knew the answer after 3 comparisons and still checked two candidates that contradicted it.</li>
+    </ul>
+    <p>The algorithm treats each candidate as a fresh question and forgets everything between candidates.</p>
+
+    <div class="checkpoint" id="cp2">
+      <p class="label">Checkpoint 2</p>
+
+      <div class="ex" data-type="mcq" id="l4-cp2-a">
+        <p class="ex-num">Q4</p>
+        <div class="ex-prompt"><p>After some comparisons, the algorithm knows \(a &lt; c\), \(b &lt; c\) and \(b &lt; d\), and nothing else (four elements). Which comparison would teach it nothing?</p></div>
+        <ul class="ex-options">
+          <li><div class="opt">\(a\) vs \(b\)</div><div class="fb">\(a\) and \(b\) are unrelated in the known partial order, so by Theorem 3(b) either answer is still possible: this comparison is informative.</div></li>
+          <li><div class="opt">\(c\) vs \(d\)</div><div class="fb">Unrelated too: some consistent inputs have \(c &lt; d\), others \(d &lt; c\).</div></li>
+          <li data-correct><div class="opt">\(b\) vs \(c\)</div><div class="fb">\(b &lt; c\) is already known. Asking again cannot change the partial order.</div></li>
+          <li><div class="opt">\(a\) vs \(d\)</div><div class="fb">Unrelated: \(a &lt; c\) and \(b &lt; d\) say nothing about \(a\) versus \(d\). (This is lesson 1’s tasks poset, where a b c d and b d a c are both valid.)</div></li>
+        </ul>
+      </div>
+
+      <div class="ex" data-type="numeric" id="l4-cp2-b" data-answer="5">
+        <p class="ex-num">Q5</p>
+        <div class="ex-prompt"><p>In the situation of Q4, how many orderings of the four elements are still possible?</p></div>
+        <div class="fb" data-when="correct">\(e(P) = 5\): lesson 1’s tasks poset, with linear extensions abcd, abdc, bacd, badc, bdac.</div>
+        <div class="fb" data-when="24">That ignores what is known. Theorem 3(a): only linear extensions of the known partial order remain.</div>
+        <div class="fb" data-when="3">List the linear extensions of a ≺ c, b ≺ c, b ≺ d; there are more than 3.</div>
+        <div class="fb" data-when="other">Count the linear extensions of a ≺ c, b ≺ c, b ≺ d (lesson 1, Fig. 2).</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="lsec" id="s07" data-gate="cp2">
+    <h2 class="sec-head"><span class="sec-num">07</span><span class="sec-title">Remember what you learn</span></h2>
+    <p>The waste suggests the fix: never ask a question you can already answer. The bluntest way to follow it: ask about every pair exactly once. With distinct keys every pair is related one way or the other, so after asking all of them the algorithm knows the whole strict total order: \(e(P) = 1\). What remains is pure bookkeeping, turning that knowledge into the one sorted arrangement.</p>
+    <p>How do we turn “all pairs known” into an arrangement? Look at the answer we are aiming for. By lesson 1, Theorem 7, the sorted arrangement is \(x_0 \prec x_1 \prec \cdots \prec x_{n-1}\): the element at position \(r\) has exactly \(r\) elements before it, all smaller, and all the others after it, all larger. So an element’s position is simply the number of elements smaller than it. So, for each element, count how many elements are smaller: its <strong>rank</strong>.</p>
+
+    <figure class="listing" id="lst-2">
+      <figcaption><span class="fig-label">Listing 2</span><span class="fig-caption">Ask every pair once; place each element by its rank.</span></figcaption>
+      <pre class="py">def rank_sort(a):
+    n = len(a)
+    rank = [0] * n
+    for i in range(n):
+        for j in range(i + 1, n):
+            if a[j] &lt; a[i]:      # one comparison per pair; the larger element earns a point
+                rank[i] += 1
+            else:
+                rank[j] += 1
+    b = [None] * n
+    for i in range(n):
+        b[rank[i]] = a[i]
+    return b</pre>
+    </figure>
+
+    <p>Why the <code>else</code>? With distinct keys, if \(a_j &lt; a_i\) is false then \(a_i &lt; a_j\), so each pair awards one point to its larger element.</p>
+
+    <div class="callout invariant"><p class="callout-label">Invariant (after the double loop)</p>
+      <p><code>rank[i]</code> equals the number of elements \(a_j\) with \(a_j &lt; a_i\).</p></div>
+
+    <div class="callout theorem" id="thm-rank"><p class="callout-label">Theorem 4 (comparison counting)</p>
+      <p>With distinct keys, <code>rank_sort</code> returns the sorted permutation of <code>a</code> and makes exactly \(n(n-1)/2\) comparisons on every input.</p></div>
+
+    <div class="callout proof"><p class="callout-label">Proof</p>
+      <p>Each pair \(\{i, j\}\) is compared exactly once and gives one point to its larger element, which proves the invariant. If \(x &lt; y\), everything smaller than \(x\) is also smaller than \(y\), and so is \(x\) itself; so rank(\(x\)) &lt; rank(\(y\)). Hence the \(n\) ranks are distinct numbers in \(\{0, \ldots, n-1\}\), so they are exactly \(0, \ldots, n-1\): every slot of <code>b</code> is written exactly once, which makes <code>b</code> a permutation of <code>a</code>. And smaller elements get smaller positions, so <code>b</code> is sorted. The comparison count is the number of pairs, \(\binom{n}{2}\), whatever the input.</p></div>
+
+    <p>Knuth calls this <strong>comparison counting</strong>. Compare the costs: for \(n = 10\), permutation sort’s worst case is 6&thinsp;235&thinsp;300 comparisons; comparison counting always uses 45. The entire gap is the value of remembering.</p>
+
+    <p><strong>Stress: ties.</strong> Theorem 4 assumed distinct keys. What if they are not?</p>
+
+    <div class="predict" id="pr-rankties">
+      <p class="label">Predict first</p>
+      <div class="ex" data-type="mcq" id="l4-pr-rankties">
+        <div class="ex-prompt"><p>What does <code>rank_sort([5, 5, 5])</code> return?</p></div>
+        <ul class="ex-options">
+          <li data-correct><div class="opt"><code>[5, 5, 5]</code></div><div class="fb">Right; see why below.</div></li>
+          <li><div class="opt"><code>[5, None, None]</code></div><div class="fb">That is what a “more careful” version returns. See below.</div></li>
+          <li><div class="opt">It raises an <code>IndexError</code>.</div><div class="fb">No index goes out of range. See below.</div></li>
+        </ul>
+      </div>
+      <div class="reveal">
+        <p>It returns <code>[5, 5, 5]</code>, correctly. For a tied pair \(i &lt; j\), <code>a[j] &lt; a[i]</code> is false, so the <code>else</code> gives the point to <code>a[j]</code>, the <em>later</em> element. Ties are broken by position: the code really ranks by the pair (key, position), which is a strict total order by lesson 2, Theorem 2. So the ranks are still distinct, the proof goes through unchanged, and as a bonus tied elements keep their input order (the property lesson 7 calls stability).</p>
+        <p>Now the tempting “more careful” version, which awards no point on a tie:</p>
+        <pre class="py">if a[j] &lt; a[i]:
+    rank[i] += 1
+elif a[i] &lt; a[j]:
+    rank[j] += 1</pre>
+        <p>On <code>[5, 5, 5]</code> all ranks stay 0, every element is written to <code>b[0]</code>, and the result is <code>[5, None, None]</code>: not a permutation. The proof fails at “the ranks are distinct”. The <code>else</code> was not a shortcut; it was the tie-breaking rule.</p>
+      </div>
+    </div>
+
+    <p><strong>But are all \(n(n-1)/2\) questions needed?</strong> Comparison counting never uses transitivity: it asks every pair, even when the answer follows from earlier answers. On a sorted input of 4 elements, the 3 neighbour questions \(a_0 &lt; a_1\), \(a_1 &lt; a_2\), \(a_2 &lt; a_3\) already prove the whole order (lesson 1, Lemma 8); the other 3 answers are consequences. How few questions can possibly suffice?</p>
+  </section>
+
+  <section class="lsec" id="s08" data-gate="cp2">
+    <h2 class="sec-head"><span class="sec-num">08</span><span class="sec-title">In Python</span></h2>
+
+    <figure class="listing" id="lst-3">
+      <figcaption><span class="fig-label">Listing 3</span><span class="fig-caption">Both algorithms, instrumented: each returns its output and the number of comparisons it made.</span></figcaption>
+      <pre class="py">from itertools import permutations
+
+
+def permutation_sort_counted(a):
+    comparisons = 0
+    for candidate in permutations(a):
+        ok = True
+        for i in range(len(candidate) - 1):
+            comparisons += 1
+            if candidate[i + 1] &lt; candidate[i]:
+                ok = False
+                break
+        if ok:
+            return list(candidate), comparisons
+
+
+def rank_sort_counted(a):
+    n = len(a)
+    rank = [0] * n
+    comparisons = 0
+    for i in range(n):
+        for j in range(i + 1, n):
+            comparisons += 1
+            if a[j] &lt; a[i]:
+                rank[i] += 1
+            else:
+                rank[j] += 1
+    b = [None] * n
+    for i in range(n):
+        b[rank[i]] = a[i]
+    return b, comparisons
+
+
+print(permutation_sort_counted([4, 3, 2, 1]))   # ([1, 2, 3, 4], 40)
+print(rank_sort_counted([4, 3, 2, 1]))          # ([1, 2, 3, 4], 6)</pre>
+    </figure>
+
+    <p>In practice neither is how you sort: <code>sorted(a)</code> is. Permutation sort is a baseline that frames sorting as a search among \(n!\) candidates; comparison counting is occasionally useful when \(n\) is tiny and you need each element’s rank anyway (its stable tie-breaking is a plus). Both are stepping stones.</p>
+  </section>
+
+  <section class="lsec" id="exercises">
+    <h2 class="sec-head"><span class="sec-title">Exercises</span></h2>
+
+    <div class="ex" data-type="lines" id="l4-ex-strict" data-answer="3">
+      <p class="ex-num">E1</p>
+      <div class="ex-prompt"><p>With this <code>is_sorted</code>, <code>permutation_sort([2, 1, 2])</code> returns <code>None</code>. Click the faulty line.</p></div>
+      <pre class="py">def is_sorted(b):
+    for i in range(len(b) - 1):
+        if not b[i] &lt; b[i + 1]:
+            return False
+    return True</pre>
+      <div class="fb" data-when="correct">It demands strict increase. Equal neighbours fail, so with a duplicate no candidate passes, the loop in <code>permutation_sort</code> ends, and the function falls off the end, returning <code>None</code>. The right test asks whether a neighbour pair is <em>out of order</em>: <code>if b[i + 1] &lt; b[i]</code>.</div>
+      <div class="fb" data-when="2">The range covers every neighbour pair, \(i = 0, \ldots, n-2\).</div>
+      <div class="fb" data-when="5">Returning <code>True</code> after checking every pair is right.</div>
+      <div class="fb" data-when="other">What does this line do when <code>b[i] == b[i + 1]</code>?</div>
+    </div>
+
+    <div class="ex" data-type="lines" id="l4-ex-rankbug" data-answer="8">
+      <p class="ex-num">E2</p>
+      <div class="ex-prompt"><p>This version of comparison counting returns <code>[5, None, None]</code> on <code>[5, 5, 5]</code>. Click the line that causes it.</p></div>
+      <pre class="py">def rank_sort(a):
+    n = len(a)
+    rank = [0] * n
+    for i in range(n):
+        for j in range(i + 1, n):
+            if a[j] &lt; a[i]:
+                rank[i] += 1
+            elif a[i] &lt; a[j]:
+                rank[j] += 1
+    b = [None] * n
+    for i in range(n):
+        b[rank[i]] = a[i]
+    return b</pre>
+      <div class="fb" data-when="correct">On a tie neither branch runs, so no point is awarded and tied elements get equal ranks. They overwrite the same slot of <code>b</code>, leaving <code>None</code>s. With <code>else:</code> the later element of a tied pair gets the point and all ranks are distinct.</div>
+      <div class="fb" data-when="12">Placing by rank is right <em>if</em> the ranks are distinct. Are they, here?</div>
+      <div class="fb" data-when="6">The first test is right: if \(a_j &lt; a_i\), \(a_i\) is the larger and earns the point.</div>
+      <div class="fb" data-when="other">Trace <code>[5, 5, 5]</code>: which branch runs for each pair?</div>
+    </div>
+
+    <div class="ex" data-type="mcq" id="l4-ex-worst">
+      <p class="ex-num">E3</p>
+      <div class="ex-prompt"><p>Why is the reversed input a worst case for permutation sort?</p></div>
+      <ul class="ex-options">
+        <li data-correct><div class="opt">Its sorted arrangement is the last one generated, and the total cost of checking all \(n!\) candidates is the same \(T(n)\) for every input.</div><div class="fb">Both halves are needed: the first says the reversed input checks everything; the second says checking everything is the maximum any input can cost.</div></li>
+        <li><div class="opt">It has the most out-of-order pairs.</div><div class="fb">The algorithm never looks at disorder; Q2 showed two inputs with equal disorder and very different costs. The reversed input is worst because of where its answer sits in the generation order.</div></li>
+        <li><div class="opt">Every candidate fails at the last neighbour pair.</div><div class="fb">Most candidates fail at the first or second pair; that is why \(T(n) &lt; 2 \cdot n!\).</div></li>
+        <li><div class="opt">Because \(n!\) is the largest factorial.</div><div class="fb">The count of candidates is \(n!\) for every input; what varies is how many of them are examined.</div></li>
+      </ul>
+    </div>
+
+    <div class="ex" data-type="numeric" id="l4-ex-rank10" data-answer="45">
+      <p class="ex-num">E4</p>
+      <div class="ex-prompt"><p>How many comparisons does comparison counting make on any input of 10 elements?</p></div>
+      <div class="fb" data-when="correct">\(\binom{10}{2} = 45\), on every input.</div>
+      <div class="fb" data-when="90">Each <em>unordered</em> pair is compared once (<code>j</code> starts at <code>i + 1</code>), not each ordered pair.</div>
+      <div class="fb" data-when="100">The inner loop does not compare an element with itself or revisit earlier pairs.</div>
+      <div class="fb" data-when="9">\(n - 1\) is the cost of <em>checking</em> a sorted input. Comparison counting asks every pair.</div>
+      <div class="fb" data-when="other">Count the pairs \((i, j)\) with \(0 \le i &lt; j \le 9\).</div>
+    </div>
+
+    <div class="ex" data-type="mcq" id="l4-ex-spiral">
+      <p class="ex-num">E5</p>
+      <div class="ex-prompt"><p><code>is_sorted</code> compares only neighbours. Which earlier result guarantees that this is enough, even with ties?</p></div>
+      <ul class="ex-options">
+        <li data-correct><div class="opt">Lesson 1, Lemma 11, because the comparison is a strict weak ordering.</div><div class="fb">That lemma is exactly “no out-of-order neighbours ⇔ sorted” for strict weak orderings. It is also why lesson 2 insisted on the contract.</div></li>
+        <li><div class="opt">Lesson 1, Lemma 8.</div><div class="fb">Lemma 8 covers strict total orders only. With ties, Lemma 11 is the one that applies.</div></li>
+        <li><div class="opt">Lesson 1, Theorem 5.</div><div class="fb">Theorem 5 says a sorted arrangement exists; it says nothing about how to check one.</div></li>
+        <li><div class="opt">Nothing: checking neighbours is always enough.</div><div class="fb">Not for general partial orders: lesson 1’s d, a, b, c passes the neighbour test and is invalid.</div></li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="ledger" id="ledger">
+    <h2 class="ledger-head">Ledger</h2>
+    <div class="ledger-block"><p class="label">Established</p><ul>
+      <li>Permutation sort is correct for any strict weak ordering <span class="tag t-proof">proof</span> <a href="#s04">§04</a></li>
+      <li>Its best case is \(n - 1\) comparisons (sorted input) and its worst case is \(T(n) = \sum_{j=1}^{n-1} n!/j! &lt; 2 \cdot n!\) (reversed input) <span class="tag t-proof">proof</span>; \(T(n)/n! \to e - 1\) <span class="tag t-sketch">proof sketch</span> <a href="#s05">§05</a></li>
+      <li>Its cost depends on where the answer sits in the generation order, not on how disordered the input is <span class="tag t-proof">proof, by example</span> <a href="#s05">§05</a></li>
+      <li>Knowledge theorem: after any comparisons, the algorithm’s knowledge is a partial order \(P\); the inputs still possible are the \(e(P)\) linear extensions; unrelated pairs can still go either way <span class="tag t-proof">proof</span> <a href="#s06">§06</a></li>
+      <li>Comparison counting sorts with exactly \(n(n-1)/2\) comparisons on every input, correctly with ties thanks to its tie-breaking by position <span class="tag t-proof">proof</span> <a href="#s07">§07</a></li>
+    </ul></div>
+    <div class="ledger-block"><p class="label">Assumptions in force</p><ul>
+      <li>Comparison model; cost = comparisons, worst case; A1 (distinct keys) for the cost results; the correctness results allow ties.</li>
+    </ul></div>
+    <div class="ledger-block"><p class="label">Lenses in use</p><ul>
+      <li><strong>Knowledge</strong> (introduced): what the algorithm knows is a partial order; \(e(P)\) counts what it still cannot rule out; comparisons whose answers are known or implied teach nothing. So far it has explained why permutation sort wastes almost all of its work.</li>
+    </ul></div>
+    <div class="ledger-block"><p class="label">Reasoning tools acquired</p><ul>
+      <li>Correctness as three claims (permutation, sorted, returns) plus a decreasing termination measure.</li>
+      <li>Stress-testing a proof by finding where a buggy variant breaks it.</li>
+      <li>Exact counting by asking “on how many candidates is comparison \(j\) made?”.</li>
+      <li>Bounding a sum by a geometric series.</li>
+      <li>The knowledge view: partial order, linear extensions, wasted comparisons.</li>
+    </ul></div>
+    <div class="ledger-block"><p class="label">Open gaps</p><div class="gaps"></div></div>
+    <div class="open-question"><p class="callout-label">Open question</p><p class="oq">Asking every pair costs \(n(n-1)/2\) comparisons, yet on a sorted input the \(n - 1\) neighbour answers already prove the whole order. How many comparisons are truly necessary? Start with the smallest questions: how many does it take just to check that an array is sorted, or to find its smallest element?</p></div>
+  </section>
+
+  <nav class="bridge"><div class="na" style="display:block;padding:var(--sp-4);border:1px solid var(--c-gray-2);color:var(--c-gray-2)"><span class="label" style="color:var(--c-gray-2)">Next · Lesson 5</span><span class="bridge-title">How many comparisons does it take to check order, or to find the smallest? (not yet available)</span></div></nav>
+
+  <footer class="foot"><p>Order and Sorting from First Principles · Lesson 4</p></footer>
+</main>
+<script src="assets/vendor/katex/katex.min.js"></script>
+<script src="assets/vendor/katex/contrib/auto-render.min.js"></script>
+<script src="assets/vendor/prism/prism-core.min.js"></script>
+<script src="assets/vendor/prism/prism-python.min.js"></script>
+<script src="assets/course.js"></script>
+<script src="lesson-04.js"></script>
+</body>
+</html>

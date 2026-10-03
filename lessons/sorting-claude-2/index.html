@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Order & Sorting · theme samples</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background-color: #fafafa;
+      color: #222;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+      line-height: 1.6;
+      font-size: 16px;
+    }
+
+    main {
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 2rem 16px;
+    }
+
+    h1 {
+      font-size: 1.75rem;
+      font-weight: 600;
+      margin-bottom: 1rem;
+      letter-spacing: -0.5px;
+    }
+
+    .intro {
+      font-size: 0.95rem;
+      color: #555;
+      margin-bottom: 2rem;
+      line-height: 1.6;
+    }
+
+    .intro code {
+      background-color: #f0f0f0;
+      padding: 0.2rem 0.4rem;
+      border-radius: 3px;
+      font-family: Menlo, Monaco, Courier, monospace;
+      font-size: 0.9em;
+      color: #222;
+    }
+
+    .themes {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    .card {
+      border: 1px solid #e2e2e2;
+      border-radius: 8px;
+      padding: 1.75rem;
+      background: white;
+    }
+
+    .card-title {
+      font-size: 1.25rem;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+      color: #222;
+    }
+
+    .card-description {
+      font-size: 0.95rem;
+      color: #555;
+      margin-bottom: 1.25rem;
+      line-height: 1.6;
+    }
+
+    .card-links {
+      display: flex;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      display: inline-block;
+      padding: 0.5rem 0.875rem;
+      font-size: 0.85rem;
+      border: 1px solid #222;
+      border-radius: 4px;
+      color: #222;
+      text-decoration: none;
+      background: transparent;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      font-family: inherit;
+    }
+
+    .btn:hover {
+      background-color: #222;
+      color: white;
+    }
+
+    @media (max-width: 600px) {
+      main {
+        padding: 1.5rem 16px;
+      }
+
+      h1 {
+        font-size: 1.5rem;
+      }
+
+      .card {
+        padding: 1.25rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Order & Sorting · theme samples</h1>
+
+    <p class="intro">
+      Five visual themes, each showing the same sample lesson. Open the lesson to compare figures, code, and exercises. Add <code>?reveal=1</code> to a lesson URL to open every gated section at once.
+    </p>
+
+    <div class="themes">
+      <!-- Theme 1: Sketchbook -->
+      <div class="card">
+        <div class="card-title">Sketchbook</div>
+        <div class="card-description">Hand-drawn study notes in the spirit of Excalidraw: sketchy figures, sticky notes, highlighter marks.</div>
+        <div class="card-links">
+          <a href="01-sketchbook/index.html" class="btn">Index</a>
+          <a href="01-sketchbook/lesson-03.html" class="btn">Sample lesson</a>
+          <a href="01-sketchbook/lesson-03.html?reveal=1" class="btn">Lesson, all revealed</a>
+        </div>
+      </div>
+
+      <!-- Theme 2: Preprint -->
+      <div class="card">
+        <div class="card-title">Preprint</div>
+        <div class="card-description">A LaTeX-typeset research paper: Computer Modern, numbered theorems, TikZ-style figures, pgfplots-style plots.</div>
+        <div class="card-links">
+          <a href="02-paper/index.html" class="btn">Index</a>
+          <a href="02-paper/lesson-03.html" class="btn">Sample lesson</a>
+          <a href="02-paper/lesson-03.html?reveal=1" class="btn">Lesson, all revealed</a>
+        </div>
+      </div>
+
+      <!-- Theme 3: Explorable essay -->
+      <div class="card">
+        <div class="card-title">Explorable essay</div>
+        <div class="card-description">A modern interactive article: airy serif text, smooth animated figures, colors linked between prose and diagrams.</div>
+        <div class="card-links">
+          <a href="03-essay/index.html" class="btn">Index</a>
+          <a href="03-essay/lesson-03.html" class="btn">Sample lesson</a>
+          <a href="03-essay/lesson-03.html?reveal=1" class="btn">Lesson, all revealed</a>
+        </div>
+      </div>
+
+      <!-- Theme 4: Swiss grid -->
+      <div class="card">
+        <div class="card-title">Swiss grid</div>
+        <div class="card-description">International Typographic Style: bold sans-serif, huge numerals, black, white and one signal red.</div>
+        <div class="card-links">
+          <a href="04-swiss/index.html" class="btn">Index</a>
+          <a href="04-swiss/lesson-03.html" class="btn">Sample lesson</a>
+          <a href="04-swiss/lesson-03.html?reveal=1" class="btn">Lesson, all revealed</a>
+        </div>
+      </div>
+
+      <!-- Theme 5: Plain text -->
+      <div class="card">
+        <div class="card-title">Plain text</div>
+        <div class="card-description">A monospace, character-grid document: box-drawn callouts, ASCII-style plots, an editor-like feel.</div>
+        <div class="card-links">
+          <a href="05-terminal/index.html" class="btn">Index</a>
+          <a href="05-terminal/lesson-03.html" class="btn">Sample lesson</a>
+          <a href="05-terminal/lesson-03.html?reveal=1" class="btn">Lesson, all revealed</a>
+        </div>
+      </div>
+    </div>
+  </main>
+</body>
+</html>
