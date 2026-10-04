@@ -27,13 +27,12 @@ const html = path.resolve(__dirname, '../../lesson-01.html');
       const ans = ex.getAttribute('data-answer'); const i = ex.querySelector('input');
       const whens = Array.from(ex.querySelectorAll('.fb')).map(f => f.getAttribute('data-when'));
       const res = {};
-      for (const v of [ans, ...whens.filter(w => /^\d+$/.test(w))]) {
+      // wrong answers first (a correct answer locks the exercise), then the answer itself
+      for (const v of [...whens.filter(w => /^\d+$/.test(w)), '777', ans]) {
         i.value = v; ex.querySelector('button').click(); await sleep(30);
         const shown = Array.from(ex.querySelectorAll('.fb.show')).map(f => f.getAttribute('data-when'));
         res[v] = shown.join('|');
       }
-      i.value = '777'; ex.querySelector('button').click(); await sleep(30);
-      res['777'] = Array.from(ex.querySelectorAll('.fb.show')).map(f => f.getAttribute('data-when')).join('|');
       num[ex.id] = res;
     }
     out.num = num;
@@ -41,7 +40,9 @@ const html = path.resolve(__dirname, '../../lesson-01.html');
     const ln = document.querySelector('#l1-ex-bug');
     const res = {};
     const lines = ln.querySelectorAll('.cl');
-    for (let k = 0; k < lines.length; k++) { lines[k].click(); await sleep(30); res[k + 1] = Array.from(ln.querySelectorAll('.fb.show')).map(f => f.getAttribute('data-when')).join('|'); }
+    const ansLines = ln.getAttribute('data-answer').split(',').map(Number);
+    const seq = [...Array(lines.length).keys()].map(k => k + 1).sort((x, y) => ansLines.includes(x) - ansLines.includes(y));
+    for (const k of seq) { lines[k - 1].click(); await sleep(30); res[k] = Array.from(ln.querySelectorAll('.fb.show')).map(f => f.getAttribute('data-when')).join('|'); }
     out.lines = res;
     // custom checker
     const cu = document.querySelector('#l1-ex-neighbour-trap'); const ci = cu.querySelector('input');

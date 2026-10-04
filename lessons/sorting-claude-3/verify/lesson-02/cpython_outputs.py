@@ -103,4 +103,96 @@ except TypeError as e:
     print("E2:", e)
 t = [(2, {"id": 1}), (1, {"id": 2}), (2, {"id": 7})]
 t.sort(key=lambda t: t[0]); print(t)
+
+# ---------------------------------------------------------------------------------------------
+# Exercise feedback, hints and worked solutions (v3 retrofit): every Python output they quote,
+# and every claim about WHICH comparisons CPython makes (logged by instrumenting __lt__ / cmp).
+class Logged:
+    log = []
+    def __init__(self, v): self.v = v
+    def __lt__(self, other):
+        r = self.v < other.v
+        Logged.log.append((self.v, other.v, r))
+        return r
+
+def logged_sort(xs):
+    Logged.log = []
+    return [o.v for o in sorted(Logged(x) for x in xs)], Logged.log
+
+# NaN reveal / predict: the sort checks the three neighbour pairs only, all "not out of order"
+out, log = logged_sort([3.0, nan, 1.0, 2.0])
+assert repr(out) == "[3.0, nan, 1.0, 2.0]"
+assert [(repr(a), repr(b), r) for a, b, r in log] == [("nan", "3.0", False), ("1.0", "nan", False), ("2.0", "1.0", False)], log
+print("nan comparisons:", log)
+
+# CP2 Q3 + §05 prose: tolerance sort makes exactly four comparisons, one per neighbour pair,
+# all ties; 3.0 and 0.6 are never compared.
+tlog = []
+def tol_logged(a, b):
+    r = tol(a, b); tlog.append((a, b, r)); return r
+show("CP2 Q3 output", repr(sorted([3.0, 2.4, 1.8, 1.2, 0.6], key=cmp_to_key(tol_logged))), "[3.0, 2.4, 1.8, 1.2, 0.6]")
+assert tlog == [(2.4, 3.0, 0), (1.8, 2.4, 0), (1.2, 1.8, 0), (0.6, 1.2, 0)], tlog
+assert all({a, b} != {3.0, 0.6} for a, b, _ in tlog)
+print("tolerance comparisons:", tlog)
+
+# CP2 Q4 worked solution: exactly two questions, by_value(1, 3) -> True, by_value(2, 1) -> False;
+# the wrapper tests result < 0, which is False for both bools.
+blog = []
+def by_value_logged(a, b):
+    r = a < b; blog.append((a, b, r)); return r
+show("CP2 Q4 output", repr(sorted([3, 1, 2], key=cmp_to_key(by_value_logged))), "[3, 1, 2]")
+assert blog == [(1, 3, True), (2, 1, False)], blog
+assert True == 1 and False == 0 and (True < 0) is False and (False < 0) is False and (0 < 0) is False
+K = cmp_to_key(by_value)
+assert all(not (K(a) < K(b)) for a in range(-3, 4) for b in range(-3, 4))   # no pair ever "before"
+fixed = lambda a, b: -1 if a < b else (1 if b < a else 0)
+show("CP2 Q4 fix", repr(sorted([3, 1, 2], key=cmp_to_key(fixed))), "[1, 2, 3]")
+print("by_value comparisons:", blog)
+
+# E3 worked solution: CPython asks {3} < {1, 2}? and {1} < {3}?, both False, nothing else.
+out, log = logged_sort([{1, 2}, {3}, {1}])
+assert out == [{1, 2}, {3}, {1}] and log == [({3}, {1, 2}, False), ({1}, {3}, False)], log
+print("set comparisons:", log)
+
+# E2 worked solution: three tuple comparisons; the third has equal priorities and reaches the dicts.
+elog = []
+class Tup:
+    def __init__(self, t): self.t = t
+    def __lt__(self, other):
+        elog.append((self.t, other.t))
+        return self.t < other.t
+try:
+    sorted(Tup(t) for t in [(2, {"id": 1}), (1, {"id": 2}), (2, {"id": 7})])
+    raise SystemExit("no TypeError")
+except TypeError as e:
+    assert str(e) == "'<' not supported between instances of 'dict' and 'dict'", e
+assert elog == [((1, {"id": 2}), (2, {"id": 1})), ((2, {"id": 7}), (1, {"id": 2})), ((2, {"id": 7}), (2, {"id": 1}))], elog
+assert ((1, {"id": 2}) < (2, {"id": 1})) is True and ((2, {"id": 7}) < (1, {"id": 2})) is False
+print("E2 tuple comparisons:", elog)
+t = [(2, {"id": 1}), (1, {"id": 2}), (2, {"id": 7})]
+t.sort(key=lambda t: t[0])
+show("E2 fix key=t[0]", repr(t), "[(1, {'id': 2}), (2, {'id': 1}), (2, {'id': 7})]")
+t = [(p, i, d) for i, (p, d) in enumerate([(2, {"id": 1}), (1, {"id": 2}), (2, {"id": 7})])]
+t.sort()   # unique index tie-breaker: never reaches the dicts
+assert [d["id"] for _, _, d in t] == [2, 1, 7]
+sorted([(1, {"id": 1}), (2, {"id": 2}), (3, {"id": 3})])   # all-different priorities: no TypeError
+
+# CP1 Q1 / Q2 feedback: exact TypeError messages and results
+try:
+    sorted(words, key=lambda w: len(w) + w); raise SystemExit("no TypeError")
+except TypeError as e:
+    show("cp1 Q1 (d) message", str(e), "unsupported operand type(s) for +: 'int' and 'str'")
+try:
+    sorted(recs, key=lambda t: (-t[0], -t[1])); raise SystemExit("no TypeError")
+except TypeError as e:
+    show("cp1 Q2 (c) message", str(e), "bad operand type for unary -: 'str'")
+show("cp1 Q1 (c) alphabetical", repr(sorted(words, key=lambda w: (w, len(w)))), "['apple', 'fig', 'kiwi', 'pear', 'plum']")
+assert [(len(w), w) for w in words] == [(4, 'pear'), (3, 'fig'), (4, 'kiwi'), (4, 'plum'), (5, 'apple')]
+assert [(-t[0], t[1]) for t in recs] == [(-90, 'Lee'), (-85, 'Ana'), (-90, 'Bo'), (-70, 'Cy')]
+assert -90 < -85 and 90 > 85
+
+# E1 / E4 / E5 string facts
+assert "121" > "12" and "30" > "3" and "3" + "30" == "330" and "30" + "3" == "303"
+assert "12" + "1212" == "1212" + "12" == "121212"
+
 print("OK cpython_outputs")

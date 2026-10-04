@@ -72,3 +72,87 @@ for _ in range(10000):
 assert found, "no float collision found"
 print("float collision example:", found)
 print("OK check_numbers: 2000 random lists agree")
+
+# ---------------------------------------------------------------------------------------------
+# v3 prose and the retrofitted exercise feedback / hints / worked solutions.
+# §01: "n(n-1)/2 pairs, about half a million for 1000 items"
+assert 1000 * 999 // 2 == 499500 and abs(499500 - 500000) / 500000 < 0.01
+
+# Prerequisite Q1 ("noticeably smaller": x < y iff y - x > 1) on 1.0, 1.5, 2.2
+NS = lambda x, y: y - x > 1
+D = Fraction
+vals = [D(10, 10), D(15, 10), D(22, 10)]
+assert D(22, 10) - D(15, 10) == D(7, 10) and D(15, 10) - D(10, 10) == D(5, 10) and D(22, 10) - D(10, 10) == D(12, 10)
+related = [(x, y) for x in vals for y in vals if NS(x, y)]
+assert related == [(D(1), D(22, 10))]                     # the only requirement: 1.0 before 2.2
+def is_sorted(row, before):  return not any(before(row[j], row[i]) for i in range(len(row)) for j in range(i + 1, len(row)))
+def neighbour_ok(row, before): return not any(before(row[i + 1], row[i]) for i in range(len(row) - 1))
+fools = [r for r in itertools.permutations(vals) if neighbour_ok(r, NS) and not is_sorted(r, NS)]
+assert fools == [(D(22, 10), D(15, 10), D(1))]            # exactly option (a): 2.2, 1.5, 1.0
+for row, sortd, nb in [((D(1), D(15, 10), D(22, 10)), True, True), ((D(22, 10), D(1), D(15, 10)), False, False),
+                       ((D(15, 10), D(1), D(22, 10)), True, True)]:
+    assert is_sorted(row, NS) == sortd and neighbour_ok(row, NS) == nb
+assert 2.2 - 1.5 < 1 and 1.5 - 1.0 < 1 and 2.2 - 1.0 > 1  # same verdicts in floats
+
+# Prerequisite Q2: request (B) by age; tiers, a chain, minimal elements, the set below Ana / Ben
+age = {"Ana": 30, "Ben": 25, "Cy": 30, "Dee": 22}
+B = lambda x, y: age[x] < age[y]
+tiers = sorted({tuple(sorted(p for p in age if age[p] == a)) for a in age.values()}, key=lambda t: age[t[0]])
+assert tiers == [("Dee",), ("Ben",), ("Ana", "Cy")]
+assert B("Dee", "Ben") and B("Ben", "Ana") and B("Dee", "Ana")                     # chain Dee < Ben < Ana
+assert [p for p in age if not any(B(q, p) for q in age)] == ["Dee"]                # minimal = first tier
+assert sorted(p for p in age if B(p, "Ana")) == ["Ben", "Dee"] and B("Dee", "Ben")  # below Ana: related pair
+assert [p for p in age if B(p, "Ben")] == ["Dee"]                                  # below Ben happens to be a tier
+assert all(not B(p, q) for p in ("Ana", "Cy") for q in ("Ana", "Cy"))             # Ana, Cy tie
+# every member of an earlier tier before every member of a later one
+assert all(B(x, y) for i, s in enumerate(tiers) for t in tiers[i + 1:] for x in s for y in t)
+
+# CP2 Q3: tolerance comparator: "before" is transitive, ties are not; distances quoted
+def tol_before(a, b): return not abs(a - b) < 1 and a < b
+grid = [D(k, 10) for k in range(0, 41)]
+assert all(tol_before(a, c) for a in grid for b in grid for c in grid if tol_before(a, b) and tol_before(b, c))
+assert all(D(k + 6, 10) - D(k, 10) == D(6, 10) for k in (6, 12, 18, 24))            # neighbours 0.6 apart
+assert D(30, 10) - D(6, 10) == D(24, 10) and tol_before(0.6, 3.0)                  # 0.6 before 3.0
+assert all(abs(a - b) < 1 for a, b in [(3.0, 2.4), (2.4, 1.8), (1.8, 1.2), (1.2, 0.6)])
+assert tol_before(1.8, 3.0) and not tol_before(2.4, 3.0) and not tol_before(1.8, 2.4)
+
+# E1: 12121 vs 12112 (first three digits agree, fourth 2 > 1); f(12) vs f(121) decimal expansions
+a, b = "12121", "12112"
+k = next(i for i in range(5) if a[i] != b[i])
+assert k == 3 and a[:3] == b[:3] == "121" and (a[k], b[k]) == ("2", "1") and len(a) == len(b) == 5
+assert f(12) == Fraction(12, 99) and f(121) == Fraction(121, 999) and f(12) > f(121)
+def decimals(fr, n):
+    out = []
+    for _ in range(n):
+        fr *= 10; d = int(fr); out.append(str(d)); fr -= d
+    return "".join(out)
+assert decimals(f(12), 6) == "121212" and decimals(f(121), 6) == "121121"
+assert decimals(f(3), 3) == "333" and decimals(f(30), 4) == "3030" and decimals(f(34), 4) == "3434" and decimals(f(5), 3) == "555"
+
+# E4: algebra steps on many pairs; 3|30 = 3*100 + 30
+def L(x): return len(str(x))
+assert 3 * 10 ** L(30) + 30 == 330 == int("3" + "30")
+for _ in range(20000):
+    x, y = rng.randint(0, 10 ** 7), rng.randint(0, 10 ** 7)
+    xy, yx = int(str(x) + str(y)), int(str(y) + str(x))
+    assert xy == x * 10 ** L(y) + y and yx == y * 10 ** L(x) + x                      # step A
+    assert (xy > yx) == (x * (10 ** L(y) - 1) > y * (10 ** L(x) - 1))               # step B
+    assert (10 ** L(x) - 1) * (10 ** L(y) - 1) > 0                                   # step C: positive
+    assert (xy > yx) == (f(x) > f(y))                                                # step C result
+# false steps refuted by 3 and 30
+assert 3 < 30 and 330 > 303 and "30" > "3" and 303 < 330
+
+# E5: 12 and 1212 tie; lesson 1's tasks: d, a, b, c unsorted with no out-of-order neighbour pair
+assert int("12" + "1212") == int("1212" + "12") == 121212 and f(12) == f(1212)
+tasks = {("a", "c"), ("b", "c"), ("b", "d")}
+TB = lambda x, y: (x, y) in tasks
+row = ["d", "a", "b", "c"]
+assert neighbour_ok(row, TB) and not is_sorted(row, TB) and TB("b", "d")
+
+# E3: proper subset is irreflexive and transitive on all subsets of {1, 2, 3}; ties not transitive
+subsets = [set(c) for r in range(4) for c in itertools.combinations([1, 2, 3], r)]
+assert not any(s < s for s in subsets)
+assert all(a < c for a in subsets for b in subsets for c in subsets if a < b and b < c)
+tie = lambda x, y: not x < y and not y < x
+assert tie({1}, {3}) and tie({3}, {1, 2}) and {1} < {1, 2}
+print("OK check_numbers: v3 prose and exercise explanations")

@@ -12,6 +12,13 @@ Lesson files: `lesson-NN.html` + `lesson-NN.js` (pure Python ports and widget wi
 
 ## Authoring standards (user feedback, binding for every lesson)
 
+0. **MOST IMPORTANT: voice and reasoning.** Everything the reader reads (prose, captions, reveals, feedback, hints, worked solutions) is written as a tutor talking the reader through it: conversational, narrative, "we" and "you", asking the questions the reader would ask, honest about what has and has not been shown yet.
+   - **Never open cold.** No section or paragraph starts with a bare instruction or claim ("Start with the smallest case", "A relation is …"). First say what we are trying to find out, and why the next move helps answer it.
+   - **Convince, don't assert.** Every claim that matters is reached by a visible chain of reasoning the reader can follow and check, built up from the simplest case, with a concrete instance at each step. Wherever a reader could ask "why?" or "how does that follow?", the answer is in the text before moving on.
+   - *Worked example of the standard* (lesson 1 §02). Not "a rule for pairs decides whole rows", but: what each request actually says (verdicts on pairs only) → so what "a row follows the rule" must mean (every pair in it does) → how you would *build* such a row from pair verdicts alone (repeatedly pick an item nothing must precede) → try it (works for A–C, stuck on D) → why it can fail (in a row "before" carries over, so the verdicts must fit together) → the real answer (pair verdicts determine a whole order exactly when they fit together), which sets the agenda for the rest of the lesson.
+   - Formal definitions, theorems and proofs stay crisp inside their callouts; the prose leading into and out of each one is conversational and says why it is needed and what it means.
+   - The bar is a correct and complete argument, not a shorter one: write more rather than skip a step.
+
 1. **No definition, lemma or theorem appears cold.** Before each one, in this order:
    - the question it answers, raised by something the reader has just seen (a running example, a failed attempt, a puzzling count);
    - the idea in plain words, with a concrete instance from the running examples (e.g. "write the rule as the list of its 'yes' pairs" before "a relation is a set of ordered pairs");

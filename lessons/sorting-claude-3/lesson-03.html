@@ -25,8 +25,8 @@
 
   <section class="where" id="where">
     <p class="label">Where we are</p>
-    <p>Lessons 1 and 2 gave us a comparison we can trust: a strict weak ordering, supplied in Python by <code>&lt;</code>, a key function, or a comparator that honours its contract. We know what a sorted arrangement is and how many there are.</p>
-    <p>This course is about what sorting costs. Before we can ask that, three things must be pinned down. Why would anyone pay for sorting at all? What exactly counts as a correct answer? And what is an algorithm allowed to do to find one? The third matters more than it seems: until it is fixed, “cost” has no meaning.</p>
+    <p>Lessons 1 and 2 gave us a comparison we can trust: a strict weak ordering, supplied in Python by <code>&lt;</code>, by a key function, or by a comparison function that keeps its contract. We know what a sorted arrangement is, and how many there are.</p>
+    <p>This course is about what sorting <em>costs</em>. But before we can ask that question sensibly, three things need pinning down. First, why would anyone pay for sorting at all? Second, what exactly counts as a correct answer? And third, what is an algorithm allowed to do to find one? That third question matters more than it looks: as we’ll see, until it’s settled, “cost” doesn’t even have a meaning.</p>
     <ul class="deps">
       <li><a href="lesson-01.html#s05">Lesson 1 §05: exactly one sorted arrangement</a></li>
       <li><a href="lesson-01.html#s06">Lesson 1 §06: ties and tiers</a></li>
@@ -40,51 +40,56 @@
     <div class="ex" data-type="numeric" id="l3-pre-1" data-answer="1" data-remedy="lesson-01.html#s05">
       <p class="ex-num">P1</p>
       <div class="ex-prompt"><p>How many sorted arrangements does a strict total order on 5 elements have?</p></div>
-      <div class="fb" data-when="correct">Exactly one (lesson 1, Theorem 7): the first position is forced to hold the minimum, and so on.</div>
-      <div class="fb" data-when="120">120 = 5! counts all arrangements. Only one of them has nothing out of order.</div>
-      <div class="fb" data-when="other">In a total order every pair is related. Which element is forced into the first position?</div>
+      <div class="fb" data-when="correct">Yes, exactly one. In a total order every pair is related, so exactly one element is below all the others, and it is forced into the first slot. The same argument then fixes the second slot, and so on down the row. That’s lesson 1, Theorem 7.</div>
+      <div class="fb" data-when="120">120 is \(5!\), the number of <em>all</em> arrangements of five elements, sorted or not. Almost all of them have some pair out of order. The question asks how many have no pair out of order, and in a total order that requirement pins down every slot.</div>
+      <div class="fb" data-when="2">It’s tempting to count both the increasing and the decreasing row. But “sorted” means no later element comes before an earlier one in the order, and the decreasing row breaks that for every one of its 10 pairs. Only the increasing row counts.</div>
+      <div class="fb" data-when="other">Not quite. Think about the first slot: in a strict total order, how many elements could stand there without some other element having to come before it? Once that’s settled, ask the same about the second slot.</div>
+      <div class="ex-hints"><div class="hint">Ask what the first slot of a sorted row can hold. Could two different elements both qualify?</div><div class="hint">In a total order any two elements are related, so only one element is below all the others. It has to go first. Now ask the same question about the four that remain.</div></div>
+      <div class="ex-solution"><p>Let’s build a sorted row slot by slot and count our choices. Slot 0 must hold an element that nothing else has to precede; otherwise that other element, standing later, would form an out-of-order pair with it. In a strict total order every pair is related, so exactly one element qualifies: the minimum. That’s 1 choice.</p><p>Take it away. The other four elements are still totally ordered, so slot 1 is forced in the same way: it holds their minimum, again 1 choice. Carrying on, every slot has exactly one choice, so the count is \(1 \cdot 1 \cdot 1 \cdot 1 \cdot 1 = 1\). That’s lesson 1, Theorem 7.</p><p>The tempting 120 is \(5! = 5 \cdot 4 \cdot 3 \cdot 2 \cdot 1\), which counts every arrangement, sorted or not. And 2 would also count the decreasing row, which has all \(\binom{5}{2} = 10\) of its pairs out of order.</p></div>
     </div>
 
     <div class="ex" data-type="mcq" id="l3-pre-2" data-remedy="lesson-02.html#s05">
       <p class="ex-num">P2</p>
       <div class="ex-prompt"><p>Python’s <code>sorted</code> is given a comparison that is not a strict weak ordering. What happens?</p></div>
       <ul class="ex-options">
-        <li data-correct><div class="opt"><span>It returns some rearrangement of the input, with no error; which one depends on the starting order.</span></div><div class="fb">That is what CPython did with NaN, tolerance and cyclic comparators (lesson 2, §05).</div></li>
-        <li><div class="opt"><span>It raises a <code>ValueError</code>.</span></div><div class="fb">Python does not check the comparison. It trusts it and returns whatever its steps produce.</div></li>
-        <li><div class="opt"><span>It returns the input unchanged.</span></div><div class="fb">Sometimes, by accident (the NaN example); but other starting orders gave other outputs.</div></li>
-        <li><div class="opt"><span>It sorts correctly anyway, because it compares every pair.</span></div><div class="fb">No sort compares every pair; sorts rely on transitivity to skip most pairs, which is exactly why a broken comparison misleads them.</div></li>
+        <li data-correct><div class="opt"><span>It returns some rearrangement of the input, with no error; which one depends on the starting order.</span></div><div class="fb">That’s it. Python never checks the comparison: it believes every answer and runs its usual steps. In lesson 2, §05, the NaN, tolerance and rock–paper–scissors comparisons all ran without an error, every output was a rearrangement of the input, and which rearrangement you got depended on where the elements started.</div></li>
+        <li><div class="opt"><span>It raises a <code>ValueError</code>.</span></div><div class="fb">A natural thing to expect, but Python doesn’t check the comparison at all. It trusts every answer and returns whatever its steps produce. None of lesson 2’s broken comparisons raised an error. (Java’s library sort sometimes throws an error in this situation; Python never does.)</div></li>
+        <li><div class="opt"><span>It returns the input unchanged.</span></div><div class="fb">That did happen once in lesson 2: <code>sorted([3.0, nan, 1.0, 2.0])</code> came back unchanged. But it was luck, not a rule. The same four values starting as <code>[nan, 3.0, 1.0, 2.0]</code> came back as <code>[nan, 1.0, 2.0, 3.0]</code>, so the output depends on the starting order.</div></li>
+        <li><div class="opt"><span>It sorts correctly anyway, because it compares every pair.</span></div><div class="fb">Two problems here. Python’s sort doesn’t compare every pair: on 1000 random numbers it makes about 8&#8201;600 comparisons, not 499&#8201;500 (§04 measures this). It relies on its answers chaining together, which is exactly what a broken comparison spoils. And even asking every pair couldn’t rescue a cyclic comparison like rock–paper–scissors, which has no sorted arrangement at all (lesson 1, Lemma 1).</div></li>
       </ul>
+      <div class="ex-hints"><div class="hint">Ask whether Python ever checks the comparison it’s given, or simply believes every answer.</div><div class="hint">Recall the experiments in lesson 2, §05. Did any broken comparison raise an error? Was any element lost or duplicated? Did the output stay the same when the starting order changed?</div></div>
+      <div class="ex-solution"><p>Think about what the sort actually does: it asks <code>&lt;</code> about some pairs, believes every answer, and moves elements around accordingly. Nothing in that process checks whether the answers fit together, so no error is raised, and (b) is out.</p><p>What comes back? In every run of lesson 2’s experiments the output was a rearrangement of the input, with nothing lost or duplicated. Which rearrangement depends on the answers the sort happened to get, and those depend on the starting order: <code>[3.0, nan, 1.0, 2.0]</code> came back unchanged, which is what makes (c) tempting, but <code>[nan, 3.0, 1.0, 2.0]</code> came back as <code>[nan, 1.0, 2.0, 3.0]</code>. That is exactly (a).</p><p>Option (d) fails twice. The sort doesn’t ask about every pair; it relies on answers chaining together, and a broken comparison is precisely one whose answers don’t chain. And for a cyclic comparison there is no correct output to find in the first place.</p></div>
     </div>
   </section>
 
   <section class="lsec" id="s01">
     <h2 class="sec-head"><span class="sec-num">01</span><span class="sec-title">Why pay for order?</span></h2>
-    <p>Sorting will cost something, and most of this course is about how much. So first: what does a sorted list buy? Two everyday questions show it.</p>
+    <p>Sorting is going to cost something, and most of this course is about exactly how much. So it’s fair to ask first: what does a sorted list actually buy you? Let’s look at two everyday questions, once on an unsorted list and once on a sorted one.</p>
 
-    <p><strong>Duplicates.</strong> Does any value occur twice? More precisely: are any two elements tied? Without order, the natural method compares every pair, \(n(n-1)/2\) of them, because a tie could be hiding anywhere. In a sorted list, ties cannot hide. Lesson 1, Theorem 10 says that each tier forms one contiguous block, so two tied elements always stand next to each other somewhere, and checking neighbours is enough:</p>
+    <p><strong>Duplicates.</strong> Does any value occur twice? More precisely, are any two elements tied? In an unsorted list, a tied pair could be hiding anywhere, so the obvious method compares every pair: \(n(n-1)/2\) of them. Now imagine the same list sorted. Could two tied elements end up far apart, with something of a different value between them? Suppose they did: \(x\) and \(y\) tie, and some \(z\) that ties with neither stands between them. Since \(x\) and \(y\) tie, they belong to the same tier; since \(z\) ties with neither, it belongs to a different tier. And lesson 1, Lemma 9 says a different tier lies entirely before that tier or entirely after it. So \(z\) belongs either before both \(x\) and \(y\) or after both. If \(z\) belongs before both, then \(z\) standing after \(x\) makes \(x, z\) an out-of-order pair. If it belongs after both, then \(z\) standing before \(y\) makes \(z, y\) an out-of-order pair. Either way the list wouldn’t be sorted. So in a sorted list, tied elements always stand together, and to find a tie you only need to look at neighbours:</p>
 
     <div class="callout lemma" id="lem-dup"><p class="callout-label">Lemma 1 (ties are neighbours)</p><p>A sorted list contains two tied elements if and only if some neighbour pair is tied. Checking this takes \(n - 1\) comparisons: for neighbours with \(b_{i+1} \not&lt; b_i\) (true in a sorted list), they are tied exactly when also \(b_i \not&lt; b_{i+1}\).</p></div>
 
     <div class="callout proof"><p class="callout-label">Proof</p><p>Tiers appear as contiguous blocks (lesson 1, Theorem 10). If a tier has two elements, its block has two adjacent positions. The converse is immediate. One comparison per neighbour pair suffices because sortedness already rules out \(b_{i+1} &lt; b_i\).</p></div>
 
-    <p><strong>Search.</strong> Is a value \(v\) present, and where would it go? In an unsorted list, \(v\) could belong anywhere, so in the worst case every element must be examined. In a sorted list, one comparison of \(v\) with the middle element tells us which half \(v\) belongs in, and the other half can be ignored from then on. Repeat on the half that is left. How many comparisons does that take?</p>
+    <p><strong>Search.</strong> Is a value \(v\) in the list, and where would it go? In an unsorted list, \(v\) could belong anywhere, so in the worst case you have to look at every element. In a sorted list you can do something much cleverer. Compare \(v\) with the middle element. That one comparison tells you which half \(v\) belongs in, and you can ignore the other half from then on. Then do the same with the half that’s left. How many comparisons does that take?</p>
 
     <div class="predict" id="l3-pr-halving-p">
       <p class="label">Predict first</p>
       <div class="ex" data-type="numeric" id="l3-pr-halving" data-answer="10">
         <div class="ex-prompt"><p>A sorted list holds 1000 values. A value \(v\) could belong in any of the 1001 gaps (before the first element, between two neighbours, after the last). Each comparison of \(v\) with an element of the list rules out, at best, half of the remaining gaps. How many comparisons are needed to pin down the gap?</p></div>
-        <div class="fb" data-when="correct">Right: \(2^{9} = 512 &lt; 1001 \le 1024 = 2^{10}\).</div>
-        <div class="fb" data-when="1000">That is the cost of examining every element one by one, which is what an unsorted list forces.</div>
-        <div class="fb" data-when="500">Halving is faster than that: each comparison halves what is left, rather than removing a fixed amount.</div>
-        <div class="fb" data-when="9">Nine halvings leave \(1001 / 2^9 \approx 2\) gaps, not one.</div>
-        <div class="fb" data-when="other">How many times must you halve 1001 to get down to 1?</div>
+        <div class="fb" data-when="correct">That’s it: ten. Nine can’t always do it, because \(2^{9} = 512\) is less than 1001, but ten can, because \(1001 \le 1024 = 2^{10}\).</div>
+        <div class="fb" data-when="1000">That’s what an unsorted list forces: looking at every element, one by one. A sorted list lets each comparison throw away half of what’s left, which is far quicker.</div>
+        <div class="fb" data-when="500">That would be removing a fixed amount each time. Halving is much faster than that: each comparison halves what’s left, so the gaps go from 1001 to about 500, then about 250, and so on, reaching 1 very quickly.</div>
+        <div class="fb" data-when="9">So close! But nine halvings can still leave \(1001 / 2^9 \approx 2\) gaps, not one, so you need one more comparison.</div>
+        <div class="fb" data-when="other">Try counting halvings: how many times do you have to halve 1001 before you’re down to a single gap?</div>
       </div>
       <div class="reveal">
         <p>Ten. Each comparison at best halves the set of remaining gaps, so after \(k\) comparisons at least \(1001 / 2^k\) remain in the worst case, and we need \(2^k \ge 1001\), that is \(k \ge \log_2 1001 \approx 9.97\). Halving achieves this: 10 comparisons suffice. The halving procedure needs care to get exactly right (its boundaries are a classic source of bugs), and lesson 12 builds it properly, with its invariant.</p>
       </div>
     </div>
 
-    <p>The answer for 1000 values, ten, is a logarithm, and logarithms will appear in almost every lesson from now on. The course reads them in two ways, and both have just appeared: the first describes what the search did, the second explains why no method that asks yes/no questions can do better.</p>
+    <p>Ten comparisons for 1000 values. That number is a logarithm, and logarithms are going to turn up in almost every lesson from here on. The course reads them in two ways, and both have just appeared. The first describes what the search did. The second explains why no method that asks yes/no questions could do better.</p>
     <ul>
       <li><strong>Halvings.</strong> \(\log_2 m\) is the number of times \(m\) must be halved to reach 1. That is what the search did: each comparison halved the remaining gaps, from 1001 down to 1, in \(\lceil \log_2 1001 \rceil = 10\) rounds. Whenever an algorithm repeatedly halves its problem, a logarithmic number of rounds follows.</li>
       <li><strong>Bits.</strong> \(k\) yes/no answers have at most \(2^k\) combinations, so singling out one of \(m\) possibilities takes at least \(\log_2 m\) answers <span class="tag t-proof">proof</span>. A comparison is a yes/no answer, so \(\log_2 m\) is a floor on the number of comparisons that single out one of \(m\) possibilities. For the search, \(m = 1001\) gaps, so no method can always succeed with fewer than ten comparisons: halving is as good as it gets.</li>
@@ -102,30 +107,32 @@
       </table>
     </figure>
 
-    <p>Sorting is an investment: paid once, it turns later questions into a scan or a lookup <span class="tag t-intuition">intuition</span>. Whether it pays depends on how many questions follow and how much sorting costs, which is the question of the rest of the course.</p>
+    <p>So sorting is an investment: you pay once, and afterwards many questions become a quick scan or a direct lookup <span class="tag t-intuition">intuition</span>. Whether the investment pays off depends on how many questions follow and on how much the sorting costs. That second part is what the rest of the course is about.</p>
   </section>
 
   <section class="lsec" id="s02">
     <h2 class="sec-head"><span class="sec-num">02</span><span class="sec-title">The specification</span></h2>
-    <p>Before we can ask what sorting costs, we need to know exactly what counts as success. “A function that sorts” sounds clear until you try to test one.</p>
+    <p>Before we can ask what sorting costs, we need to know exactly what counts as success. “A function that sorts” sounds perfectly clear, until you try to write a test for one. Let’s try. Here are six functions that all claim to sort.</p>
 
     <div class="predict" id="l3-pr-fakes-p">
       <p class="label">Predict first</p>
       <div class="ex" data-type="multi" id="l3-pr-fakes">
         <div class="ex-prompt"><p>Each function below claims to sort a list of numbers. Select every one that is a correct sorting function for all inputs.</p></div>
         <ul class="ex-options">
-          <li><div class="opt"><span><code>def f(a): return []</code></span></div><div class="fb">The empty list is trivially in order (no pair is out of order), but every element is lost: ordered, yet not a rearrangement of the input.</div></li>
-          <li><div class="opt"><span><code>def f(a): return list(range(len(a)))</code></span></div><div class="fb">0, 1, …, n−1 is in order, but these are not the input’s elements: ordered, wrong elements.</div></li>
-          <li><div class="opt"><span><code>def f(a): return [min(a)] * len(a)</code></span></div><div class="fb">In order and the right length, but every element is replaced by a copy of the minimum: ordered, but not the same elements.</div></li>
-          <li><div class="opt"><span><code>def f(a): return a</code></span></div><div class="fb">Exactly the right elements, but in their original order: a rearrangement (the trivial one), not ordered.</div></li>
-          <li><div class="opt"><span><code>def f(a): return sorted(set(a))</code></span></div><div class="fb">Correct whenever all values are distinct, but <code>set</code> removes duplicates: <code>[2, 1, 2]</code> gives <code>[1, 2]</code>, so it fails on inputs with duplicates.</div></li>
-          <li data-correct><div class="opt"><span><code>def f(a): return sorted(a)</code></span></div><div class="fb">This one is correct: ordered, and a rearrangement of the input.</div></li>
+          <li><div class="opt"><span><code>def f(a): return []</code></span></div><div class="fb">The empty list is in order, trivially: it has no pair at all that could be out of order. But every element has been thrown away, so it isn’t a rearrangement of the input. Ordered, yet wrong.</div></li>
+          <li><div class="opt"><span><code>def f(a): return list(range(len(a)))</code></span></div><div class="fb">The output 0, 1, …, n−1 is in order, but those aren’t the input’s elements; they’re just its positions. Ordered, yet the wrong elements.</div></li>
+          <li><div class="opt"><span><code>def f(a): return [min(a)] * len(a)</code></span></div><div class="fb">In order and the right length, but every element has been replaced by a copy of the minimum, so the contents are wrong. Ordered, yet not the same elements.</div></li>
+          <li><div class="opt"><span><code>def f(a): return a</code></span></div><div class="fb">The elements are exactly right, but they’re never rearranged, so they stay in their original order. That’s a rearrangement (the trivial one), yet not an ordered one, unless the input happened to be sorted already.</div></li>
+          <li><div class="opt"><span><code>def f(a): return sorted(set(a))</code></span></div><div class="fb">The sneaky one. It’s correct whenever all the values are distinct, but <code>set</code> throws duplicates away: <code>[2, 1, 2]</code> comes back as <code>[1, 2]</code>. Failing on some inputs means it isn’t a correct sort.</div></li>
+          <li data-correct><div class="opt"><span><code>def f(a): return sorted(a)</code></span></div><div class="fb">The genuine one: its output is in order, and it’s a rearrangement of the input, duplicates included.</div></li>
         </ul>
       </div>
       <div class="reveal">
         <p>Every fake passes half of a two-part test. (a), (b) and (c) produce something in order but lose or invent elements. (d) keeps the elements but does not order them. (e) passes on distinct values and fails on duplicates, so it is wrong for some inputs, which makes it wrong. A correct specification needs both halves.</p>
       </div>
     </div>
+
+    <p>So a correct sort has to pass two separate tests: its output must be in order, and it must contain exactly the input’s elements. Let’s write both down precisely, together with what we assume about the input.</p>
 
     <div class="callout def"><p class="callout-label">Definition (the sorting problem)</p>
       <p><strong>Precondition.</strong> A list \(a = [a_0, \ldots, a_{n-1}]\) and a comparison \(&lt;\) that is a strict weak ordering.</p>
@@ -136,24 +143,24 @@
       </ol>
     </div>
 
-    <p>Read \(\pi\) as instructions for building the output: slot \(i\) of \(b\) receives the element that sat at position \(\pi(i)\) of \(a\). “Bijection” means every input position is used exactly once, so nothing is lost and nothing is copied. For example, sorting \(a = [30, 10, 20]\) uses \(\pi(0) = 1\), \(\pi(1) = 2\), \(\pi(2) = 0\), which gives \(b = [10, 20, 30]\).</p>
+    <p>Condition 2 deserves a closer look, because “\(b\) is a permutation of \(a\)” is exactly the part the fake sorts got wrong. Think of \(\pi\) as a set of instructions for building the output: slot \(i\) of \(b\) receives the element that sat at position \(\pi(i)\) of \(a\). “Bijection” means every input position is used exactly once, so nothing is lost and nothing is copied. For example, sorting \(a = [30, 10, 20]\) uses \(\pi(0) = 1\), \(\pi(1) = 2\) and \(\pi(2) = 0\), which gives \(b = [10, 20, 30]\).</p>
 
-    <p>Condition 2 is phrased with positions, not values, so that duplicates are counted correctly: \(b\) must contain each element exactly as often as \(a\) does. That is precisely what fake (e) violates.</p>
+    <p>Why talk about positions rather than values? Because of duplicates. Phrased with positions, the condition says that \(b\) must contain each element exactly as often as \(a\) does, and that is precisely what fake (e) violated.</p>
 
-    <p><code>xs.sort()</code> rearranges the list in place: its final contents must be \(b\). <code>sorted(xs)</code> returns a new list \(b\) and leaves <code>xs</code> alone. The specification is the same.</p>
+    <p>The same specification covers both of Python’s ways of sorting. <code>xs.sort()</code> rearranges the list in place, so its final contents must be \(b\); <code>sorted(xs)</code> returns a new list \(b\) and leaves <code>xs</code> alone.</p>
 
-    <p>How many candidate outputs are there?</p>
+    <p>Now, how many possible outputs does a sort have to choose between? Every output is some rearrangement of the input, so let’s count the rearrangements.</p>
 
     <div class="callout lemma" id="lem-count"><p class="callout-label">Lemma 2 (counting arrangements)</p><p>A list of \(n\) elements has exactly \(n!\) arrangements \(b = [a_{\pi(0)}, \ldots, a_{\pi(n-1)}]\), one for each bijection \(\pi\).</p></div>
 
     <div class="callout proof"><p class="callout-label">Proof</p><p>Choose \(\pi(0)\) in \(n\) ways, then \(\pi(1)\) among the \(n - 1\) positions left, and so on: \(n (n-1) \cdots 1 = n!\).</p></div>
 
-    <p>With distinct keys, no two elements tie, so every tier of the strict weak ordering holds a single element, and the ordering is a strict total order. By lesson 1, Theorem 7, exactly one of these \(n!\) arrangements is sorted. So, in its plainest form:</p>
+    <p>And how many of those are correct? When all the keys are different, no two elements tie, so every tier of the strict weak ordering holds just one element, which makes the ordering a strict total order. Lesson 1, Theorem 7 then says that exactly one of the \(n!\) arrangements is sorted. So, in its plainest form:</p>
 
     <blockquote><p><strong>Sorting \(n\) distinct elements means finding the one sorted arrangement among \(n!\) candidates.</strong></p></blockquote>
 
-    <p>With ties there are \(n_1! \cdots n_k!\) sorted arrangements (lesson 1, Theorem 10), and the specification accepts any of them. (Python promises a particular one, the stable one, as lesson 7 explains.)</p>
-    <p>Ties change how many answers are acceptable, but not what the problem is about. For the first analyses it pays to remove them: with distinct keys the answer is unique, every pair of elements is settled one way or the other, and counts come out clean. So we assume, for now:</p>
+    <p>When there are ties, there are \(n_1! \cdots n_k!\) sorted arrangements (lesson 1, Theorem 10), and the specification is happy with any of them. (Python promises one particular arrangement, the stable one, as lesson 7 explains.)</p>
+    <p>Ties change how many answers count as correct, but not what the problem is about. And for our first analyses they’re a distraction: with distinct keys the answer is unique, every pair of elements is settled one way or the other, and the counting comes out clean. So for now we’ll assume:</p>
 
     <div class="callout def"><p class="callout-label">Assumption A1 (distinct keys)</p><p>Until stated otherwise, all keys are distinct, so \(&lt;\) is a strict total order on the elements and the sorted output is unique. Lessons 7, 25 and 33 drop this assumption deliberately. Every algorithm will still be tested on duplicates among its edge cases.</p></div>
 
@@ -163,39 +170,50 @@
       <div class="ex" data-type="numeric" id="l3-cp1-a" data-answer="720">
         <p class="ex-num">Q1</p>
         <div class="ex-prompt"><p>How many arrangements does a list of 6 distinct elements have?</p></div>
-        <div class="fb" data-when="correct">\(6! = 720\), and exactly one of them is sorted.</div>
-        <div class="fb" data-when="36">\(6^2\) counts pairs of positions. An arrangement chooses an element for each of 6 positions, without reuse: \(6 \cdot 5 \cdot 4 \cdot 3 \cdot 2 \cdot 1\).</div>
-        <div class="fb" data-when="46656">\(6^6\) allows an element to be used several times. A permutation uses each exactly once.</div>
-        <div class="fb" data-when="21">1 + 2 + … + 6 adds the choices instead of multiplying them.</div>
-        <div class="fb" data-when="other">Choose the first element (6 ways), then the second (5 ways), and so on.</div>
+        <div class="fb" data-when="correct">Yes: \(6 \cdot 5 \cdot 4 \cdot 3 \cdot 2 \cdot 1 = 6! = 720\). Six choices for the first slot, five for the second, and so on, because each element can be used only once. And since the elements are distinct, exactly one of those 720 is sorted.</div>
+        <div class="fb" data-when="36">36 is \(6 \cdot 6\): it picks something for two slots and allows the same element twice. An arrangement fills all six slots, and every choice uses up an element, so the pool shrinks as you go: \(6 \cdot 5 \cdot 4 \cdot 3 \cdot 2 \cdot 1\).</div>
+        <div class="fb" data-when="46656">\(6^6 = 46\,656\) lets every slot pick any of the six elements, so the same element could appear several times. An arrangement uses each element exactly once, so each slot has one fewer choice than the slot before.</div>
+        <div class="fb" data-when="21">21 is \(1 + 2 + \cdots + 6\): you’ve added the choices. But choices combine: each of the 6 choices for the first slot can be followed by each of the 5 for the second, which already gives \(6 \cdot 5 = 30\) ways to fill two slots. Combining choices multiplies.</div>
+        <div class="fb" data-when="120">120 is \(5!\), the count for five elements. With six there’s one more element to place, and it multiplies the count by 6.</div>
+        <div class="fb" data-when="other">Not quite. Fill the six slots one at a time: how many elements can go in the first slot, and how many are left for the second?</div>
+        <div class="ex-hints"><div class="hint">Build an arrangement slot by slot. How many elements could you put in the first slot? How many are left for the next one?</div><div class="hint">The slots have 6, 5, 4, 3, 2 and 1 choices. Should those numbers be added or multiplied? Try it on just the first two slots, and list a few of the ways if you’re unsure.</div></div>
+        <div class="ex-solution"><p>Let’s build an arrangement one slot at a time and count the choices as we go.</p><p>Slot 0 can hold any of the 6 elements: 6 choices. Whichever we picked is now used up, so slot 1 has 5 choices, and each of the 6 first choices can be followed by each of the 5 second ones: \(6 \cdot 5 = 30\) ways to fill two slots. Slot 2 has 4 choices left: \(30 \cdot 4 = 120\). Then 3, 2 and 1 choices: \(120 \cdot 3 = 360\), \(360 \cdot 2 = 720\), \(720 \cdot 1 = 720\). So there are \(6! = 720\) arrangements, which is Lemma 2 with \(n = 6\).</p><p>The tempting wrong answers each slip in one place. Adding the choices (21) forgets that they combine. \(6^6 = 46\,656\) lets an element be reused. 36 stops after two slots and allows repeats. 120 is the count for five elements, one too few.</p></div>
       </div>
 
       <div class="ex" data-type="numeric" id="l3-cp1-b" data-answer="12">
         <p class="ex-num">Q2</p>
         <div class="ex-prompt"><p>The list <code>[2, 2, 1, 1, 1]</code> has \(5! = 120\) arrangements, counted as bijections \(\pi\) of positions. How many of them are sorted?</p></div>
-        <div class="fb" data-when="correct">Tiers {1, 1, 1} and {2, 2}: \(3! \cdot 2! = 12\). As a list of <em>values</em> all 12 look the same, <code>[1, 1, 1, 2, 2]</code>, but they move different elements to each position. The difference matters as soon as elements carry more than their key, as records do; lesson 7 returns to it.</div>
-        <div class="fb" data-when="1">As values, there is only one sorted list. But the specification counts bijections of positions: the three 1s can be arranged among themselves in \(3!\) ways and the two 2s in \(2!\) ways.</div>
-        <div class="fb" data-when="120">That counts every arrangement, most of which put a 2 before a 1.</div>
-        <div class="fb" data-when="5">Use lesson 1, Theorem 10: multiply \(n_i!\) over the tiers.</div>
-        <div class="fb" data-when="other">Which tiers are there, and how many internal orders does each have?</div>
+        <div class="fb" data-when="correct">Yes, 12. A sorted arrangement must put all three 1s before both 2s, and the only freedom left is the order inside each group: \(3! = 6\) ways for the 1s times \(2! = 2\) for the 2s. As lists of <em>values</em> all 12 look the same, <code>[1, 1, 1, 2, 2]</code>, but they put different elements in each slot. That difference starts to matter as soon as elements carry more than their key, as records do; lesson 7 returns to it.</div>
+        <div class="fb" data-when="1">As a list of values, yes, there’s only one sorted result: <code>[1, 1, 1, 2, 2]</code>. But the question counts bijections of positions, and the three 1s are three different elements that happen to tie. They can stand among themselves in \(3!\) orders, and the two 2s in \(2!\), and every one of those combinations is sorted.</div>
+        <div class="fb" data-when="120">That’s every arrangement, sorted or not. Most of them put a 2 before a 1, and that pair is out of order. Only the arrangements with all the 1s first survive.</div>
+        <div class="fb" data-when="5">5 is \(3 + 2\), the sizes of the two tiers added together. But each tier can be ordered internally in several ways, and the choices for the two tiers are independent, so you multiply the numbers of orders: \(3! \cdot 2!\).</div>
+        <div class="fb" data-when="8">8 is \(3! + 2!\): the right ingredients, combined the wrong way. Each of the 6 orders of the 1s can go with each of the 2 orders of the 2s, so the counts multiply.</div>
+        <div class="fb" data-when="6">6 is \(3!\), the orders of the three 1s. Don’t forget the two 2s: they can swap places too, which doubles the count.</div>
+        <div class="fb" data-when="other">Not quite. Group the elements into tiers of tied elements. In a sorted arrangement, where must each tier stand, and how many ways can each tier be ordered inside?</div>
+        <div class="ex-hints"><div class="hint">Which elements tie with each other? In a sorted arrangement, which group has to come first, and is there any freedom left?</div><div class="hint">The three 1s must fill slots 0–2 and the two 2s slots 3–4. Count the orders inside each block, then decide whether to add or multiply.</div></div>
+        <div class="ex-solution"><p>Let’s name the elements by their positions, \(a_0 = 2\), \(a_1 = 2\), \(a_2 = 1\), \(a_3 = 1\), \(a_4 = 1\), because the question counts arrangements of these five elements, not lists of values.</p><p>There are two tiers: the 1s \(\{a_2, a_3, a_4\}\) and the 2s \(\{a_0, a_1\}\). In a sorted arrangement no 2 may stand before a 1, so slots 0, 1 and 2 must hold the three 1s and slots 3 and 4 the two 2s. That much is forced. The only freedom is the order inside each block. The 1s can fill slots 0–2 in \(3 \cdot 2 \cdot 1 = 6\) ways, and the 2s can fill slots 3–4 in \(2 \cdot 1 = 2\) ways. Each choice for the 1s goes with each choice for the 2s, so there are \(6 \cdot 2 = 12\) sorted arrangements. That’s lesson 1, Theorem 10: \(3! \cdot 2! = 12\).</p><p>Why not the other answers? 1 counts lists of values instead of arrangements of elements. 120 counts every arrangement, including those with a 2 before a 1. 5 and 8 add where the independent choices should multiply, and 6 forgets that the two 2s can swap.</p></div>
       </div>
 
       <div class="ex" data-type="mcq" id="l3-cp1-c">
         <p class="ex-num">Q3</p>
         <div class="ex-prompt"><p>When does <code>sorted(set(a))</code> meet the specification?</p></div>
         <ul class="ex-options">
-          <li data-correct><div class="opt"><span>Exactly when <code>a</code> has no duplicates.</span></div><div class="fb">With distinct values, <code>set</code> removes nothing and the result is the sorted arrangement. With a duplicate, the output is shorter than the input, which violates condition 2.</div></li>
-          <li><div class="opt"><span>Always: it returns a sorted list.</span></div><div class="fb">Sorted is only condition 1. Condition 2 requires every element, with its multiplicity.</div></li>
-          <li><div class="opt"><span>Never: <code>set</code> destroys the order.</span></div><div class="fb">The order of the set does not matter, since <code>sorted</code> imposes one. On distinct values the result is exactly right.</div></li>
-          <li><div class="opt"><span>Only when <code>a</code> is already sorted.</span></div><div class="fb">Sortedness of the input is irrelevant; duplicates are what break it.</div></li>
+          <li data-correct><div class="opt"><span>Exactly when <code>a</code> has no duplicates.</span></div><div class="fb">Yes. With distinct values, <code>set(a)</code> keeps every element and <code>sorted</code> puts them in order, so you get exactly the sorted arrangement. With a duplicate, the set keeps only one copy, so the output is shorter than the input and can’t be a permutation of it: condition 2 fails.</div></li>
+          <li><div class="opt"><span>Always: it returns a sorted list.</span></div><div class="fb">It does always return a sorted list, so condition 1 always holds. But the specification has two conditions, and condition 2 asks for every element with its multiplicity. On <code>[2, 1, 2]</code> the output is <code>[1, 2]</code>: in order, but one 2 has gone missing.</div></li>
+          <li><div class="opt"><span>Never: <code>set</code> destroys the order.</span></div><div class="fb">It’s true that a set doesn’t keep the list’s order, but that doesn’t matter here: <code>sorted</code> puts everything in order afterwards anyway. On distinct values nothing is lost and the result is exactly right; <code>[3, 1, 2]</code> gives <code>[1, 2, 3]</code>.</div></li>
+          <li><div class="opt"><span>Only when <code>a</code> is already sorted.</span></div><div class="fb">The input’s order doesn’t matter at all, because <code>sorted</code> reorders everything anyway. What breaks this function is duplicates, and an already sorted input such as <code>[1, 2, 2]</code> still loses a 2.</div></li>
         </ul>
+        <div class="ex-hints"><div class="hint">Check the two conditions of the specification separately. Which one could <code>set</code> put at risk?</div><div class="hint">Try a list with a repeated value, say <code>[2, 1, 2]</code>, and then one without. Compare the length of the output with the length of the input.</div></div>
+        <div class="ex-solution"><p>Let’s check the two conditions one at a time.</p><p>Condition 1, sorted: <code>sorted</code> always returns an ordered list, whatever it’s given, so this one always holds.</p><p>Condition 2, permutation: the output must contain each element of <code>a</code> exactly as often as <code>a</code> does. <code>set(a)</code> keeps one copy of each distinct value. If <code>a</code> has no duplicates, nothing is dropped, the output holds exactly the elements of <code>a</code>, and condition 2 holds. If <code>a</code> has a duplicate, at least one copy is dropped, the output is shorter than <code>a</code>, and condition 2 fails: <code>[2, 1, 2]</code> gives <code>[1, 2]</code>. So the function is correct exactly when <code>a</code> has no duplicates.</p><p>The other options each miss something. “Always” overlooks condition 2. “Never” blames the set’s lack of order, which <code>sorted</code> repairs anyway. And “only when sorted” can’t be right, because <code>[1, 2, 2]</code> is sorted and still loses an element.</p></div>
       </div>
     </div>
   </section>
 
   <section class="lsec" id="s03" data-gate="cp1">
     <h2 class="sec-head"><span class="sec-num">03</span><span class="sec-title">What may an algorithm do?</span></h2>
-    <p>We are about to ask what sorting costs. The answer depends entirely on what counts as one step. If calling <code>sorted(a)</code> counts as one step, sorting costs one step, and the question is empty. And if the keys are small integers that an algorithm may use as list indices, it can learn where an element belongs from its value alone, without comparing it with anything, and the answer changes again (lesson 30 explores exactly this). So “cost” means nothing until we fix two things: what an algorithm may do to learn about the input, and what we charge for.</p>
+    <p>We’re almost ready to ask what sorting costs. But “cost” is slipperier than it looks, because the answer depends entirely on what counts as one step. If calling <code>sorted(a)</code> counts as a single step, then sorting costs one step, and the whole question is empty. And if the keys are small integers that an algorithm is allowed to use as list indices, it can learn where an element belongs from its value alone, without comparing it with anything, and the answer changes again (lesson 30 explores exactly this). So “cost” means nothing until we fix two things: what an algorithm may do to learn about its input, and what we charge for.</p>
+
+    <p>Here is the setting this course starts from.</p>
 
     <div class="callout def"><p class="callout-label">Definition (the comparison model)</p>
       <ul>
@@ -207,29 +225,29 @@
       </ul>
     </div>
 
-    <p>Why this model?</p>
+    <p>Why this model, rather than some other? Three reasons.</p>
     <ul>
       <li><strong>Generality.</strong> An algorithm that only asks <code>&lt;</code> sorts anything with a valid <code>&lt;</code>: numbers, strings, tuples, records by key.</li>
       <li><strong>Python’s sort lives in it.</strong> It asks only <code>&lt;</code> (lesson 2, §01).</li>
       <li><strong>Comparisons are what is expensive in Python</strong> <span class="tag t-intuition">intuition</span>. Each one dispatches through <code>__lt__</code> or a key; moving a list element just copies a reference. Lesson 29 measures this.</li>
     </ul>
 
-    <p>What the model leaves out is just as important: looking at digits or bits of a key, arithmetic on keys, using a key as an index, hashing. These are real operations, and the model excludes them on purpose. Every lower bound proved in this model holds only in this model. When an algorithm later seems to “beat” one of them, the first question will be which of these exclusions it ignored.</p>
+    <p>What the model leaves out matters just as much: looking at the digits or bits of a key, doing arithmetic on keys, using a key as an index, hashing. These are all real operations, and the model excludes them on purpose. That has a consequence worth stating now. Every lower bound we prove in this model holds <em>only</em> in this model. So whenever an algorithm later seems to “beat” one of those bounds, the first question to ask will be which of these exclusions it ignored.</p>
 
     <details class="deeper common"><summary>Common question · Can’t I detect duplicates in linear time with a set?</summary><div class="deeper-body">
       <p><code>len(set(a)) &lt; len(a)</code> hashes each element, which reads its representation; that is outside the comparison model. Its running time depends on how the hash function behaves on your keys, which is an assumption about the keys, not a guarantee. Both models are legitimate; they answer different questions. Within the comparison model, detecting duplicates turns out to be essentially as hard as sorting, a fact we will be able to prove once we have lower bounds.</p>
     </div></details>
 
-    <p>The model has a consequence that simplifies everything that follows.</p>
+    <p>The model has one more consequence, and it will simplify everything that follows. Let’s discover it with a prediction.</p>
 
     <div class="predict" id="l3-pr-ordertype-p">
       <p class="label">Predict first</p>
       <div class="ex" data-type="mcq" id="l3-pr-ordertype">
         <div class="ex-prompt"><p>A sorting algorithm in the comparison model runs on <code>[10, 30, 20]</code> and then on <code>[1, 99, 50]</code>. Will it ask the same comparisons, in the same order?</p></div>
         <ul class="ex-options">
-          <li data-correct><div class="opt"><span>Yes, always.</span></div><div class="fb">Right. Why? See below.</div></li>
-          <li><div class="opt"><span>Not necessarily: the values differ.</span></div><div class="fb">The values differ, but look at what the algorithm can find out about them.</div></li>
-          <li><div class="opt"><span>Only if the algorithm is simple.</span></div><div class="fb">No simplicity is needed. See below.</div></li>
+          <li data-correct><div class="opt"><span>Yes, always.</span></div><div class="fb">That’s right, and it doesn’t depend on which algorithm it is. Can you say why before reading on? The reason is below.</div></li>
+          <li><div class="opt"><span>Not necessarily: the values differ.</span></div><div class="fb">The values certainly differ. But think about what the algorithm can actually find out about them: only answers to “is this one smaller than that one?”. Do those answers differ between the two lists? See below.</div></li>
+          <li><div class="opt"><span>Only if the algorithm is simple.</span></div><div class="fb">Simplicity has nothing to do with it: the reason applies to every algorithm in the model, however elaborate. See below for why.</div></li>
         </ul>
       </div>
       <div class="reveal">
@@ -237,17 +255,19 @@
       </div>
     </div>
 
+    <p>That observation holds for every algorithm in the model, and the reason is simple: such an algorithm can only act on the answers it gets, so if the answers are the same, so is everything it does.</p>
+
     <div class="callout lemma" id="lem-pattern"><p class="callout-label">Lemma 3 (only the pattern matters)</p><p>Let \(a\) and \(a'\) be lists of length \(n\) with \(a_i &lt; a_j \iff a'_i &lt; a'_j\) for all \(i, j\). A deterministic algorithm in the comparison model asks the same comparisons in the same order on both, receives the same answers, and performs the same moves. In particular it outputs the same arrangement \(\pi\).</p></div>
 
     <div class="callout proof"><p class="callout-label">Proof</p><p>Induction on the number of steps taken. Before the first step the algorithm knows only \(n\), the same for both lists. Suppose the first \(t\) steps were identical. The algorithm’s next step is determined by \(n\) and the answers received so far, which are the same; so it is the same step. If it is a comparison of positions it has tracked identically, the answer is the same by assumption. If it is a move, it moves the elements at the same positions, so the elements’ positions stay in correspondence.</p></div>
 
-    <p>Lemma 3 lets us replace any input by something simpler. With distinct keys, write each element’s <strong>rank</strong> in its place: 0 for the smallest, \(n-1\) for the largest. <code>[10, 30, 20]</code> and <code>[1, 99, 50]</code> both become <code>[0, 2, 1]</code>. An input and its list of ranks give the same answer to every question “is \(a_i &lt; a_j\)?”, so by Lemma 3 an algorithm runs identically on both: the same comparisons, the same moves, the same cost. There are exactly \(n!\) such rank patterns, the permutations of \(0, \ldots, n-1\). They are the only inputs we ever need to consider.</p>
+    <p>Lemma 3 lets us replace any input by something simpler. With distinct keys, write each element’s <strong>rank</strong> in its place: 0 for the smallest, \(n - 1\) for the largest. Both <code>[10, 30, 20]</code> and <code>[1, 99, 50]</code> become <code>[0, 2, 1]</code>. Why does that help? An element’s rank counts the elements smaller than it, so a smaller element always gets a smaller rank: \(a_i &lt; a_j\) exactly when rank\((a_i)\) &lt; rank\((a_j)\). An input and its list of ranks therefore give the same answer to every question “is \(a_i &lt; a_j\)?”, and by Lemma 3 an algorithm runs identically on both: the same comparisons, the same moves, the same cost. And what do rank lists look like? With distinct keys the \(n\) ranks are \(0, 1, \ldots, n-1\), each used exactly once, so every rank list is a permutation of \(0, \ldots, n-1\); and every such permutation is the rank list of some input (itself, for a start). So there are exactly \(n!\) rank patterns, and they are the only inputs we ever need to consider.</p>
 
-    <p>One more definition before we count anything. An algorithm usually needs different numbers of comparisons on different inputs of the same size: in §04 below, Python’s own sort needs 999 comparisons on one list of 1000 numbers and about 8 600 on another. So “its cost for \(n\) elements” is not a single number until we say how to summarise over the inputs. The two simplest summaries are the most it ever needs, a guarantee that no input can break, and the least.</p>
+    <p>One last thing before we can count anything. An algorithm usually needs different numbers of comparisons on different inputs of the same size. In §04 below, for instance, Python’s own sort needs 999 comparisons on one list of 1000 numbers and about 8&#8201;600 on another. So “its cost for \(n\) elements” isn’t a single number until we say how to summarise over all the inputs. The two simplest summaries are the most it ever needs, which is a guarantee no input can break, and the least it ever needs.</p>
 
     <div class="callout def"><p class="callout-label">Definition (worst and best case)</p><p>For an algorithm \(A\) and input \(x\), let \(C_A(x)\) be the number of comparisons \(A\) makes on \(x\). The <strong>worst case</strong> is \(W_A(n) = \max C_A(x)\) and the <strong>best case</strong> is \(B_A(n) = \min C_A(x)\), both over all inputs \(x\) of size \(n\); by Lemma 3, over the \(n!\) rank patterns.</p></div>
 
-    <p>(Averages need a stated probability distribution over inputs; they wait until lesson 10, which introduces one.)</p>
+    <p>(Averages need a stated probability distribution over the inputs, so they wait until lesson 10, which introduces one.)</p>
 
     <div class="checkpoint" id="cp2">
       <p class="label">Checkpoint 2</p>
@@ -256,40 +276,46 @@
         <p class="ex-num">Q4</p>
         <div class="ex-prompt"><p>Which of these is <strong>not</strong> allowed in the comparison model?</p></div>
         <ul class="ex-options">
-          <li><div class="opt"><span>Ask whether <code>a[3] &lt; a[5]</code>.</span></div><div class="fb">That is the one question the model allows; it costs one comparison.</div></li>
-          <li><div class="opt"><span>Swap <code>a[3]</code> and <code>a[5]</code>.</span></div><div class="fb">Moves are allowed. They are counted separately, and they reveal nothing about the elements.</div></li>
-          <li data-correct><div class="opt"><span>Compute <code>a[3] % 10</code>.</span></div><div class="fb">This reads the element’s value. The model treats elements as opaque; arithmetic on keys is excluded on purpose (lesson 30 lifts this restriction).</div></li>
-          <li><div class="opt"><span>Store the index 5 in a variable.</span></div><div class="fb">Bookkeeping on indices is free.</div></li>
+          <li><div class="opt"><span>Ask whether <code>a[3] &lt; a[5]</code>.</span></div><div class="fb">That’s allowed. In fact it’s the one question the whole model is built around: it gets a yes/no answer and costs one comparison.</div></li>
+          <li><div class="opt"><span>Swap <code>a[3]</code> and <code>a[5]</code>.</span></div><div class="fb">Swapping is allowed: it’s a move. Moves are counted separately from comparisons, and they can’t reveal anything about the elements, because a swap does the same thing whatever the two values are.</div></li>
+          <li data-correct><div class="opt"><span>Compute <code>a[3] % 10</code>.</span></div><div class="fb">Yes, this is the forbidden one. To compute <code>a[3] % 10</code> you have to look inside the element and do arithmetic on its value, and the model treats elements as closed boxes that can only be compared. Arithmetic on keys is excluded on purpose; lesson 30 shows what changes once it’s allowed.</div></li>
+          <li><div class="opt"><span>Store the index 5 in a variable.</span></div><div class="fb">That’s allowed, and free. 5 is a position, not an element. Bookkeeping on indices and counters never touches the elements, so it tells the algorithm nothing about them.</div></li>
         </ul>
+        <div class="ex-hints"><div class="hint">For each option, ask: does it learn something about the elements? If so, does it learn it through a yes/no <code>&lt;</code> question?</div><div class="hint">Three of the options either ask <code>&lt;</code> or never look at a value at all. One of them needs to know which number is actually stored in <code>a[3]</code>.</div></div>
+        <div class="ex-solution"><p>The model allows exactly one way of learning about the elements: asking whether one is smaller than another. Anything else is allowed only if it doesn’t look at the elements’ values. Let’s go through the options with that in mind.</p><p>(a) <code>a[3] &lt; a[5]</code> is precisely that one question: allowed, and it costs one comparison. (b) A swap moves two elements, but it does the same thing whatever their values are, so it learns nothing: allowed, and counted as a move. (d) Storing the index 5 is bookkeeping on positions, which never touches an element: allowed, and free.</p><p>(c) is different. <code>a[3] % 10</code> takes the value inside <code>a[3]</code> and does arithmetic on it, learning something (its remainder on division by 10) without asking <code>&lt;</code>. That is exactly what the model rules out, so (c) is the one that isn’t allowed.</p></div>
       </div>
 
       <div class="ex" data-type="mcq" id="l3-cp2-b">
         <p class="ex-num">Q5</p>
         <div class="ex-prompt"><p>Why may we analyse only inputs that are permutations of \(0, \ldots, n-1\)?</p></div>
         <ul class="ex-options">
-          <li data-correct><div class="opt"><span>Because of Lemma 3: the algorithm behaves identically on all inputs with the same rank pattern, and with distinct keys every input has one of these \(n!\) patterns.</span></div><div class="fb">That is the whole justification, and it relies on the model: an algorithm that reads digits could tell <code>[10, 30, 20]</code> from <code>[1, 99, 50]</code>.</div></li>
-          <li><div class="opt"><span>Because real inputs are usually small integers.</span></div><div class="fb">Real inputs can be anything: strings, records, floats. The reduction works because the algorithm cannot see the values, not because the values are integers.</div></li>
-          <li><div class="opt"><span>Because Python converts elements to integers before sorting.</span></div><div class="fb">Python does no such thing; it only asks <code>&lt;</code>.</div></li>
-          <li><div class="opt"><span>Because duplicates never occur.</span></div><div class="fb">Duplicates are excluded here by Assumption A1, but that is a separate assumption. The reduction to rank patterns is about what a comparison algorithm can observe.</div></li>
+          <li data-correct><div class="opt"><span>Because of Lemma 3: the algorithm behaves identically on all inputs with the same rank pattern, and with distinct keys every input has one of these \(n!\) patterns.</span></div><div class="fb">Exactly. Lemma 3 says the algorithm can’t tell apart two inputs with the same rank pattern, so it does the same comparisons and moves on both; and with distinct keys every input has one of the \(n!\) patterns. Notice that this leans on the model: an algorithm allowed to read digits could tell <code>[10, 30, 20]</code> from <code>[1, 99, 50]</code>.</div></li>
+          <li><div class="opt"><span>Because real inputs are usually small integers.</span></div><div class="fb">Real inputs can be anything: strings, records, floats. The reduction doesn’t depend on what inputs usually look like. It works because a comparison algorithm can’t see the values at all, only the answers to <code>&lt;</code>.</div></li>
+          <li><div class="opt"><span>Because Python converts elements to integers before sorting.</span></div><div class="fb">Python does nothing of the kind: it only ever asks <code>&lt;</code> (lesson 2, §01). Replacing an input by its ranks is something <em>we</em> do in the analysis, and Lemma 3 is what makes that safe.</div></li>
+          <li><div class="opt"><span>Because duplicates never occur.</span></div><div class="fb">Duplicates are excluded here, but by a separate assumption, A1, and A1 alone doesn’t justify the reduction. Distinct keys only guarantee that each input’s ranks form a permutation of \(0, \ldots, n-1\). What lets us study that permutation instead of the input is Lemma 3: the algorithm behaves the same on both.</div></li>
         </ul>
+        <div class="ex-hints"><div class="hint">What can a comparison algorithm actually observe about its input? Which result in §03 turns that into a statement about how it behaves?</div><div class="hint">Two inputs with the same rank pattern, like <code>[10, 30, 20]</code> and <code>[1, 99, 50]</code>, give the same answer to every <code>&lt;</code> question. What does Lemma 3 then say about the algorithm’s runs on them?</div></div>
+        <div class="ex-solution"><p>We want to know why studying only the \(n!\) permutations of \(0, \ldots, n-1\) loses nothing. Two facts combine.</p><p>First, with distinct keys (Assumption A1), every input of size \(n\) has a list of ranks, and that list is one of those permutations: <code>[10, 30, 20]</code> has ranks <code>[0, 2, 1]</code>. Second, an input and its rank list give the same answer to every question “is \(a_i &lt; a_j\)?”, so by Lemma 3 a comparison algorithm runs identically on both: the same comparisons, the same moves, the same output arrangement. So whatever we find out about the algorithm on <code>[0, 2, 1]</code> holds for every input with that pattern. That is option (a).</p><p>The other options miss the logic. Real inputs needn’t be integers (b). Python never converts anything (c). And the absence of duplicates (d) is needed for the ranks to form a permutation, but on its own it says nothing about how the algorithm behaves.</p></div>
       </div>
 
       <div class="ex" data-type="mcq" id="l3-cp2-c">
         <p class="ex-num">Q6</p>
-        <div class="ex-prompt"><p>An algorithm makes 3 comparisons on <code>[5, 1, 4]</code>. How many does it make on <code>[50, 10, 40]</code>?</p></div>
+        <div class="ex-prompt"><p>A deterministic algorithm in the comparison model makes 3 comparisons on <code>[5, 1, 4]</code>. How many does it make on <code>[50, 10, 40]</code>?</p></div>
         <ul class="ex-options">
-          <li data-correct><div class="opt"><span>Exactly 3, the same ones.</span></div><div class="fb">Same rank pattern <code>[2, 0, 1]</code>, so Lemma 3 applies.</div></li>
-          <li><div class="opt"><span>It depends on the algorithm.</span></div><div class="fb">For any deterministic comparison algorithm, Lemma 3 forces the same run.</div></li>
-          <li><div class="opt"><span>More, because the numbers are larger.</span></div><div class="fb">The size of the numbers is invisible in this model.</div></li>
-          <li><div class="opt"><span>Fewer, because the gaps are larger.</span></div><div class="fb">Gaps between values are invisible too; only the answers to <code>&lt;</code> matter.</div></li>
+          <li data-correct><div class="opt"><span>Exactly 3, the same ones.</span></div><div class="fb">Right. Both lists have rank pattern <code>[2, 0, 1]</code>: the first element is the largest, the second the smallest, the third in between. So every <code>&lt;</code> question gets the same answer on both, and Lemma 3 says the algorithm does exactly the same thing: the same 3 comparisons, in the same order.</div></li>
+          <li><div class="opt"><span>It depends on the algorithm.</span></div><div class="fb">It would, for an algorithm that reads values. But for any deterministic algorithm in the comparison model, Lemma 3 forces the same run on two inputs with the same pattern, whatever the algorithm is.</div></li>
+          <li><div class="opt"><span>More, because the numbers are larger.</span></div><div class="fb">The size of the numbers is invisible in this model. The algorithm only learns answers like “is 50 &lt; 10?”, which is no, exactly as “is 5 &lt; 1?” is no. Bigger numbers don’t add questions or change any answer.</div></li>
+          <li><div class="opt"><span>Fewer, because the gaps are larger.</span></div><div class="fb">The gaps between values are invisible too. Only the yes/no answers to <code>&lt;</code> reach the algorithm, and they’re the same on both lists, so it can’t take a shortcut on one list that it doesn’t take on the other.</div></li>
         </ul>
+        <div class="ex-hints"><div class="hint">Compare the two lists from the point of view of someone who can only ask “is this one smaller than that one?”. What’s the same about them?</div><div class="hint">Write down each list’s rank pattern (0 for the smallest). Then recall what Lemma 3 says about inputs with the same pattern.</div></div>
+        <div class="ex-solution"><p>Let’s look at what the algorithm can see. In <code>[5, 1, 4]</code> the first element is the largest, the second the smallest and the third in between: rank pattern <code>[2, 0, 1]</code>. In <code>[50, 10, 40]</code> it’s exactly the same, <code>[2, 0, 1]</code>.</p><p>So for every pair of positions \(i, j\), the question “is \(a_i &lt; a_j\)?” gets the same answer on both lists. For example, “is \(a_0 &lt; a_1\)?” is no on both (5 against 1, 50 against 10), and “is \(a_1 &lt; a_2\)?” is yes on both. By Lemma 3, a deterministic comparison algorithm asks the same first question on both lists and gets the same answer, so it asks the same second question, and so on. It makes exactly the same 3 comparisons.</p><p>“It depends on the algorithm” would be right only for algorithms that read values, which the model forbids, or for ones that make random choices, which Lemma 3 sets aside by assuming the algorithm is deterministic. “More” and “fewer” assume that the size of the numbers, or the gaps between them, matter; but the algorithm never sees either.</p></div>
       </div>
     </div>
   </section>
 
   <section class="lsec" id="s04" data-gate="cp2">
     <h2 class="sec-head"><span class="sec-num">04</span><span class="sec-title">Watching a real sort count</span></h2>
-    <p>The comparison model is not an abstraction Python ignores; we can watch Python’s own sort inside it. Wrap each element in an object whose <code>__lt__</code> counts how often it is called.</p>
+    <p>All of this might sound like an abstraction that real code ignores. It isn’t: we can watch Python’s own sort living inside the comparison model. The trick is to wrap each element in an object whose <code>__lt__</code> counts how often it’s called. Every comparison the sort makes then shows up in the count.</p>
 
     <figure class="listing" id="lst-1">
       <figcaption><span class="fig-label">Listing 1</span><span class="fig-caption">Counting the comparisons any Python sort makes.</span></figcaption>
@@ -314,15 +340,17 @@ def comparisons_used(sort_fn, data):
 print(comparisons_used(sorted, [1, 2, 3, 4, 5]))   # 4</pre>
     </figure>
 
+    <p>Before looking at the numbers, make a guess.</p>
+
     <div class="predict" id="l3-pr-python1000-p">
       <p class="label">Predict first</p>
       <div class="ex" data-type="mcq" id="l3-pr-python1000">
         <div class="ex-prompt"><p>Python’s <code>sorted</code> is given 1000 numbers that are <strong>already sorted</strong>. How many comparisons does it make?</p></div>
         <ul class="ex-options">
-          <li><div class="opt"><span>0: it notices nothing needs doing.</span></div><div class="fb">It cannot notice without comparing. See below.</div></li>
-          <li data-correct><div class="opt"><span>999</span></div><div class="fb">Right. See below.</div></li>
-          <li><div class="opt"><span>About 10 000</span></div><div class="fb">That is roughly what it uses on random input. See below.</div></li>
-          <li><div class="opt"><span>499 500</span></div><div class="fb">That would be every pair. See below.</div></li>
+          <li><div class="opt"><span>0: it notices nothing needs doing.</span></div><div class="fb">It would be nice, but the sort can’t know the list is sorted without asking: in the comparison model, comparing is the only way to learn anything about the elements. See below for what it actually does.</div></li>
+          <li data-correct><div class="opt"><span>999</span></div><div class="fb">Yes, 999: one comparison per neighbour pair. The full measurements are below.</div></li>
+          <li><div class="opt"><span>About 10 000</span></div><div class="fb">That’s the right ballpark for <em>random</em> input, as you’ll see below. Sorted input turns out to be much cheaper.</div></li>
+          <li><div class="opt"><span>499 500</span></div><div class="fb">That would be asking about every pair, \(1000 \cdot 999 / 2\). Python’s sort asks far fewer questions than that, even on random input. See below.</div></li>
         </ul>
       </div>
       <div class="reveal">
@@ -338,20 +366,20 @@ print(comparisons_used(sorted, [1, 2, 3, 4, 5]))   # 4</pre>
           </table>
         </figure>
 
-        <p>Three observations to carry forward:</p>
+        <p>There are three things here to carry forward.</p>
         <ul>
           <li>On sorted input Python uses exactly \(n - 1\) comparisons: one per neighbour pair, the number lesson 1 needed just to <em>check</em> sortedness. Lesson 5 shows that no algorithm can do with fewer, even one that only checks.</li>
           <li>Reversed input costs the same \(n - 1\). Lesson 34 explains how Python’s sort notices it.</li>
           <li>Random input costs far fewer than every pair, but far more than \(n - 1\). Where between those does the true cost of sorting lie? That question drives lessons 4 to 16.</li>
         </ul>
-        <p>These are measurements of one implementation on particular inputs <span class="tag t-empirical">empirical</span>: another Python version, or other inputs, may give other numbers.</p>
+        <p>These are measurements of one implementation on particular inputs <span class="tag t-empirical">empirical</span>. Another Python version, or other inputs, might give other numbers.</p>
       </div>
     </div>
   </section>
 
   <section class="lsec" id="s05" data-gate="cp2">
     <h2 class="sec-head"><span class="sec-num">05</span><span class="sec-title">In Python: testing a sort</span></h2>
-    <p>The specification gives a test harness directly: check both halves, on many small inputs, including duplicates, against Python’s own <code>sorted</code>. This “stress test” catches most sorting bugs in minutes and is worth having in any contest or interview preparation.</p>
+    <p>The specification doesn’t only tell us what a sort must do. It also hands us a way to test one: check both halves, on lots of small inputs including duplicates, against Python’s own <code>sorted</code>. This kind of “stress test” is worth having ready for any contest or interview preparation, because most sorting bugs already show up on small inputs: an off-by-one boundary, a tie handled the wrong way, an element dropped at the end. Thousands of random small inputs hit those cases quickly <span class="tag t-heuristic">heuristic</span>.</p>
 
     <figure class="listing" id="lst-2">
       <figcaption><span class="fig-label">Listing 2</span><span class="fig-caption">Checking the two halves of the specification, and a randomized stress test.</span></figcaption>
@@ -384,7 +412,7 @@ print(stress_test(sorted))                       # None
 print(stress_test(lambda a: sorted(set(a))))     # [3, 3, 1, 0, 3, 0, 3]</pre>
     </figure>
 
-    <p><code>is_permutation</code> uses <code>Counter</code>, which hashes the elements: it is outside the comparison model. That is fine: the harness is a <em>test</em> of a sort, not part of one. Note the small value range in <code>stress_test</code>: it makes duplicates common, which is where many sorting bugs hide.</p>
+    <p>Two things in this harness deserve a comment. <code>is_permutation</code> uses <code>Counter</code>, which hashes the elements, so it lives outside the comparison model. That’s fine: the harness is a <em>test</em> of a sort, not part of one. And notice the small value range in <code>stress_test</code>: it makes duplicates common. Ties are exactly the case where <code>a &lt; b</code> and <code>b &lt; a</code> are both false, which is where mix-ups between “out of order” and “strictly increasing” bite, as lesson 4 will show with a one-character bug.</p>
   </section>
 
   <section class="lsec" id="exercises">
@@ -392,21 +420,26 @@ print(stress_test(lambda a: sorted(set(a))))     # [3, 3, 1, 0, 3, 0, 3]</pre>
 
     <div class="ex" data-type="numeric" id="l3-ex-dup50" data-answer="49">
       <p class="ex-num">E1</p>
-      <div class="ex-prompt"><p>A sorted list has 50 elements. How many comparisons does Lemma 1’s method use to decide whether two elements are tied?</p></div>
-      <div class="fb" data-when="correct">One per neighbour pair: 49.</div>
-      <div class="fb" data-when="50">50 elements have 49 neighbour pairs.</div>
-      <div class="fb" data-when="98">Two comparisons per pair would be needed in an unsorted list. In a sorted list \(b_{i+1} &lt; b_i\) is already ruled out, so one comparison per pair decides.</div>
-      <div class="fb" data-when="1225">That is every pair, \(\binom{50}{2}\): the cost without order.</div>
-      <div class="fb" data-when="other">How many neighbour pairs does a list of 50 have, and how many comparisons does each need?</div>
+      <div class="ex-prompt"><p>A sorted list has 50 elements. At most how many comparisons does Lemma 1’s method use to decide whether two elements are tied?</p></div>
+      <div class="fb" data-when="correct">Yes, 49: one comparison for each neighbour pair, and a list of 50 has 49 of them, (0, 1), (1, 2), …, (48, 49).</div>
+      <div class="fb" data-when="50">Close, but count the neighbour pairs rather than the elements. The pairs are (0, 1), (1, 2), …, (48, 49): the last element has no right-hand neighbour, so there are 49 pairs, one comparison each.</div>
+      <div class="fb" data-when="98">Two comparisons per pair would be needed if the list weren’t sorted: to know that \(b_i\) and \(b_{i+1}\) tie, you need both \(b_i \not&lt; b_{i+1}\) and \(b_{i+1} \not&lt; b_i\). But sortedness already guarantees \(b_{i+1} \not&lt; b_i\), so a single comparison per pair settles it.</div>
+      <div class="fb" data-when="1225">That’s \(\binom{50}{2}\), every pair: the cost when the list isn’t sorted. Lemma 1 says that in a sorted list a tie, if there is one, always shows up between neighbours, so only the neighbour pairs need checking.</div>
+      <div class="fb" data-when="other">Not quite. Count the neighbour pairs in a list of 50 elements, then ask how many comparisons each pair needs when the list is already sorted.</div>
+      <div class="ex-hints"><div class="hint">Lemma 1 tells you where a tie must show up in a sorted list. How many such places are there in a list of 50 elements?</div><div class="hint">For each neighbour pair, sortedness already tells you \(b_{i+1} \not&lt; b_i\). What single question is still needed to decide whether the two tie?</div></div>
+      <div class="ex-solution"><p>Lemma 1 tells us where to look: in a sorted list, if any two elements tie, then some neighbour pair ties. So we only check neighbour pairs.</p><p>How many are there? With 50 elements at positions 0 to 49, the neighbour pairs are (0, 1), (1, 2), …, (48, 49): one starting at every position except the last, so \(50 - 1 = 49\) pairs.</p><p>How many comparisons per pair? Two elements tie when neither is less than the other. Sortedness already guarantees \(b_{i+1} \not&lt; b_i\), so the one question “is \(b_i &lt; b_{i+1}\)?” settles it: a “no” means they tie. Total: \(49 \cdot 1 = 49\) comparisons. (If you stop at the first tie you find, you can finish sooner; 49 is what it takes when there is no tie, and that is the most it ever needs.)</p><p>The tempting wrong answers: 50 counts elements instead of pairs; 98 forgets that sortedness answers one of the two questions for free; and \(1225 = 50 \cdot 49 / 2\) checks every pair, which is what you’d have to do without order.</p></div>
     </div>
 
     <div class="ex" data-type="numeric" id="l3-ex-halving" data-answer="20">
       <p class="ex-num">E2</p>
       <div class="ex-prompt"><p>A sorted list holds 1 000 000 values, so a new value could belong in any of 1 000 001 gaps. How many halving comparisons are needed in the worst case?</p></div>
-      <div class="fb" data-when="correct">\(2^{19} = 524\,288 &lt; 1\,000\,001 \le 1\,048\,576 = 2^{20}\).</div>
-      <div class="fb" data-when="19">\(2^{19} = 524\,288\) is less than 1 000 001: nineteen halvings leave about two gaps.</div>
-      <div class="fb" data-when="1000000">That is the cost of scanning. Halving needs only the logarithm.</div>
-      <div class="fb" data-when="other">Find the smallest \(k\) with \(2^k \ge 1\,000\,001\).</div>
+      <div class="fb" data-when="correct">Yes, 20. Nineteen aren’t enough, since \(2^{19} = 524\,288 &lt; 1\,000\,001\), but twenty are, since \(1\,000\,001 \le 1\,048\,576 = 2^{20}\). A thousand times as many values as in §01 cost only ten more comparisons.</div>
+      <div class="fb" data-when="19">Very close. But \(2^{19} = 524\,288\) is less than 1&#8201;000&#8201;001, so after nineteen halvings about two gaps can still remain (\(1\,000\,001 / 2^{19} \approx 1.9\)). One more comparison is needed.</div>
+      <div class="fb" data-when="1000000,1000001">That’s the cost of checking every element, or every gap, one by one, which is what an unsorted list forces. On a sorted list each comparison halves the gaps still possible, so you only need to count halvings.</div>
+      <div class="fb" data-when="6">6 is the number of times you divide a million by 10 to reach 1. But a comparison has only two answers, so it splits the gaps in two, not in ten. The logarithm you want is base 2.</div>
+      <div class="fb" data-when="other">Not quite. Find the smallest \(k\) with \(2^k \ge 1\,000\,001\). It helps to know that \(2^{10} = 1024\), a little over a thousand.</div>
+      <div class="ex-hints"><div class="hint">Each comparison can at best halve the number of gaps still possible. After \(k\) comparisons, how many gaps can remain in the worst case, and when is that down to one?</div><div class="hint">You need the smallest \(k\) with \(2^k \ge 1\,000\,001\). Since \(2^{10} = 1024\) is just over a thousand, a million is a bit less than \(2^{10} \cdot 2^{10}\). Then check whether one fewer would still do.</div></div>
+      <div class="ex-solution"><p>Think about what each comparison can do. Before any comparison, 1&#8201;000&#8201;001 gaps are possible. Comparing the value with the middle element gives a yes or a no, and at best that rules out half of the remaining gaps. So after \(k\) comparisons, in the worst case, about \(1\,000\,001 / 2^k\) gaps can remain, and we’re done only when that’s at most 1, that is, when \(2^k \ge 1\,000\,001\).</p><p>Now build up powers of two: \(2^{10} = 1024\), so \(2^{20} = 1024 \cdot 1024 = 1\,048\,576\), which is at least 1&#8201;000&#8201;001. One fewer, \(2^{19} = 524\,288\), is not. So the answer is \(20 = \lceil \log_2 1\,000\,001 \rceil\).</p><p>The bits argument from §01 shows that no yes/no method can do better: 19 answers have only \(2^{19} = 524\,288\) combinations, too few to single out one of 1&#8201;000&#8201;001 gaps. As for the wrong answers: 1&#8201;000&#8201;000 is the cost of scanning, 19 stops one halving short, and 6 is a base-10 logarithm, which would need questions with ten possible answers.</p></div>
     </div>
 
     <div class="ex" data-type="lines" id="l3-ex-checker" data-answer="6">
@@ -418,29 +451,35 @@ print(stress_test(lambda a: sorted(set(a))))     # [3, 3, 1, 0, 3, 0, 3]</pre>
         if b[i + 1] &lt; b[i]:
             return False
     return True</pre>
-      <div class="fb" data-when="correct">Reaching line 6 only shows that <code>b</code> is in order: condition 1. Nothing checks condition 2, so <code>lambda a: []</code> passes. Line 6 should be <code>return Counter(b) == Counter(a)</code>.</div>
-      <div class="fb" data-when="3">The loop visits every neighbour pair, which is exactly what condition 1 needs (lesson 1, Lemma 11).</div>
-      <div class="fb" data-when="4">The test is right: a neighbour pair is out of order exactly when the later element is smaller.</div>
-      <div class="fb" data-when="2">Passing a copy, <code>list(a)</code>, is good practice: it keeps the original for comparison.</div>
-      <div class="fb" data-when="other">Which of the two conditions in the specification does this function check?</div>
-      <div class="ex-hints"><div class="hint">Try <code>sort_fn = lambda a: []</code>.</div><div class="hint">Which half of the specification is missing?</div></div>
-      <div class="ex-solution"><p>The function verifies condition 1 only. Any function returning an ordered list of anything, such as <code>[]</code>, passes. The fix checks condition 2 as well before returning <code>True</code>.</p></div>
+      <div class="fb" data-when="correct">Yes, line 6. Reaching it only shows that no neighbour pair of <code>b</code> is out of order, which is condition 1. Nothing ever compares <code>b</code> with <code>a</code>, so condition 2 is never checked, and a “sort” like <code>lambda a: []</code> sails through. Line 6 should be <code>return Counter(b) == Counter(a)</code> (with <code>from collections import Counter</code>).</div>
+      <div class="fb" data-when="1">The signature is fine: the function takes the sort to test and one input to test it on. The trouble is in what the function concludes, not in what it receives.</div>
+      <div class="fb" data-when="2">This line is fine. Passing a copy, <code>list(a)</code>, is good practice: the sort can’t then damage <code>a</code>, which you need intact to compare the output against. (Whether the function ever does that comparison is another matter.)</div>
+      <div class="fb" data-when="3">The loop visits every neighbour pair, which is exactly what checking condition 1 needs: lesson 1, Lemma 11 says that for a strict weak ordering, neighbours suffice.</div>
+      <div class="fb" data-when="4">This test is right: a neighbour pair is out of order exactly when the later element is smaller, <code>b[i + 1] &lt; b[i]</code>.</div>
+      <div class="fb" data-when="5">Returning <code>False</code> here is correct: one out-of-order neighbour pair already proves that <code>b</code> isn’t sorted, so the sort has failed.</div>
+      <div class="fb" data-when="other">Which of the two conditions in the specification does this function actually check?</div>
+      <div class="ex-hints"><div class="hint">The specification has two conditions. For each line, ask which condition it helps to check.</div><div class="hint">Imagine a “sort” that returns <code>[]</code> whatever it’s given. Trace the function with it: which line does it end on, and what does it return?</div></div>
+      <div class="ex-solution"><p>Let’s match the code against the specification, one condition at a time.</p><p>Condition 1 says <code>b</code> is sorted. Lines 3–5 check exactly that: they look at every neighbour pair and return <code>False</code> at the first one that is out of order. That part is right, and lesson 1, Lemma 11 says that checking neighbours is enough.</p><p>Condition 2 says <code>b</code> is a permutation of <code>a</code>: the same elements, with the same multiplicities. Look for a line that uses <code>a</code> after line 2. There isn’t one. So when the loop finishes, the function knows only that <code>b</code> is in order, and yet line 6 concludes that the sort is correct.</p><p>To see it fail, take <code>sort_fn = lambda a: []</code> and <code>a = [3, 1, 2]</code>. Then <code>b = []</code>, the loop has nothing to check, and line 6 returns <code>True</code> for a “sort” that threw every element away. The fix is to make line 6 <code>return Counter(b) == Counter(a)</code>, so that <code>True</code> means both conditions hold. Lines 1–5 are all fine as they stand.</p></div>
     </div>
 
-    <div class="ex" data-type="custom" id="l3-ex-set-input" data-check="L03.checkSetInput" data-placeholder="3 1 3 2">
+    <div class="ex" data-type="custom" id="l3-ex-set-input" data-check="L03.checkSetInput" data-placeholder="e.g. 5 2 8">
       <p class="ex-num">E3b</p>
       <div class="ex-prompt"><p>Give an input list (integers, at most 8) on which <code>sorted(set(a))</code> violates the specification.</p></div>
+      <div class="ex-hints"><div class="hint"><code>sorted</code> always produces an ordered list, so condition 1 can’t fail. Which condition is left, and what could <code>set</code> do to it?</div><div class="hint">A set keeps only one copy of each value. What happens to a list in which some value appears more than once?</div></div>
+      <div class="ex-solution"><p>The output of <code>sorted(set(a))</code> is always in order, so condition 1 never fails. We need an input on which condition 2 fails: the output must not be a permutation of the input.</p><p><code>set(a)</code> keeps one copy of each distinct value, so any list with a repeated value loses something. Take <code>[3, 1, 3, 2]</code>: the set holds 1, 2 and 3, and <code>sorted</code> gives <code>[1, 2, 3]</code>, three elements where the input had four. One of the 3s is gone, so condition 2 fails. The smallest example is <code>[1, 1]</code>, which comes back as <code>[1]</code>.</p><p>Any list with a duplicate works. A list without one comes back as exactly its sorted arrangement, so it can’t serve as a counterexample.</p></div>
     </div>
 
     <div class="ex" data-type="mcq" id="l3-ex-cost-def">
       <p class="ex-num">E4</p>
       <div class="ex-prompt"><p>An algorithm makes 3 comparisons on the sorted input of size 4 and 6 on every other input of size 4. What are its best and worst case for \(n = 4\)?</p></div>
       <ul class="ex-options">
-        <li data-correct><div class="opt"><span>\(B(4) = 3\), \(W(4) = 6\).</span></div><div class="fb">Best and worst case are the minimum and maximum over all inputs of the size.</div></li>
-        <li><div class="opt"><span>\(B(4) = W(4) = 6\), since only one input is cheaper.</span></div><div class="fb">The best case is a minimum over inputs; one cheap input is enough to make it 3.</div></li>
-        <li><div class="opt"><span>The average, \((3 + 23 \cdot 6)/24\).</span></div><div class="fb">That is an average over a stated distribution (uniform over the 24 rank patterns). It is a different quantity from best or worst case, and lesson 10 introduces it properly.</div></li>
-        <li><div class="opt"><span>They cannot be determined without running it on every input.</span></div><div class="fb">The question tells us the cost on every rank pattern; by Lemma 3, those are all the inputs that matter.</div></li>
+        <li data-correct><div class="opt"><span>\(B(4) = 3\), \(W(4) = 6\).</span></div><div class="fb">Yes. The best case is the fewest comparisons over all inputs of size 4, and the sorted input gets away with 3. The worst case is the most, and every other input costs 6. So \(B(4) = 3\) and \(W(4) = 6\).</div></li>
+        <li><div class="opt"><span>\(B(4) = W(4) = 6\), since only one input is cheaper.</span></div><div class="fb">It’s true that only one input is cheap, but the best case doesn’t care how many inputs achieve it. It’s a minimum over all inputs, and a single input costing 3 is enough to make that minimum 3.</div></li>
+        <li><div class="opt"><span>The average, \((3 + 23 \cdot 6)/24\).</span></div><div class="fb">That’s the average over the 24 rank patterns taken as equally likely, \(141/24 = 5.875\). It’s a legitimate number, but it needs a stated probability distribution over the inputs, and it is neither the best nor the worst case. Lesson 10 introduces averages properly.</div></li>
+        <li><div class="opt"><span>They cannot be determined without running it on every input.</span></div><div class="fb">No need to run anything: the question already tells us the cost on every input of size 4. By Lemma 3 every input behaves like one of the 24 rank patterns, and we know the count for each, so the minimum and maximum can simply be read off.</div></li>
       </ul>
+      <div class="ex-hints"><div class="hint">Go back to the definitions: the best and worst case are a minimum and a maximum. Over which set of inputs?</div><div class="hint">List the cost on each of the \(4! = 24\) rank patterns of size 4: one pattern costs 3 and the other 23 cost 6. What are the smallest and the largest values on that list?</div></div>
+      <div class="ex-solution"><p>By definition, \(B(4)\) is the fewest comparisons the algorithm makes on any input of size 4, and \(W(4)\) is the most. By Lemma 3 we only need to look at the \(4! = 24\) rank patterns.</p><p>The question gives us the cost on every one of them: the sorted pattern <code>[0, 1, 2, 3]</code> costs 3, and each of the other 23 costs 6. The smallest value on that list is 3 and the largest is 6, so \(B(4) = 3\) and \(W(4) = 6\).</p><p>Why the others fail: a single cheap input is enough to set the minimum, so (b) is wrong. (c) computes an average, \((3 + 23 \cdot 6)/24 = 141/24 = 5.875\), which is a different summary and needs a probability distribution. And (d) forgets that the question has already told us the cost on every input.</p></div>
     </div>
   </section>
 

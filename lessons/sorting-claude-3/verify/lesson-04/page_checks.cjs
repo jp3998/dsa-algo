@@ -89,14 +89,14 @@ const ok = (c, m) => { if (!c) { problems.push(m); console.log('FAIL', m); } };
   }
 
   // prerequisites + predicts + checkpoint 1
-  await numeric('l4-pre-1', [['15', '15'], ['6', '6'], ['9', 'other'], ['5', 'correct']]);
+  await numeric('l4-pre-1', [['15', '15'], ['6', '6'], ['720', '720'], ['9', 'other'], ['5', 'correct']]);
   await mcq('l4-pre-2', 4, 0);
   await numeric('l4-pr-candidates', [['1', '1'], ['12', '12'], ['3', '3'], ['7', 'other'], ['24', 'correct']]);
   await numeric('l4-pr-reversed4', [['24', '24'], ['72', '72'], ['41', 'other'], ['40', 'correct']]);
   const revealOpen = await page.evaluate(() => ['pr-candidates', 'pr-reversed4'].map(id => document.querySelector('#' + id + ' .reveal').classList.contains('open')));
   ok(revealOpen.every(Boolean), 'predict reveals open ' + revealOpen);
 
-  await numeric('l4-cp1-a', [['3', '3'], ['2', '2'], ['9', '9'], ['4', 'other'], ['5', 'correct']]);
+  await numeric('l4-cp1-a', [['3', '3'], ['2', '2'], ['6', '6'], ['9', '9'], ['4', 'other'], ['5', 'correct']]);
   const gateAfterA = await page.evaluate(() => document.getElementById('s06').classList.contains('gated'));
   ok(gateAfterA, 's06 still gated before all of cp1 attempted');
   await mcq('l4-cp1-b', 4, 0);
@@ -107,9 +107,12 @@ const ok = (c, m) => { if (!c) { problems.push(m); console.log('FAIL', m); } };
     await new Promise(r => setTimeout(r, 30));
     return { txt: ex.querySelector('.fb.show') ? ex.querySelector('.fb.show').textContent : ex.innerText.slice(-300), cls: ex.querySelector('.fb.show') ? ex.querySelector('.fb.show').className : '' };
   }, v);
-  let c = await cust('1 2 3 4'); console.log('custom 1234:', c.txt); ok(/bad/.test(c.cls) && /Examined 1 candidates/.test(c.txt), 'custom wrong');
+  let c = await cust('1 2 3 4'); console.log('custom 1234:', c.txt); ok(/bad/.test(c.cls) && /Examined 1 candidate and made 3 comparisons/.test(c.txt) && /by candidate 6 at the latest/.test(c.txt), 'custom wrong (f=0)');
+  c = await cust('2 1 4 3'); console.log('custom 2143:', c.txt); ok(/bad/.test(c.cls) && /Examined 8 candidates/.test(c.txt) && /places 7 to 12/.test(c.txt), 'custom wrong (f=1)');
+  c = await cust('4 3 2 1'); console.log('custom 4321:', c.txt); ok(/bad/.test(c.cls) && /all 18 tuples/.test(c.txt) && /number 24\./.test(c.txt), 'custom wrong (f=3)');
+  c = await cust('1 2 3'); ok(/exactly 4 numbers, and you typed 3/.test(c.txt), 'custom count: ' + c.txt);
   c = await cust('1 1 2 3'); ok(/distinct/.test(c.txt), 'custom dup: ' + c.txt);
-  c = await cust('2 1 3 4'); console.log('custom 2134:', c.txt); ok(/ok/.test(c.cls) && /7 candidates/.test(c.txt), 'custom right');
+  c = await cust('2 1 3 4'); console.log('custom 2134:', c.txt); ok(/ok/.test(c.cls) && /Examined 7 candidates and made 14 comparisons/.test(c.txt), 'custom right');
   const g1 = await page.evaluate(() => ['s06', 's07', 's08'].map(id => document.getElementById(id).classList.contains('gated')));
   ok(g1[0] === false && g1[1] === true && g1[2] === true, 'after cp1 only s06 open ' + g1);
 
@@ -122,11 +125,48 @@ const ok = (c, m) => { if (!c) { problems.push(m); console.log('FAIL', m); } };
 
   // s07 predict (mcq), exercises
   await mcq('l4-pr-rankties', 3, 0);
-  await lines('l4-ex-strict', 5, [3], { 2: '2', 5: '5' });
-  await lines('l4-ex-rankbug', 12, [8], { 12: '12', 6: '6' });
+  await lines('l4-ex-strict', 5, [3], { 2: '2', 4: '4', 5: '5' });
+  await lines('l4-ex-rankbug', 13, [8], { 6: '6', 9: '9', 10: '10', 12: '12' });
   await mcq('l4-ex-worst', 4, 0);
-  await numeric('l4-ex-rank10', [['90', '90'], ['100', '100'], ['9', '9'], ['46', 'other'], ['45', 'correct']]);
+  await numeric('l4-ex-rank10', [['90', '90'], ['100', '100'], ['55', '55'], ['9', '9'], ['46', 'other'], ['45', 'correct']]);
   await mcq('l4-ex-spiral', 4, 0);
+
+  // ---- every exercise outside predict blocks: two staged hints and a worked solution, all revealable;
+  // no feedback starts with a check/cross mark; after revealing everything, no raw TeX and no KaTeX errors
+  const exInfo = await page.evaluate(async () => {
+    const out = [];
+    for (const ex of document.querySelectorAll('.ex')) {
+      const inPredict = !!ex.closest('.predict');
+      const hints = ex.querySelectorAll('.ex-hints .hint');
+      const sol = ex.querySelector('.ex-solution');
+      const hb = Array.from(ex.querySelectorAll('.ex-tools .btn')).find(b => /^Hint/.test(b.textContent));
+      if (hb) { hb.click(); hb.click(); }
+      const link = ex.querySelector('.ex-tools .linkbtn');
+      if (link && !link.hidden) link.click();
+      await new Promise(r => setTimeout(r, 20));
+      const shownHints = Array.from(hints).filter(h => getComputedStyle(h).display !== 'none').length;
+      const solShown = sol ? getComputedStyle(sol).display !== 'none' : false;
+      const fbs = Array.from(ex.querySelectorAll('.fb')).map(f => f.textContent.trim());
+      out.push({ id: ex.id, inPredict, hints: hints.length, shownHints, sol: !!sol, solShown, marks: fbs.filter(t => /^[✓✗✔✘]/.test(t)).length, fbs: fbs.length });
+    }
+    return out;
+  });
+  for (const e of exInfo) {
+    if (e.inPredict) { ok(e.hints === 0 && !e.sol, e.id + ': predict has no hints/solution'); continue; }
+    ok(e.hints === 2 && e.shownHints === 2, e.id + ': two hints, both revealed (' + e.hints + '/' + e.shownHints + ')');
+    ok(e.sol && e.solShown, e.id + ': worked solution present and revealed');
+    ok(e.marks === 0, e.id + ': no leading marks in feedback');
+  }
+  console.log('exercises checked for hints/solutions:', exInfo.filter(e => !e.inPredict).map(e => e.id).join(' '));
+  const kx2 = await page.evaluate(() => {
+    document.querySelectorAll('.fb, .hint, .ex-solution').forEach(e => { e.style.display = 'block'; });
+    const raw = (document.body.innerText.match(/\\\(|\\\)|\\\[|\\\]/g) || []).length;
+    const errs = document.querySelectorAll('.katex-error').length;
+    document.querySelectorAll('.fb, .hint, .ex-solution').forEach(e => { e.style.display = ''; });
+    return { raw, errs };
+  });
+  console.log('katex with all feedback/hints/solutions visible', kx2);
+  ok(kx2.raw === 0 && kx2.errs === 0, 'KaTeX in feedback, hints and solutions');
 
   // ---- Fig. 1
   const snap = () => page.evaluate(() => ({

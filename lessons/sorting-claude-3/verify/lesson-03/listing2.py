@@ -24,4 +24,4 @@ def stress_test(sort_fn, trials=2000, max_n=8, seed=1):
 
 
 print(stress_test(sorted))                       # None
-print(stress_test(lambda a: sorted(set(a))))     # a failing input, e.g. one with a duplicate
+print(stress_test(lambda a: sorted(set(a))))     # [3, 3, 1, 0, 3, 0, 3]

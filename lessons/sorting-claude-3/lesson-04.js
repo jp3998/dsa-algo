@@ -190,24 +190,34 @@
     return a.map(function (v, k) { return k; }).sort(function (p, q) { return a[p] - a[q]; });
   }
 
-  /* Q3 checker. */
+  /* Q3 checker. The search stops at the sorted arrangement, so the number of candidates is the place of
+   * its position tuple in lexicographic order; the feedback explains the miss by the tuple's first entry
+   * (the position of the smallest number): first entry f means 6·f tuples come before its block. */
   function checkSevenCandidates(text) {
     const toks = String(text === null || text === undefined ? '' : text).replace(/[−–]/g, '-').trim().split(/[\s,;]+/).filter(Boolean);
     for (let k = 0; k < toks.length; k++) {
-      if (!/^[+-]?\d+$/.test(toks[k])) return { ok: false, html: '“' + toks[k].replace(/[<>&]/g, '') + '” is not a whole number. Enter 4 distinct integers, separated by spaces or commas.' };
+      if (!/^[+-]?\d+$/.test(toks[k])) return { ok: false, html: '“' + toks[k].replace(/[<>&]/g, '') + '” isn’t a whole number. Type 4 distinct integers, separated by spaces or commas.' };
     }
-    if (toks.length !== 4) return { ok: false, html: 'Enter exactly 4 numbers; you gave ' + toks.length + '.' };
+    if (toks.length !== 4) return { ok: false, html: 'The question asks for exactly 4 numbers, and you typed ' + toks.length + '.' };
     const vals = toks.map(Number);
     for (let k = 0; k < 4; k++) {
-      if (vals.indexOf(vals[k]) !== k) return { ok: false, html: 'The numbers must be distinct: ' + vals[k] + ' appears more than once.' };
+      if (vals.indexOf(vals[k]) !== k) return { ok: false, html: 'The numbers need to be distinct (the question is about distinct keys), but ' + vals[k] + ' appears more than once.' };
     }
     const r = run(vals, false);
     const pos = sortedPositions(vals);
-    const head = 'Examined ' + r.candidates + ' candidates and made ' + r.comparisons + ' comparisons. ';
+    const tuple = '(' + pos.join(', ') + ')';
+    const head = 'Examined ' + r.candidates + (r.candidates === 1 ? ' candidate' : ' candidates') + ' and made ' + r.comparisons + (r.comparisons === 1 ? ' comparison. ' : ' comparisons. ');
     if (r.candidates === 7) {
-      return { ok: true, html: head + 'The sorted arrangement takes positions (' + pos.join(', ') + '), the 7th tuple in lexicographic order: after the six that start with 0.' };
+      return { ok: true, html: head + 'Here the sorted arrangement takes positions ' + tuple + ': the smallest number at position 1, then positions 0, 2 and 3. The six tuples that start with 0 come first, and ' + tuple + ' is the first one that starts with 1, so it is 7th, and the search stops right there.' };
     }
-    return { ok: false, html: head + 'Positions of the sorted arrangement: (' + pos.join(', ') + '), which is number ' + r.candidates + ' in lexicographic order. Which position tuple is 7th?' };
+    const f = pos[0];
+    if (f === 0) {
+      return { ok: false, html: head + 'The search stops at the sorted arrangement, which here takes positions ' + tuple + '. That tuple starts with 0, so it is one of the six tuples that start with 0, and the search ends by candidate 6 at the latest. To reach the 7th, the smallest number must not be at position 0.' };
+    }
+    if (f === 1) {
+      return { ok: false, html: head + 'The sorted arrangement takes positions ' + tuple + ', number ' + r.candidates + ' in lexicographic order. You’re in the right block: with the smallest number at position 1, the tuple is among places 7 to 12, the ones that start with 1. But it isn’t the first tuple of that block. Which tuple starting with 1 comes first, and what does it say about position 0?' };
+    }
+    return { ok: false, html: head + 'The sorted arrangement takes positions ' + tuple + ': the smallest number is at position ' + f + ', so all ' + (6 * f) + ' tuples that start with a smaller position come before it, and it is number ' + r.candidates + '. The 7th tuple comes right after the six that start with 0. Where must the smallest number sit for that?' };
   }
 
   /* Fig. 2 data, computed by verify/lesson-04/plot_data.py:

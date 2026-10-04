@@ -79,6 +79,39 @@ const bad = (m) => { problems.push(m); console.log('FAIL', m); };
   const reveals = await p.evaluate(() => [...document.querySelectorAll('.predict')].map(x => x.querySelector('.reveal').classList.contains('open')));
   console.log('reveals open after answering:', reveals.join());
   if (reveals.some(v => !v)) bad('a predict reveal did not open');
+  // Phase D: every non-predict exercise has 2 staged hints and a worked solution; predicts have neither;
+  // no feedback is bare or starts with a mark; hints and solution reveal on click.
+  p = await fresh();
+  await p.evaluate(() => document.querySelectorAll('.gate-bar .linkbtn').forEach(b => b.click()));
+  const struct = await p.evaluate(() => [...document.querySelectorAll('.ex')].map(e => ({
+    id: e.id, predict: !!e.closest('.predict'),
+    hints: e.querySelectorAll('.ex-hints .hint').length, sol: e.querySelectorAll('.ex-solution').length,
+    fbs: [...e.querySelectorAll('.fb')].map(f => f.textContent.trim()),
+  })));
+  for (const s of struct) {
+    if (s.predict) { if (s.hints || s.sol) bad(s.id + ': predict block should rely on its reveal'); }
+    else { if (s.hints !== 2) bad(s.id + ': ' + s.hints + ' hints'); if (s.sol !== 1) bad(s.id + ': no worked solution'); }
+    for (const t of s.fbs) {
+      if (/^[✓✗✔✘]/.test(t)) bad(s.id + ': feedback starts with a mark: ' + t.slice(0, 40));
+      if (t.length < 60) bad(s.id + ': feedback too short to explain: ' + t);
+      if (/^(correct|incorrect|right|wrong)\.?$/i.test(t)) bad(s.id + ': bare feedback ' + t);
+    }
+  }
+  for (const s of struct.filter(s => !s.predict)) {
+    const r = await p.evaluate((id) => {
+      const e = document.getElementById(id);
+      const hb = [...e.querySelectorAll('.ex-tools .btn')].find(b => /hint/i.test(b.textContent));
+      hb.click(); const one = e.querySelectorAll('.hint.show').length; hb.click(); const two = e.querySelectorAll('.hint.show').length;
+      const sl = [...e.querySelectorAll('.ex-tools .linkbtn')].find(b => /show/i.test(b.textContent)); sl.click();
+      const sol = e.querySelector('.ex-solution');
+      return { one, two, disabled: hb.disabled, sol: sol.classList.contains('show') && sol.offsetParent !== null };
+    }, s.id);
+    if (r.one !== 1 || r.two !== 2 || !r.disabled || !r.sol) bad(s.id + ': hint/solution reveal ' + JSON.stringify(r));
+  }
+  const k2 = await p.evaluate(() => ({ err: document.querySelectorAll('.katex-error').length,
+    raw: [...document.querySelectorAll('.hint, .ex-solution p')].filter(n => /\\\(|\\\[/.test(n.textContent)).length }));
+  if (k2.err || k2.raw) bad('katex in hints/solutions ' + JSON.stringify(k2));
+  console.log('structure checked:', struct.length, 'exercises,', struct.filter(s => !s.predict).length, 'with hints and solutions');
   await browser.close();
   console.log(problems.length ? 'PROBLEMS ' + problems.length : 'page checks OK');
   process.exit(problems.length ? 1 : 0);

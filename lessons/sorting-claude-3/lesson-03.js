@@ -24,14 +24,16 @@
     if (k > 0) {
       return {
         ok: true,
-        html: '<code>sorted(set(a))</code> returns ' + show(out) + ', which has ' + k +
-          (k === 1 ? ' fewer element' : ' fewer elements') + ' than the input: condition 2 fails.'
+        html: 'That breaks it. <code>sorted(set(a))</code> returns ' + show(out) + ', which has ' + k +
+          (k === 1 ? ' fewer element' : ' fewer elements') + ' than your input, because <code>set</code> kept only one copy ' +
+          'of each repeated value. The output is in order, but it isn’t a permutation of the input: condition 2 fails.'
       };
     }
     return {
       ok: false,
-      html: 'With distinct values <code>sorted(set(a))</code> returns ' + show(out) +
-        ', which is correct. What does <code>set</code> remove?'
+      html: 'On this input <code>sorted(set(a))</code> returns ' + show(out) + ', which is exactly the sorted arrangement: ' +
+        'with every value distinct, <code>set</code> has nothing to remove. Think about what <code>set</code> does to a value ' +
+        'that appears more than once.'
     };
   }
 

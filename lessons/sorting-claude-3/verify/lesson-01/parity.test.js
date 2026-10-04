@@ -31,15 +31,17 @@ for (const c of data.counts) {
 const ck = L.checkNeighbourTrap;
 let r;
 for (const bad of ['', 'abc', 'abcde', 'aabc', 'abcx', '1234']) { r = ck(bad); assert(!r.ok && /exactly once/.test(r.html), bad); }
-r = ck('dabc'); assert(!r.ok && /example above/.test(r.html));
-r = ck('D, A, B, C'); assert(!r.ok && /example above/.test(r.html));
-for (const v of ['abcd', 'abdc', 'bacd', 'badc', 'bdac']) { r = ck(v); assert(!r.ok && /is valid/.test(r.html), v); }
-r = ck('cabd'); assert(!r.ok && /neighbour test already catches/.test(r.html) && /<b>c<\/b> and <b>a<\/b> are neighbours and a \u227A c/.test(r.html), r.html);
+r = ck('dabc'); assert(!r.ok && /example from the reveal above/.test(r.html));
+r = ck('D, A, B, C'); assert(!r.ok && /example from the reveal above/.test(r.html));
+for (const v of ['abcd', 'abdc', 'bacd', 'badc', 'bdac']) { r = ck(v); assert(!r.ok && /is valid: a and b both come before c, and b comes before d/.test(r.html), v);
+  // the stated reason holds for every valid arrangement
+  const xs = v.split(''); assert(xs.indexOf('a') < xs.indexOf('c') && xs.indexOf('b') < xs.indexOf('c') && xs.indexOf('b') < xs.indexOf('d'), v); }
+r = ck('cabd'); assert(!r.ok && /neighbour test already catches/.test(r.html) && /the two items must stand apart/.test(r.html) && /<b>c<\/b> and <b>a<\/b> are neighbours and a \u227A c/.test(r.html), r.html);
 // first out-of-order neighbour pair naming: 'dcba' -> (d,c)? c<d? no. c,b: b<c yes
 r = ck('dcba'); assert(!r.ok && /<b>c<\/b> and <b>b<\/b> are neighbours and b ≺ c/.test(r.html), r.html);
 r = ck('cbad'); assert(!r.ok && /<b>c<\/b> and <b>b<\/b>/.test(r.html));
 // exact expected successes
-assert(ck('bcda').ok && /three such arrangements are dabc, bcda and cdab/.test(ck('bcda').html));
+assert(ck('bcda').ok && /three arrangements like this are dabc, bcda and cdab/.test(ck('bcda').html));
 assert(ck('cdab').ok);
 // brute force: exactly dabc, bcda, cdab are ok:true overall except dabc (excluded by branch)
 const all = L.permutations(['a', 'b', 'c', 'd']).map(p => p.join(''));
@@ -49,7 +51,9 @@ assert.deepStrictEqual(oks, ['bcda', 'cdab']);
 for (const s of oks) {
   const xs = s.split(''); let named = null;
   for (let i = 0; i < 4 && !named; i++) for (let j = i + 1; j < 4 && !named; j++) if (L.taskBefore(xs[j], xs[i])) named = [xs[j], xs[i]];
-  assert(ck(s).html.indexOf('yet ' + named[0] + ' ≺ ' + named[1] + ' with ' + named[1] + ' earlier') >= 0, s);
+  assert(ck(s).html.indexOf('yet ' + named[0] + ' ≺ ' + named[1] + ' is required and ' + named[1] + ' stands earlier') >= 0, s);
+  // the two items of the named pair are not neighbours (they 'never touch')
+  assert(Math.abs(xs.indexOf(named[0]) - xs.indexOf(named[1])) > 1, s);
 }
 // case-insensitivity / separators
 assert(ck('B C D A').ok);

@@ -19,6 +19,8 @@ for (let n = 0; n <= 6; n++) {
 const edge = [[], [7], [5, 5, 5], [2, 1, 2], [2, 2, 1], [1, 1], [3, 1, 3, 1], [1, 3, 2], [2, 1, 3], [4, 3, 2, 1], [3, 1, 2], [2, 3, 1], [2, 3, 4, 1], [1, 4, 3, 2]];
 for (let t = 0; t < 40; t++) { const n = Math.floor(rnd() * 7); inputs.push(Array.from({ length: n }, () => Math.floor(rnd() * 3))); }  // duplicates
 inputs.push(...edge);
+const PERMS4_START = inputs.length;   // all 24 rank patterns of 4, for the Q3 checker messages
+for (const q of (function* g(pre, rest) { if (!rest.length) { yield pre; return; } for (let k = 0; k < rest.length; k++) yield* g(pre.concat([rest[k]]), rest.slice(0, k).concat(rest.slice(k + 1))); })([], [0, 1, 2, 3])) inputs.push(q);
 const permInputs = [[], [9], [3, 1, 2], [5, 5, 5], [2, 1, 2, 1], [8, 6, 7, 5, 3], sample(6)];
 
 const py = spawnSync('python3', ['py_dump.py'], { cwd: __dirname, input: JSON.stringify({ inputs, lines: true, permInputs }), maxBuffer: 1 << 28 });
@@ -101,22 +103,35 @@ if (fs.existsSync(htmlPath)) {
   assert(m.includes(l3), 'Listing 3 on page');
 }
 
-// checker
+// checker (Q3): outcome and every number in its messages, against the instrumented Python
 const c = L04.checkSevenCandidates;
 assert(c('2 1 3 4').ok && /\(1, 0, 2, 3\)/.test(c('2 1 3 4').html));
 assert(c('5, 4, 6, 7').ok);
-assert(!c('1 2 3 4').ok && /number 1 in/.test(c('1 2 3 4').html));
-assert(!c('4 3 2 1').ok && /number 24 in/.test(c('4 3 2 1').html));
-assert(!c('1 2 3').ok && !c('1 1 2 3').ok && !c('1 a 2 3').ok && !c('').ok && !c('1.5 2 3 4').ok);
-// every 4-permutation: ok iff a1 < a0 < a2 < a3
-const perms4 = [...L04.permutations([0, 1, 2, 3])];
-perms4.forEach(p => assert.strictEqual(c(p.join(' ')).ok, p[1] < p[0] && p[0] < p[2] && p[2] < p[3]));
-// examined candidate number equals the lexicographic rank of the sorted positions
-perms4.forEach(p => {
-  const pos = L04.sortedPositions(p);
-  const rank = perms4.findIndex(q => q.join() === pos.join()) + 1;
-  assert.strictEqual(L04.run(p, false).candidates, rank);
-});
+assert(!c('1 2 3').ok && /exactly 4 numbers, and you typed 3\./.test(c('1 2 3').html));
+assert(!c('1 1 2 3').ok && /need to be distinct.*but 1 appears more than once/.test(c('1 1 2 3').html));
+assert(!c('1 a 2 3').ok && /“a” isn’t a whole number/.test(c('1 a 2 3').html));
+assert(!c('').ok && /you typed 0\./.test(c('').html));
+assert(!c('1.5 2 3 4').ok);
+const perms4 = P.perms['4'];                 // Python's itertools order of position tuples
+assert.strictEqual(perms4.length, 24);
+let branches = { ok: 0, f0: 0, f1: 0, f2: 0 };
+for (let k = PERMS4_START; k < PERMS4_START + 24; k++) {
+  const p = inputs[k], py = P.results[k];
+  const res = c(p.join(' '));
+  const pos = [0, 1, 2, 3].sort((x, y) => p[x] - p[y]);                 // sorted arrangement as positions
+  const place = perms4.findIndex(q => q.join() === pos.join()) + 1;       // its place in Python's order
+  assert.strictEqual(py.candidates, place, 'candidates = place of the sorted tuple ' + p);
+  assert.strictEqual(res.ok, p[1] < p[0] && p[0] < p[2] && p[2] < p[3], 'ok iff a1<a0<a2<a3 ' + p);
+  assert.strictEqual(res.ok, place === 7);
+  assert(res.html.startsWith('Examined ' + py.candidates + (py.candidates === 1 ? ' candidate' : ' candidates') + ' and made ' + py.log.length + ' comparisons. '), res.html);
+  assert(res.html.includes('(' + pos.join(', ') + ')'), 'tuple named ' + res.html);
+  const f = pos[0];
+  if (res.ok) { assert.deepStrictEqual(pos, [1, 0, 2, 3]); assert.strictEqual(py.log.length, 14); branches.ok++; }
+  else if (f === 0) { assert(place >= 1 && place <= 6 && /by candidate 6 at the latest/.test(res.html)); branches.f0++; }
+  else if (f === 1) { assert(place >= 8 && place <= 12 && res.html.includes('number ' + place + ' in') && /places 7 to 12/.test(res.html)); branches.f1++; }
+  else { assert(place > 6 * f && place <= 6 * (f + 1) && res.html.includes('all ' + 6 * f + ' tuples') && res.html.includes('number ' + place + '.')); branches.f2++; }
+}
+assert.deepStrictEqual(branches, { ok: 1, f0: 6, f1: 5, f2: 12 });
 // plot data equals plot_data.py
 const pd = JSON.parse(fs.readFileSync(path.join(__dirname, 'plot_data.json'), 'utf8'));
 assert.deepStrictEqual(L04.PLOT, pd);
