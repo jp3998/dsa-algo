@@ -726,6 +726,7 @@
         g.open = true;
         sec.classList.remove('gated');
         if (g.bar && g.bar.parentNode) g.bar.parentNode.removeChild(g.bar);
+        hideBeyond();
         if (skipped) progAdd('skipped', cpId);
         else progDel('skipped', cpId);
         refreshGaps();
@@ -734,8 +735,24 @@
       var allSeen = cp ? qa(cp, '.ex').length > 0 && qa(cp, '.ex').every(function (e) { return prog.attempted.indexOf(e.id) >= 0; }) : true;
       sec.classList.add('gated');
       var btn = el('button', { type: 'button', class: 'linkbtn', text: 'Continue anyway' });
+      var secName = function (x) {
+        var n = x.querySelector('.sec-num'), t = x.querySelector('.sec-title');
+        return (n ? '§' + n.textContent.trim() + ' ' : '') + (t ? t.textContent.trim() : '');
+      };
+      var stop = function (t) { return /[.?!]$/.test(t) ? t : t + '.'; };
+      var later = qa(DOC, '.lsec').filter(function (x) {
+        var n = x.querySelector('.sec-num');
+        return (sec.compareDocumentPosition(x) & 4) && n && /^\d+$/.test(n.textContent.trim());
+      });
+      var nextText = 'Next: ' + stop(secName(sec));
+      if (later.length === 1) nextText += ' After it comes ' + stop(secName(later[0]));
+      else if (later.length > 1) nextText += ' After it come ' + later.length + ' more sections, ' + later.map(function (x) { return '§' + x.querySelector('.sec-num').textContent.trim(); }).join(', ') + '.';
       g.bar = el('div', { class: 'gate-bar', 'data-for': cpId }, [
-        el('p', { text: 'Attempt ' + cpLabel(cp, cpId).toLowerCase() + ' above to continue.' }), btn
+        el('div', { class: 'gate-text' }, [
+          el('p', { class: 'gate-head', text: 'The lesson continues below.' }),
+          el('p', { text: nextText }),
+          el('p', { text: 'Attempt ' + cpLabel(cp, cpId).toLowerCase() + ' above to open it.' })
+        ]), btn
       ]);
       sec.parentNode.insertBefore(g.bar, sec);
       btn.addEventListener('click', function () { g.openIt(!g.done()); });
@@ -745,6 +762,15 @@
         g.openIt(prog.skipped.indexOf(cpId) >= 0);
       }
     });
+    // While a gate is closed, nothing below its bar is shown: not later checkpoints,
+    // not the exercises, not the bridge to the next lesson. Otherwise the page looks finished.
+    function hideBeyond() {
+      qa(DOC, '.beyond-gate').forEach(function (x) { x.classList.remove('beyond-gate'); });
+      var first = gates.filter(function (g) { return !g.open && g.bar && g.bar.parentNode; })[0];
+      if (!first) return;
+      for (var x = first.bar.nextElementSibling; x; x = x.nextElementSibling) x.classList.add('beyond-gate');
+    }
+    hideBeyond();
     DOC.addEventListener('course:attempt', function () {
       gates.forEach(function (g) { if (!g.open && g.done()) g.openIt(false); else if (g.open && g.done()) { progDel('skipped', g.id); refreshGaps(); } });
     });

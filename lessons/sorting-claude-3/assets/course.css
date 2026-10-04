@@ -155,8 +155,11 @@ img, svg { max-width: 100%; }
 .sec-num { flex: none; color: var(--c-red); font-size: var(--fs-num); line-height: 0.8; font-weight: var(--fw-heavy); letter-spacing: -0.03em; font-variant-numeric: tabular-nums; padding-top: 0.05em; }
 .sec-title { min-width: 0; font-size: var(--fs-sec); line-height: 1.1; font-weight: var(--fw-heavy); letter-spacing: -0.01em; padding-top: 2px; }
 .lsec.gated { display: none; }
-.gate-bar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--sp-3) var(--sp-4); margin: var(--sp-6) 0; padding: var(--sp-4); background: var(--c-gray-1); border: var(--hair) solid var(--c-ink); }
-.gate-bar p { margin: 0; font-size: var(--fs-small); font-weight: var(--fw-semi); }
+.gate-bar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--sp-3) var(--sp-4); margin: var(--sp-8) 0; padding: var(--sp-5); background: var(--c-gray-1); border: var(--rule) solid var(--c-ink); }
+.gate-bar p { margin: 0; font-size: var(--fs-small); }
+.gate-bar p + p { margin-top: var(--sp-1); }
+.gate-bar .gate-head { font-size: var(--fs-body); font-weight: var(--fw-heavy); }
+.beyond-gate { display: none !important; }
 
 /* ---------- callouts ---------- */
 .callout { margin: var(--sp-5) 0; padding: 0 0 0 var(--sp-4); border-left: var(--rule) solid var(--c-ink); }

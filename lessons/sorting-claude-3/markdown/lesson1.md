@@ -430,7 +430,13 @@ Second, the one we were after: no cycles, of any length. This is the rock argume
 >
 > Suppose $x_1 \prec x_2 \prec \cdots \prec x_k \prec x_1$. From $x_1 \prec x_2$ and $x_2 \prec x_3$, transitivity gives $x_1 \prec x_3$. With $x_3 \prec x_4$ it gives $x_1 \prec x_4$, and so on along the cycle, until $x_1 \prec x_k$. (Formally, induction on $j$ shows $x_1 \prec x_j$ for every $j \ge 2$.) Together with $x_k \prec x_1$, transitivity gives $x_1 \prec x_1$. Irreflexivity forbids it. ∎
 
-Do we really need both properties? Yes. Transitivity alone isn’t enough. Take the rule “every item comes before every item, itself included”. It is transitive, and it is full of cycles. Irreflexivity alone isn’t enough either. Rock–paper–scissors is irreflexive, since nothing beats itself, and it is one big cycle.
+Do we really need both properties? Yes, and two small examples show why.
+
+**Transitivity alone isn’t enough.** Take just two people, Dee and Ben, and a rule whose list is (Dee, Ben), (Ben, Dee), (Dee, Dee), (Ben, Ben). Is it transitive? Check every place where two pairs chain together. (Dee, Ben) and (Ben, Dee) chain into “Dee before Dee”, and (Dee, Dee) is on the list. (Ben, Dee) and (Dee, Ben) chain into “Ben before Ben”, and that is on the list too. Any chain that uses (Dee, Dee) or (Ben, Ben) just gives back a pair we started with: (Dee, Dee) and (Dee, Ben) chain into (Dee, Ben) again. So every pair that transitivity asks for is already there, and the rule is transitive. Yet it has a cycle, Dee before Ben and Ben before Dee, and no row can obey it. Transitivity did its part: it followed the cycle round and produced “Dee before Dee”. What’s missing is a rule against that, and that is irreflexivity’s job.
+
+**Irreflexivity alone isn’t enough either.** Rock–paper–scissors is irreflexive, since nothing beats itself. But it isn’t transitive: rock beats scissors and scissors beats paper, yet the rule doesn’t say rock beats paper. So nothing ever follows the cycle round to “rock before rock”, and irreflexivity has nothing to catch.
+
+It takes both. Transitivity follows any cycle round to “x before x”, and irreflexivity forbids exactly that.
 
 Let’s check our four requests against the definition:
 
