@@ -12,7 +12,7 @@ Lesson 2 ended with two loose ends from watching Python’s sort. First, even wi
 
 The task can sound obvious: put the list in order. But this course is about what sorting *costs*, and to put a price on sorting we need more than “put it in order”. Say we want to compare two ways of sorting by their cost. Then we first have to be sure that both of them really sort, so we need an exact test for a correct answer. We also have to agree on what we are counting. As we’ll see, “cost” has no meaning at all until we have settled what an algorithm is allowed to do.
 
-One more question comes before those two. This course will spend most of its time on the price of sorting, so it owes you an answer to a simpler question first: what does a sorted list buy you that makes the price worth paying? So this lesson has three questions, in this order: why pay for order, what counts as a correct answer, and what an algorithm may do to find one.
+Before we put a price on sorting, though, you may fairly ask why anyone sorts at all. Sorting takes work, so a sorted list had better give something back. So this lesson takes up three questions, in this order: what a sorted list buys you, what counts as a correct answer, and what an algorithm may do to find one.
 
 - [Lesson 1 §05: exactly one sorted arrangement](lesson1.md)
 - [Lesson 1 §06: ties and tiers](lesson1.md)
@@ -51,9 +51,9 @@ In a total order any two elements are related, so only one element is below all 
 <details>
 <summary>Worked solution</summary>
 
-Let’s build a sorted row slot by slot and count our choices. Every other element will stand after slot 0. So if some element had to come before the one in slot 0, those two would form an out-of-order pair. In a strict total order every pair is related: for each other element, either it comes before the one in slot 0 or the one in slot 0 comes before it. So slot 0 needs the element that comes before all the others, which is the minimum. Exactly one element qualifies, so that’s 1 choice.
+Let’s build a sorted row slot by slot and count our choices. Picture five different numbers, say 4, 1, 5, 2, 3, compared with `<`. Every other element will stand after slot 0. Suppose slot 0 held the 4. Then the 1 would stand after it, although 1 comes before 4, and that pair would be out of order. The same goes for any element in slot 0 that some other element comes before. In a strict total order every pair is related: for each other element, either it comes before the one in slot 0 or the one in slot 0 comes before it. So slot 0 needs the element that comes before all the others, which is the minimum: here, the 1. Exactly one element qualifies, so that’s 1 choice.
 
-Take it away. The other four elements are still totally ordered, so slot 1 is forced in the same way: it holds their minimum, again 1 choice. Carrying on, every slot has exactly one choice, so the count is $1 \cdot 1 \cdot 1 \cdot 1 \cdot 1 = 1$. That’s lesson 1, Theorem 7.
+Take the 1 away. The other four, 4, 5, 2 and 3, are still totally ordered, so slot 1 is forced in the same way: it holds their minimum, the 2, again 1 choice. Carrying on, every slot has exactly one choice, so the count is $1 \cdot 1 \cdot 1 \cdot 1 \cdot 1 = 1$. That’s lesson 1, Theorem 7.
 
 The tempting 120 is $5! = 5 \cdot 4 \cdot 3 \cdot 2 \cdot 1$, which counts every arrangement, sorted or not. And 2 would also count the decreasing row, which has all $\binom{5}{2} = 10$ of its pairs out of order.
 
@@ -107,11 +107,17 @@ Option (d) fails twice. First, the sort doesn’t ask about every pair. It relie
 
 So what does a sorted list actually buy you? A good way to find out is to take two everyday questions you might ask about a list, and answer each one twice: once for an unsorted list, and once for the same list after sorting.
 
-**Duplicates.** Does any value occur twice? More precisely, are any two elements tied? In an unsorted list, a tied pair could be hiding anywhere. So the obvious method compares every pair, and there are $n(n-1)/2$ of them. Now imagine the same list sorted. Could two tied elements end up far apart, with something of a different value between them? Let’s try it with the values 3, 1, 5, 3. Keep the two 3s apart by putting the 5 between them: 1, 3, 5, 3. Now the 5 stands before the second 3, although 5 is bigger, so that pair is out of order. Put the 1 between them instead: 3, 1, 3, 5. Now the first 3 stands before the 1, and that pair is out of order.
+**Duplicates.** Does any value occur twice? More precisely, are any two elements tied? Take the list 3, 1, 5, 3. Unsorted, the two 3s sit at opposite ends, and in general a tied pair could be hiding anywhere. So the obvious method checks every pair: (3, 1), (3, 5), (3, 3), (1, 5), (1, 3) and (5, 3), six pairs in all. A list of $n$ elements has $n(n-1)/2$ pairs to check this way.
 
-The same thing happens in every list. Suppose $x$ and $y$ tie, and some $z$ that ties with neither stands between them. Since $x$ and $y$ tie, they belong to the same tier. Since $z$ ties with neither, it belongs to a different tier. Lesson 1, Lemma 9 says that a different tier lies entirely before that tier or entirely after it. So $z$ belongs either before both $x$ and $y$, like the 1, or after both, like the 5. If $z$ belongs before both, then $z$ standing after $x$ makes $x, z$ an out-of-order pair. If $z$ belongs after both, then $z$ standing before $y$ makes $z, y$ an out-of-order pair. Either way the list wouldn’t be sorted. So in a sorted list, tied elements always stand together in one unbroken block. If the list has a tie at all, some tied pair are neighbours, and to find a tie you only need to look at neighbours.
+Now sort the same list: 1, 3, 3, 5. The two 3s have ended up side by side. Was that luck? Let’s try to keep them apart and still have a sorted list. Put the 5 between them: 1, 3, 5, 3. Now the 5 stands before the second 3, although 5 is bigger, so that pair is out of order. Put the 1 between them instead: 3, 1, 3, 5. Now the first 3 stands before the 1, and that pair is out of order.
 
-And looking at neighbours is cheap. Write the sorted list as $b = [b_0, \ldots, b_{n-1}]$. It has $n - 1$ neighbour pairs, from $(b_0, b_1)$ up to $(b_{n-2}, b_{n-1})$, and each pair needs only one question. Why only one? Two elements tie when neither is smaller than the other, so normally it takes two questions to find out. But in a sorted list we already know half the answer: the later element isn’t smaller than the earlier one, $b_{i+1} \not< b_i$. That leaves one question, “is $b_i < b_{i+1}$?”, and a “no” means the two tie. In the sorted list 1, 3, 3, 5, for example, the question “is 3 < 3?” gets a no, and that is the tie. So the $n(n-1)/2$ comparisons of the unsorted list shrink to $n - 1$:
+The same thing happens in every list. Both times, the element we squeezed between the two 3s came from a different tier. Lesson 1, Lemma 9 says that a different tier lies entirely before the 3s’ tier or entirely after it. The 1’s tier lies before, so the 1 standing after the first 3 made an out-of-order pair. The 5’s tier lies after, so the 5 standing before the second 3 made an out-of-order pair. In general, suppose $x$ and $y$ tie, so they belong to the same tier, and some $z$ from a different tier stands between them. If $z$’s tier lies before theirs, like the 1, then $z$ standing after $x$ makes $x, z$ an out-of-order pair. If $z$’s tier lies after theirs, like the 5, then $z$ standing before $y$ makes $z, y$ an out-of-order pair. Either way the list wouldn’t be sorted. So in a sorted list, tied elements always stand together in one unbroken block. If the list has a tie at all, some tied pair are neighbours, and to find a tie you only need to look at neighbours.
+
+That is the first saving. In 1, 3, 3, 5 there are only three neighbour pairs to look at, (1, 3), (3, 3) and (3, 5), where the unsorted list had six pairs. In general, write the sorted list as $b = [b_0, \ldots, b_{n-1}]$. It has $n - 1$ neighbour pairs, from $(b_0, b_1)$ up to $(b_{n-2}, b_{n-1})$.
+
+The second saving happens inside each pair. How do we find out whether two elements tie, using only $<$? Take the two 3s. Is the first 3 smaller than the second? No. Is the second smaller than the first? No. Two noes, so they tie. Now take 1 and 3. Is 1 smaller than 3? Yes, so they don’t tie. So a tie test can take two questions, one each way round, and in an unsorted list it often does. In a sorted list we can skip one of them. Read 1, 3, 3, 5 from left to right. From one neighbour to the next the values go up (1 to 3) or stay level (3 to 3), and they never go down. So for each neighbour pair, all that is left to find out is whether it goes up or stays level. One question settles that: “is the left one smaller than the right one?”, that is, “is $b_i < b_{i+1}$?”. A yes means it goes up. A no means it stays level, and the two tie. In 1, 3, 3, 5 the question “is 3 < 3?” gets the no, and that is the tie.
+
+So sorting the list changed two separate things. We look at fewer pairs: the $n - 1$ neighbour pairs instead of all $n(n-1)/2$. And each pair needs one question instead of up to two. Together they bring the cost down to $n - 1$ comparisons:
 
 > **Lemma 1 (ties are neighbours)**
 >
@@ -121,9 +127,13 @@ And looking at neighbours is cheap. Write the sorted list as $b = [b_0, \ldots, 
 >
 > Tiers appear as contiguous blocks (lesson 1, Theorem 10). If a tier has two elements, its block has two adjacent positions. The converse is immediate. One comparison per neighbour pair suffices because sortedness already rules out $b_{i+1} < b_i$. ∎
 
-For 1000 elements, that is 999 comparisons instead of 499 500. The second question shows an even bigger gain.
+For 1000 elements, that is 999 comparisons. The unsorted list had 499 500 pairs to check, and each of them could need two questions. Searching a list gains even more from order.
 
-**Search.** Is a value $v$ in the list, and where would it go? In an unsorted list, $v$ could belong anywhere, so in the worst case you have to look at every element. In a sorted list you can do something much cleverer. Compare $v$ with the middle element. If $v$ is smaller, it belongs in the left half; if not, it belongs in the right half. So that one comparison tells you which half $v$ belongs in, and you can ignore the other half from then on. Then do the same with the half that’s left. How many comparisons does that take?
+**Search.** Is a value $v$ in the list, and if not, where would it go? Let’s look for 12 among seven values. Unsorted, say 11, 20, 2, 17, 5, 14, 8, the 12 could belong next to any of them. We can’t be sure where it goes until we have compared it with all seven. In general, an unsorted list makes you look at every element.
+
+Now sort the same seven values: 2, 5, 8, 11, 14, 17, 20. The 12 could go in any of eight gaps: before the 2, between two neighbours, or after the 20. Compare 12 with the middle element, 11. 12 is bigger, so it goes somewhere to the right of 11, and we can forget the 2, 5 and 8 for good. That leaves four gaps. Among the three elements that are left, 14, 17 and 20, compare 12 with the middle one, 17. This time 12 is smaller, so it goes to the left of 17. That leaves two gaps. One more comparison, with 14: 12 is smaller again, so it goes in the gap between 11 and 14. The gaps went 8, 4, 2, 1, and it took three comparisons instead of seven.
+
+Both methods compare 12 with elements of the list. What changed is which ones: the unsorted list makes us go through all of them one by one, while the sorted list lets each answer throw away half of what’s left. The general recipe is to compare $v$ with the middle element; if $v$ is smaller, it belongs in the left half, and otherwise in the right half. Then do the same with the half that’s left. How many comparisons does that take on a bigger list?
 
 > **PREDICT FIRST.** Commit to an answer before opening the reveal.
 
@@ -149,10 +159,10 @@ Ten. A comparison has two answers, and in the worst case we always get the answe
 
 </details>
 
-Ten comparisons for 1000 values. That ten raises two questions. Why does halving get down to one gap so quickly? And is ten just what halving happens to achieve, or could a cleverer method do better? Both answers involve the same number, the logarithm $\log_2$ of the count. Logarithms will turn up in almost every lesson from here on, and we will read them in exactly the two ways below. The first reading describes what the search did. The second shows that every method that asks yes/no questions needs at least that many.
+Ten comparisons for 1000 values. That ten raises two questions. Why does halving get down to one gap so quickly? And is ten just what halving happens to achieve, or could a cleverer method do better? Both answers involve the same number, the logarithm $\log_2$ of the count. Logarithms will turn up in almost every lesson from here on, and we will read them in exactly the two ways below. The two readings answer different questions, so keep them apart. The first, halvings, counts what our search did, so it shows that ten comparisons are enough. The second, bits, is about every method that asks yes/no questions, and it shows that fewer than ten are never enough.
 
-- **Halvings.** $\log_2 m$ is the number of times you have to halve $m$ to reach 1. That is what the search did: each comparison halved the remaining gaps, from 1001 down to 1, in $\lceil \log_2 1001 \rceil = 10$ rounds. Whenever an algorithm keeps halving its problem, the number of rounds is logarithmic.
-- **Bits.** Think of the answers as a string of yeses and noes. One answer has 2 possible outcomes. Two answers have 4 (yes-yes, yes-no, no-yes, no-no), three have 8, and in general $k$ answers have at most $2^k$ combinations. After hearing its answers, a method names one possibility, so each string of answers leads to just one possibility. To single out one of $m$ possibilities, then, you need $2^k \ge m$, that is, at least $\log_2 m$ answers `[proof]`. A comparison is a yes/no answer, so the same floor holds for comparisons. For the search, $m = 1001$ gaps. Nine comparisons have only $2^9 = 512$ strings of answers, too few for 1001 gaps, so no method can always succeed with fewer than ten. Halving is as good as it gets. (A single yes/no answer is what computer scientists call one *bit*, which is where this reading gets its name.)
+- **Halvings.** $\log_2 m$ is the number of times you have to halve $m$ to reach 1. That is what the search did. Among seven values, each comparison halved the gaps: 8, 4, 2, 1, which is 3 rounds, and $\log_2 8 = 3$. Among 1000 values the gaps went from 1001 down to 1 in $\lceil \log_2 1001 \rceil = 10$ rounds. Whenever an algorithm keeps halving its problem, the number of rounds is logarithmic.
+- **Bits.** Think of the answers as a string of yeses and noes. One answer has 2 possible outcomes. Two answers have 4 (yes-yes, yes-no, no-yes, no-no), three have 8, and in general $k$ answers have at most $2^k$ combinations. Now go back to the search for 12 among seven values. Whatever method we use, once it has heard its answers it names one gap. So each string of answers leads to just one gap. Two questions give only 4 strings, too few to tell 8 gaps apart, so no method can always manage with two. Three questions give 8 strings, just enough. In general, to single out one of $m$ possibilities you need $2^k \ge m$, that is, at least $\log_2 m$ answers `[proof]`. A comparison is a yes/no answer, so the same floor holds for comparisons. For the search among 1000 values, $m = 1001$ gaps. Nine comparisons have only $2^9 = 512$ strings of answers, too few for 1001 gaps, so no method can always succeed with fewer than ten. Halving is as good as it gets. (A single yes/no answer is what computer scientists call one *bit*, which is where this reading gets its name.)
 
 **Table 1.** *What order buys, for n = 1000. Comparisons in the worst case.*
 
@@ -162,7 +172,7 @@ Ten comparisons for 1000 values. That ten raises two questions. Why does halving
 | Where does $v$ belong? | 1000 (every element) | 10 (halving) |
 | What is the 10th smallest? | (lesson 26) | 0 (read position 9) |
 
-Table 1 collects what order bought us for 1000 elements. It also adds a third question we haven’t looked at yet: what is the 10th smallest element? Once the list is sorted, the 10th smallest simply sits at position 9 (positions start at 0), so finding it takes no comparisons at all. (Finding it without sorting first is a story for lesson 26.)
+Table 1 collects what order bought us for 1000 elements. For the unsorted tie check it counts just one question per pair, 499 500. That is generous to the unsorted list, since a pair can need two questions, so the real gap is even wider. The table also adds a third question we haven’t looked at yet: what is the 10th smallest element? Once the list is sorted, the 10th smallest simply sits at position 9 (positions start at 0), so finding it takes no comparisons at all. (Finding it without sorting first is a story for lesson 26.)
 
 So sorting is an investment. You pay once, and afterwards many questions become a quick scan of neighbours, a few halvings, or a direct lookup `[intuition]`. Whether the investment pays off depends on how many questions follow, and on how much the sorting itself costs. That second part, the price, is what the rest of the course is about.
 
@@ -204,7 +214,13 @@ Look at what goes wrong in each fake. (a), (b) and (c) produce something in orde
 
 </details>
 
-So a correct sort has to pass two separate tests. Its output must be in order, and it must contain exactly the input’s elements, each as often as the input does. Let’s write both tests down precisely, together with what we assume about the input.
+So a correct sort has to pass two separate tests, and the fakes show that the tests really are separate. Run four of the functions on `[2, 1, 2]`. Fake (a) returns `[]`, which is in order but has lost every element. Fake (d) returns `[2, 1, 2]`, which has exactly the right elements but isn’t in order: the 1 stands after a 2. Fake (e) returns `[1, 2]`, which is in order but one 2 short. Only `sorted` returns `[1, 2, 2]`, which passes both tests. Read left to right, its values 1, 2, 2 never go down, and it holds the 1 and both 2s. So the first test is about the order of the output. The second is about its contents: the output must hold exactly the input’s elements, each as often as the input does.
+
+The first test is easy to write down: no pair out of order, as in lesson 1. The second is harder than it looks, and fake (e) shows why. Try saying it with values: “every value in the output occurs in the input, and every value in the input occurs in the output”. On `[2, 1, 2]`, fake (e)’s output `[1, 2]` passes that test. The values in the input are 1 and 2, and the values in `[1, 2]` are also 1 and 2. This value version only asks which values appear. It never counts how often.
+
+What fixes it is to count positions instead of values. The input `[2, 1, 2]` has three positions, 0, 1 and 2, and a correct output uses each of them exactly once. Positions 0 and 2 both hold a 2, so the output has to hold two 2s. But `[1, 2]` has only two slots for three positions, so one position goes unused, and fake (e) fails. So the position version also counts how often each value appears: the output must contain each element exactly as often as the input does. That is precisely what fake (e) broke.
+
+Let’s write both tests down precisely, with the second one in its position version. We also write down what the sort may assume about its input. That assumption is called the *precondition*, because it has to hold before the sort runs. The two tests on the output form the *postcondition*, because they have to hold after it.
 
 > **Definition (the sorting problem)**
 >
@@ -215,11 +231,11 @@ So a correct sort has to pass two separate tests. Its output must be in order, a
 > 1. $b$ is **sorted**: there are no $i < j$ with $b_j < b_i$ (by lesson 1, Lemma 11, equivalently $b_{i+1} \not< b_i$ for every $i$);
 > 2. $b$ is a **permutation** of $a$: there is a bijection $\pi$ of $\{0, \ldots, n-1\}$ with $b_i = a_{\pi(i)}$ for every $i$.
 
-Condition 2 deserves a closer look, because “$b$ is a permutation of $a$” is the part that four of the six fakes got wrong. Think of $\pi$ as a set of instructions for building the output. Slot $i$ of $b$ receives the element that sat at position $\pi(i)$ of $a$. For example, to sort $a = [30, 10, 20]$ we use $\pi(0) = 1$, $\pi(1) = 2$ and $\pi(2) = 0$. So slot 0 receives $a_1 = 10$, slot 1 receives $a_2 = 20$, and slot 2 receives $a_0 = 30$, which gives $b = [10, 20, 30]$.
+Let’s read that back in plain words. The precondition says the sort is handed a list and a comparison it can trust. Condition 1 is lesson 1’s “no pair out of order”. For $b = [10, 20, 30]$, read the values from left to right: 10, 20, 30. They never go down. Lesson 1’s full check would look at all three pairs. Lesson 1, Lemma 11 says the neighbour test gives the same verdict: look only at the side-by-side pairs, 10 then 20 and 20 then 30, and ask of each “is it the wrong way round?”.
 
-“Bijection” means that every input position is used exactly once, so nothing is lost and nothing is copied. (The name says that the matching works both ways: each slot gets exactly one input position, and each input position goes to exactly one slot.) Fake (c) breaks this. On $[30, 10, 20]$ it returns $[10, 10, 10]$, which would need $\pi(0) = \pi(1) = \pi(2) = 1$: position 1 is used three times, and positions 0 and 2 are never used.
+Condition 2, “$b$ is a permutation of $a$”, is the part that four of the six fakes got wrong. It is the position version from above, written with a symbol, $\pi$. Think of $\pi$ as a set of instructions for building the output. Slot $i$ of $b$ receives the element that sat at position $\pi(i)$ of $a$. For example, to sort $a = [30, 10, 20]$ we use $\pi(0) = 1$, $\pi(1) = 2$ and $\pi(2) = 0$. So slot 0 receives $a_1 = 10$, slot 1 receives $a_2 = 20$, and slot 2 receives $a_0 = 30$, which gives $b = [10, 20, 30]$.
 
-Why talk about positions rather than values? Because of duplicates. Suppose we had written condition 2 with values instead: “every value in $b$ occurs in $a$, and every value in $a$ occurs in $b$”. Then fake (e) would pass on $[2, 1, 2]$, because its output $[1, 2]$ has exactly the values 1 and 2. With positions, each of the three positions of $a$ must be used exactly once, including both positions that hold a 2, so $b$ has to hold both 2s. In other words, $b$ must contain each element exactly as often as $a$ does, and that is precisely what fake (e) broke.
+“Bijection” means that every input position is used exactly once, so nothing is lost and nothing is copied. (The name says that the matching works both ways: each slot gets exactly one input position, and each input position goes to exactly one slot.) Fake (c) breaks this. On $[30, 10, 20]$ it returns $[10, 10, 10]$, which would need $\pi(0) = \pi(1) = \pi(2) = 1$: position 1 is used three times, and positions 0 and 2 are never used. Fake (e) breaks it too, as we saw: on $[2, 1, 2]$ its output $[1, 2]$ leaves one of the three positions unused.
 
 The same specification covers both of Python’s ways of sorting. `xs.sort()` rearranges the list in place, so its final contents must be $b$; `sorted(xs)` returns a new list $b$ and leaves `xs` alone.
 
@@ -237,7 +253,7 @@ And how many of those are correct? Suppose first that all the keys are different
 
 > **Sorting $n$ distinct elements means finding the one sorted arrangement among $n!$ candidates.**
 
-When there are ties, there are more sorted arrangements: $n_1! \cdots n_k!$ of them, where $n_1, \ldots, n_k$ are the sizes of the tiers (lesson 1, Theorem 10). The specification is happy with any of them. (Python promises one particular arrangement, the stable one, as lesson 7 explains.)
+When there are ties, there can be more sorted arrangements. Take $[2, 1, 2]$ again. The 1 has to come first, but the two 2s can stand in either order, so 2 of its $3! = 6$ arrangements are sorted. In general there are $n_1! \cdots n_k!$ sorted arrangements, where $n_1, \ldots, n_k$ are the sizes of the tiers (lesson 1, Theorem 10). For $[2, 1, 2]$ the tiers have sizes 1 and 2, and $1! \cdot 2! = 2$. The specification is happy with any of the sorted arrangements. (Python promises one particular arrangement, the stable one, as lesson 7 explains.)
 
 Ties change how many answers count as correct, but not what the problem is about. And for our first analyses they’re a distraction. With distinct keys the answer is unique, and in every pair of elements one of the two is smaller. That keeps the counting clean. So for now we’ll assume:
 
@@ -324,7 +340,7 @@ The three 1s must fill slots 0–2 and the two 2s slots 3–4. Count the orders 
 
 Let’s name the elements by their positions, $a_0 = 2$, $a_1 = 2$, $a_2 = 1$, $a_3 = 1$, $a_4 = 1$, because the question counts arrangements of these five elements, not lists of values.
 
-There are two tiers: the 1s $\{a_2, a_3, a_4\}$ and the 2s $\{a_0, a_1\}$. In a sorted arrangement no 2 may stand before a 1, so slots 0, 1 and 2 must hold the three 1s and slots 3 and 4 the two 2s. That much is forced. The only freedom is the order inside each block. The 1s can fill slots 0–2 in $3 \cdot 2 \cdot 1 = 6$ ways, and the 2s can fill slots 3–4 in $2 \cdot 1 = 2$ ways. Each choice for the 1s goes with each choice for the 2s, so there are $6 \cdot 2 = 12$ sorted arrangements. That’s lesson 1, Theorem 10: $3! \cdot 2! = 12$.
+There are two tiers: the 1s $\{a_2, a_3, a_4\}$ and the 2s $\{a_0, a_1\}$. A 2 standing before a 1 would be a pair out of order, so in a sorted arrangement slots 0, 1 and 2 hold the three 1s and slots 3 and 4 hold the two 2s. That much is forced. The only freedom is the order inside each block. The 1s can fill slots 0–2 in $3 \cdot 2 \cdot 1 = 6$ ways, and the 2s can fill slots 3–4 in $2 \cdot 1 = 2$ ways. Each choice for the 1s goes with each choice for the 2s, so there are $6 \cdot 2 = 12$ sorted arrangements. That’s lesson 1, Theorem 10: $3! \cdot 2! = 12$.
 
 Why not the other answers? 1 counts lists of values instead of arrangements of elements. 120 counts every arrangement, including those with a 2 before a 1. 5 and 8 add where the independent choices should multiply, and 6 forgets that the two 2s can swap.
 
@@ -378,9 +394,17 @@ The other options each miss something. “Always” overlooks condition 2. “Ne
 
 ## 03 · What may an algorithm do?
 
-So the task is a search: find the one sorted arrangement among $n!$. How much work does that take? Try to answer and you hit a problem straight away: work measured in what? The answer depends entirely on what counts as one step. If calling `sorted(a)` counts as a single step, then sorting costs one step, and the whole question is empty. Or suppose the keys are the numbers 0 to $n - 1$, say $[3, 0, 2, 1]$, and an algorithm is allowed to use a key as a list index. Then it can put the 3 straight into slot 3, the 0 into slot 0, and so on, without a single comparison. The cost changes again (lesson 30 explores exactly this). So “cost” means nothing until we fix two things: what an algorithm may do to learn about its input, and what we charge for.
+So the task is a search: find the one sorted arrangement among $n!$. How much work does that take? Try to answer and you hit a problem straight away: work measured in what? Take the list $[3, 0, 2, 1]$ and look at three ways of sorting it.
 
-Both of those examples get around the work by using something extra. The first uses a built-in that does the whole job; the second uses the values themselves as list indices. The setting this course starts from takes both away. Think of each element as a closed box. The algorithm can’t open the boxes. The one thing it may do to learn about them is pick two boxes and ask whether one is smaller than the other, and each such question costs one unit. It may still move the boxes around as much as it likes, because moving a box tells it nothing about what’s inside. We keep a separate count of those moves. Here is the same setting written out precisely:
+**Call the built-in.** Run `sorted([3, 0, 2, 1])`. If that call counts as a single step, sorting costs one step, and the whole question is empty.
+
+**Use the keys as indices.** The keys here are exactly the numbers 0 to 3. An algorithm that is allowed to use a key as a list index can read the 3 and put it straight into slot 3, read the 0 and put it into slot 0, and so on. That sorts the list without a single comparison (lesson 30 explores exactly this).
+
+**Compare.** An algorithm can ask about two elements at a time. Is the 3 smaller than the 0? No. Is the 0 smaller than the 2? Yes. It keeps asking until it knows where everything goes, and each question is one comparison.
+
+Same list, same output $[0, 1, 2, 3]$, and three different costs: one step, no comparisons at all, or some number of comparisons. What differs between the three is what the algorithm is allowed to do. So “cost” means nothing until we fix two things: what an algorithm may do to learn about its input, and what we charge for.
+
+The first two ways get around the work by using something extra. The built-in does the whole job for us, and the index trick uses the values themselves as list positions. The setting this course starts from takes both away and keeps only the third way. Think of each element as a closed box. The algorithm can’t open the boxes. On $[3, 0, 2, 1]$ it can’t see that the first box holds a 3. The one thing it may do to learn about the boxes is pick two of them and ask whether one is smaller than the other: “is box 0 smaller than box 1?” gets a no. Each such question costs one unit. It may still move the boxes around as much as it likes. Swapping box 0 and box 1, say, does the same thing whatever is inside, so it tells the algorithm nothing. We keep a separate count of those moves. Here is the same setting written out precisely:
 
 > **Definition (the comparison model)**
 >
@@ -401,7 +425,7 @@ What the model leaves out matters just as much. It leaves out looking at the dig
 <details>
 <summary><b>Common question · Can’t I detect duplicates in linear time with a set?</b></summary>
 
-Usually, yes, but only by stepping outside the comparison model. `len(set(a)) < len(a)` hashes each element, and hashing reads what is inside the element, which the model doesn’t allow. The running time of that check also depends on how the hash function behaves on your keys. That is an assumption about the keys, not a guarantee. Both models are legitimate; they answer different questions. Within the comparison model, detecting duplicates turns out to be essentially as hard as sorting. We will be able to prove that once we have lower bounds.
+Usually, yes, but only by stepping outside the comparison model. On `[3, 1, 5, 3]`, `set(a)` ends up holding three values, fewer than the four elements, so there is a duplicate, and no `<` was ever asked. To get there, `len(set(a)) < len(a)` hashes each element, and hashing reads what is inside the element, which the model doesn’t allow. The running time of that check also depends on how the hash function behaves on your keys. That is an assumption about the keys, not a guarantee. Both models are legitimate; they answer different questions. Within the comparison model, detecting duplicates turns out to be essentially as hard as sorting. We will be able to prove that once we have lower bounds.
 
 </details>
 
@@ -443,11 +467,13 @@ That reasoning works for any two lists with the same pattern, and for any algori
 
 Why is this worth a lemma? To say what an algorithm costs on $n$ elements, we will have to account for every input of size $n$, and there are infinitely many lists of $n$ numbers. Lemma 3 lets us replace each of them by something simpler. With distinct keys, write each element’s **rank** in its place: 0 for the smallest, $n - 1$ for the largest. Both `[10, 30, 20]` and `[1, 99, 50]` become `[0, 2, 1]`.
 
-Why does that help? An element’s rank counts the elements smaller than it. In `[10, 30, 20]`, nothing is smaller than the 10, so its rank is 0. One element is smaller than the 20, so its rank is 1, and two are smaller than the 30, so its rank is 2. So a smaller element always gets a smaller rank, and a bigger element a bigger rank: $a_i < a_j$ exactly when rank$(a_i)$ < rank$(a_j)$. That means an input and its list of ranks give the same answer to every question “is $a_i < a_j$?”. By Lemma 3, an algorithm runs identically on both: the same comparisons, the same moves, the same cost.
+Why does that help? An element’s rank counts the elements smaller than it. In `[10, 30, 20]`, the 10 is the smallest, so its rank is 0. One element, the 10, is smaller than the 20, so the 20 gets rank 1. Two elements are smaller than the 30, so it gets rank 2. So a smaller element always gets a smaller rank, and a bigger element a bigger rank: $a_i < a_j$ exactly when rank$(a_i)$ < rank$(a_j)$. For example, “is $a_0 < a_1$?” asks “is 10 < 30?” in the input and “is 0 < 2?” in the rank list, and both answers are yes. Every other question matches in the same way. So an input and its list of ranks give the same answer to every question “is $a_i < a_j$?”. By Lemma 3, an algorithm runs identically on both: the same comparisons, the same moves, the same cost.
 
-And what do rank lists look like? With distinct keys, the $n$ ranks are $0, 1, \ldots, n-1$, each used exactly once. So every rank list is a permutation of $0, \ldots, n-1$. And every such permutation is the rank list of some input: itself, for a start. So there are exactly $n!$ rank patterns, and they are the only inputs we ever need to consider.
+And what do rank lists look like? With distinct keys, the $n$ ranks are $0, 1, \ldots, n-1$, each used exactly once. So every rank list is a permutation of $0, \ldots, n-1$. And every such permutation turns up as a rank list. For instance, `[0, 2, 1]` is the rank list of `[10, 30, 20]`, and also of itself. So there are exactly $n!$ rank patterns, and they are the only inputs we ever need to consider.
 
-So when we ask what an algorithm costs on $n$ elements, there are $n!$ inputs to look at. But it usually doesn’t cost the same on all of them. Take the simplest comparison algorithm there is: checking whether a list is sorted. Lesson 1 showed that neighbours are enough, so the check walks along the neighbour pairs. At each pair it asks “is $b_{i+1} < b_i$?”, and it stops at the first pair out of order. On $[1, 0, 2, 3]$ the very first question finds a pair out of order, so the check stops after 1 comparison. On the sorted $[0, 1, 2, 3]$ it has to ask all 3. (§04 will show Python’s own sort varying in the same way, and by much more.) So “its cost for $n$ elements” isn’t a single number until we say how to summarise over all the inputs. The two simplest summaries are the most it ever needs and the least it ever needs. The most is a guarantee: whatever the input, the algorithm never needs more.
+So when we ask what an algorithm costs on $n$ elements, there are $n!$ inputs to look at. But it usually doesn’t cost the same on all of them. Take the simplest comparison algorithm there is: checking whether a list is sorted. It is lesson 1’s neighbour test: it walks along the side-by-side pairs and asks of each “is it the wrong way round?”, that is, whether the right one is smaller than the left one, “is $b_{i+1} < b_i$?”. It stops at the first yes, because that pair is out of order. On $[1, 0, 2, 3]$ the very first question, “is 0 < 1?”, gets a yes, so the check stops after 1 comparison. On the sorted $[0, 1, 2, 3]$ every answer is no, so it has to ask all 3. (§04 will show Python’s own sort varying in the same way, and by much more.)
+
+So “its cost for $n$ elements” isn’t a single number until we say how to summarise over all the inputs. The two simplest summaries are the most it ever needs and the least it ever needs. The most is a guarantee: whatever the input, the algorithm never needs more. The least tells us how cheap the luckiest input can be.
 
 > **Definition (worst and best case)**
 >
@@ -587,7 +613,9 @@ So for every pair of positions $i, j$, the question “is $a_i < a_j$?” gets t
 
 ## 04 · Watching a real sort count
 
-We now know what to count, and how to summarise the counts over all inputs. That brings back the second loose end from lesson 2: on some lists, Python’s sort was satisfied after far fewer questions than there are pairs. Now we can measure that properly. How many comparisons does the sort you use every day actually make, and how much does that number change from one input to another? Measuring it is also a chance to check that the model isn’t just an abstraction that real code ignores. But can we even count Python’s comparisons? We can’t edit its code. What we can use is that it asks only `<` (lesson 2, §01), and `<` on objects of our own class runs code we write. So the trick is to wrap each element in an object whose `__lt__` counts how often it’s called. Every comparison the sort makes then shows up in the count. In effect, we are watching Python’s sort live inside the comparison model.
+We now know what to count, and how to summarise the counts over all inputs. That brings back the second loose end from lesson 2: on some lists, Python’s sort was satisfied after far fewer questions than there are pairs. Now we can measure that properly. How many comparisons does the sort you use every day actually make, and how much does that number change from one input to another? The measurement will also show whether the model describes real code, or is just an abstraction that real code ignores.
+
+But can we even count Python’s comparisons? We can’t edit its code. What we can use is that it asks only `<` (lesson 2, §01), and `<` on objects of our own class runs code we write. So the trick is to wrap each element in an object whose `__lt__` adds one to a counter every time it is called. Every comparison the sort makes then shows up in the count. In effect, we are watching Python’s sort live inside the comparison model.
 
 **Listing 1.** *Counting the comparisons any Python sort makes.*
 
@@ -645,7 +673,7 @@ Python’s `sorted` is given 1000 numbers that are **already sorted**. How many 
 
 There are three things here to carry forward.
 
-- On sorted input Python uses exactly $n - 1$ comparisons: one per neighbour pair, the number lesson 1 needed just to *check* sortedness. Lesson 5 shows that every algorithm needs at least that many here, even one that only checks whether the list is sorted.
+- On sorted input Python uses exactly $n - 1$ comparisons: one per neighbour pair, the same number of questions lesson 1’s neighbour test asks just to *check* sortedness. Lesson 5 shows that $n - 1$ is the least any algorithm can get away with on this input, even one that only has to check whether the list is sorted.
 - Reversed input costs the same $n - 1$. Lesson 34 explains how Python’s sort notices it.
 - Random input costs far fewer comparisons than every pair, but far more than $n - 1$: for 1000 elements, about 8 630, against 499 500 for every pair and 999 for $n - 1$. Where between those does the true cost of sorting lie? That question drives lessons 4 to 16.
 
@@ -657,7 +685,9 @@ These are measurements of one implementation on particular inputs `[empirical]`.
 
 ## 05 · In Python: testing a sort
 
-Listing 1 measures what a sort costs. But from the next lesson on we’ll be writing sorts of our own, and a cost means nothing if the sort is wrong. Three of §02’s fake sorts, (a), (b) and (d), make no comparisons at all, which would make them look like the cheapest sorts of all. So every sort we write needs a second measurement too: is it correct? The specification hands us that measurement. It tells us what a sort must do, so it also tells us how to test one. Run the sort on lots of small inputs, including inputs with duplicates, and check both halves of the specification on every output. This kind of “stress test” is worth having ready for any contest or interview preparation. Most sorting bugs already show up on small inputs: an off-by-one boundary, a tie handled the wrong way, an element dropped at the end. Thousands of random small inputs hit those cases quickly `[heuristic]`.
+Listing 1 will count the comparisons of anything we hand it, fakes included. Hand it fake (d), `return a`, on `[3, 1, 2]`, and it counts 0 comparisons, against 4 for `sorted`. Fakes (a) and (b) make no comparisons either. By that count alone, these three would be the cheapest sorts there are. Yet fake (d) hands back `[3, 1, 2]`, still unsorted. Counting comparisons tells us how many questions a sort asked. It says nothing about whether the answer is right.
+
+From the next lesson on we’ll be writing sorts of our own, and a cost means nothing if the sort is wrong. So every sort we write needs a second check next to its cost: is it correct? The specification hands us that check. It tells us what a sort must do, so it also tells us how to test one. Run the sort on lots of small inputs, including inputs with duplicates, and check both halves of the specification on every output. This is called a *stress test*, because it puts the sort under a flood of inputs to see whether it breaks. It is worth having ready for any contest or interview preparation. Most sorting bugs already show up on small inputs: an off-by-one boundary, a tie handled the wrong way, an element dropped at the end. Thousands of random small inputs hit those cases quickly `[heuristic]`.
 
 **Listing 2.** *Checking the two halves of the specification, and a randomized stress test.*
 
@@ -687,7 +717,11 @@ print(stress_test(sorted))                       # None
 print(stress_test(lambda a: sorted(set(a))))     # [3, 3, 1, 0, 3, 0, 3]
 ```
 
-The last line shows the harness at work. It catches fake (e) with the input `[3, 3, 1, 0, 3, 0, 3]`, on which `sorted(set(a))` returns `[0, 1, 3]`: three elements where there should be seven. Two more things in this harness deserve a comment. `is_permutation` uses `Counter`, which hashes the elements, so it lives outside the comparison model. That’s fine: the harness is a *test* of a sort, not part of one. And notice the small value range in `stress_test`: the values run only from 0 to 3, so duplicates are common. With a tie, `a < b` and `b < a` are both false. That is exactly where it matters whether code tests for “out of order” or for “strictly increasing”, and lesson 4 will show a one-character bug that gets this wrong.
+The last line shows the harness at work. It catches fake (e) with the input `[3, 3, 1, 0, 3, 0, 3]`, on which `sorted(set(a))` returns `[0, 1, 3]`: three elements where there should be seven. Two more things in this harness deserve a comment.
+
+First, `is_permutation` uses `Counter`, which hashes the elements, so it lives outside the comparison model. That’s fine: the harness is a *test* of a sort, not part of one.
+
+Second, notice the small value range in `stress_test`: the values run only from 0 to 3, so duplicates are common. Ties are where a common bug hides. There are two ways to check a neighbour pair, and they differ only on a tie. The *out-of-order* check asks “is the right one smaller than the left one?”, and rejects the pair on a yes. That is lesson 1’s neighbour test, and it is what `is_sorted` does. The *strictly-increasing* check asks “is the left one smaller than the right one?”, and rejects the pair on a no. That is the question of lesson 1’s strict shortcut. On the sorted list 1, 3, 3, 5 the out-of-order check gets no, no, no, and accepts the list. The strictly-increasing check gets a yes for 1 and 3, then a no for 3 and 3, because 3 < 3 is false, so it wrongly rejects the list. On distinct values the two checks always agree, so only inputs with ties tell them apart. Lesson 4 will show a one-character bug that gets exactly this wrong.
 
 ---
 
@@ -707,7 +741,7 @@ Lemma 1 tells you where a tie must show up in a sorted list. How many such place
 <details>
 <summary>Hint 2</summary>
 
-For each neighbour pair, sortedness already tells you $b_{i+1} \not< b_i$. What single question is still needed to decide whether the two tie?
+Read a sorted list from left to right: each neighbour pair goes up or stays level, never down. What single question tells you which, and so whether the two tie?
 
 </details>
 
@@ -716,8 +750,8 @@ For each neighbour pair, sortedness already tells you $b_{i+1} \not< b_i$. What 
 
 - **49** ✓ Yes, 49: one comparison for each neighbour pair, and a list of 50 has 49 of them, (0, 1), (1, 2), …, (48, 49).
 - *If you answered 50:* Close, but count the neighbour pairs rather than the elements. The pairs are (0, 1), (1, 2), …, (48, 49): the last element has no right-hand neighbour, so there are 49 pairs, one comparison each.
-- *If you answered 98:* Two comparisons per pair would be needed if the list weren’t sorted: to know that $b_i$ and $b_{i+1}$ tie, you need both $b_i \not< b_{i+1}$ and $b_{i+1} \not< b_i$. But sortedness already guarantees $b_{i+1} \not< b_i$, so a single comparison per pair settles it.
-- *If you answered 1225:* That’s $\binom{50}{2}$, every pair: the cost when the list isn’t sorted. Lemma 1 says that in a sorted list a tie, if there is one, always shows up between neighbours, so only the neighbour pairs need checking.
+- *If you answered 98:* Two comparisons per pair would be needed if the list weren’t sorted. To know that two elements tie, you ask “is the left one smaller?” and “is the right one smaller?”, and need a no both times, as with 3 and 3. But read a sorted list from left to right: neighbours go up or stay level, and never go down. So the right one is never the smaller, and the single question “is the left one smaller?” settles it: a no means they tie.
+- *If you answered 1225:* That’s $\binom{50}{2}$, the number of all pairs, which is what you’d have to check if the list weren’t sorted. Lemma 1 says that in a sorted list a tie, if there is one, always shows up between neighbours, so only the neighbour pairs need checking.
 - *Any other answer:* Not quite. Count the neighbour pairs in a list of 50 elements, then ask how many comparisons each pair needs when the list is already sorted.
 
 </details>
@@ -729,7 +763,7 @@ Lemma 1 tells us where to look: in a sorted list, if any two elements tie, then 
 
 How many are there? With 50 elements at positions 0 to 49, the neighbour pairs are (0, 1), (1, 2), …, (48, 49): one starting at every position except the last, so $50 - 1 = 49$ pairs.
 
-How many comparisons per pair? Two elements tie when neither is less than the other. Sortedness already guarantees $b_{i+1} \not< b_i$, so the one question “is $b_i < b_{i+1}$?” settles it: a “no” means they tie. Total: $49 \cdot 1 = 49$ comparisons. (If you stop at the first tie you find, you can finish sooner. 49 is what it takes when there is no tie, and that is the most it ever needs.)
+How many comparisons per pair? Two elements tie when both questions, “is the left one smaller?” and “is the right one smaller?”, get a no, as with 3 and 3. In a sorted list the second answer is known in advance: read from left to right, neighbours go up or stay level, and never go down. So the one question “is $b_i < b_{i+1}$?” settles it: a “no” means they tie. Total: $49 \cdot 1 = 49$ comparisons. (If you stop at the first tie you find, you can finish sooner. 49 is what it takes when there is no tie, and that is the most it ever needs.)
 
 The tempting wrong answers: 50 counts elements instead of pairs; 98 forgets that sortedness answers one of the two questions for free; and $1225 = 50 \cdot 49 / 2$ checks every pair, which is what you’d have to do without order.
 
@@ -808,7 +842,7 @@ Imagine a “sort” that returns `[]` whatever it’s given. Trace the function
 - **Line 6** ✓ Yes, line 6. Reaching it only shows that no neighbour pair of `b` is out of order, which is condition 1. Nothing ever compares `b` with `a`, so condition 2 is never checked, and a “sort” like `lambda a: []` sails through. Line 6 should be `return Counter(b) == Counter(a)` (with `from collections import Counter`).
 - *If you picked line 1:* The signature is fine: the function takes the sort to test and one input to test it on. The trouble is in what the function concludes, not in what it receives.
 - *If you picked line 2:* This line is fine. Passing a copy, `list(a)`, is good practice: the sort can’t then damage `a`, which you need intact to compare the output against. (Whether the function ever does that comparison is another matter.)
-- *If you picked line 3:* The loop visits every neighbour pair, which is exactly what checking condition 1 needs: lesson 1, Lemma 11 says that for a strict weak ordering, neighbours suffice.
+- *If you picked line 3:* The loop visits every neighbour pair, which is exactly what checking condition 1 needs. It is lesson 1’s neighbour test, and lesson 1, Lemma 11 says that for a strict weak ordering, neighbours suffice.
 - *If you picked line 4:* This test is right: a neighbour pair is out of order exactly when the later element is smaller, `b[i + 1] < b[i]`.
 - *If you picked line 5:* Returning `False` here is correct: one out-of-order neighbour pair already proves that `b` isn’t sorted, so the sort has failed.
 - *Any other line:* Which of the two conditions in the specification does this function actually check?

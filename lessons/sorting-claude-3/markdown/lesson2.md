@@ -6,11 +6,13 @@
 
 ## Where we are
 
-In lesson 1 we worked out what “in order” means. A request turned out to be a rule about pairs: Dee before Ben, because Dee is younger; task b before task d, because d needs b. A correct answer is a row in which no pair is out of order. Such a row exists exactly when the rule has no cycles. Rock–paper–scissors has a cycle, and no row works for it. The row is unique when the rule settles every pair (a strict total order): 7, 2, 9, 4 can only go 2, 4, 7, 9. And then there are rules like ages, where ties carry over: Ana and Cy are both 30, and anyone who ties with Ana also ties with Cy. Such a rule is a strict weak ordering. Its correct rows are the tiers in order: Dee, then Ben, then Ana and Cy in either order. For a rule like that, checking neighbours is enough to recognise a correct row.
+In lesson 1 we worked out what “in order” means. A request turned out to be a rule about pairs: Dee before Ben, because Dee is younger; task b before task d, because d needs b. A correct answer is a row in which no pair is the wrong way round. For the ages, Dee, Ben, Ana, Cy is such a row: read the ages from left to right, 22, 25, 30, 30, and they never go down.
 
-But in all of that we could see the whole rule at once: we had it written out as a list of pairs, like lesson 1’s Table 1. A program never gets that luxury. A sorting program is handed the items and a way to ask about two of them at a time: “is x before y?”. It has to work from the answers alone. In Python, that question is the `<` operator.
+Such a row exists exactly when the rule has no cycles. Rock–paper–scissors has a cycle, and no row works for it. The row is unique when the rule settles every pair (a strict total order): 7, 2, 9, 4 can only go 2, 4, 7, 9. And then there are rules like ages, where ties carry over: Ana and Cy are both 30, and anyone who ties with Ana also ties with Cy. Such a rule is a strict weak ordering. Its correct rows are the tiers in order: Dee, then Ben, then Ana and Cy in either order. For a rule like that, it is enough to check the side-by-side pairs: in Dee, Ben, Ana, Cy, those are Dee and Ben, Ben and Ana, and Ana and Cy.
 
-So this lesson is about that one question. What must the code behind `<` promise for sorting to make sense? How does Python let us supply it? What actually happens when the promise is broken? And how can we prove that an unusual comparison keeps its promise?
+But in all of that we could see the whole rule at once: we had it written out as a list of pairs, like lesson 1’s Table 1. To find out whether Dee goes before Ana, we looked for (Dee, Ana) on the list. A program never gets that luxury. A sorting program is handed the items and a way to ask about two of them at a time: “is Dee before Ana?”. It gets back yes or no, and it has to work from those answers alone. In Python, that question is the `<` operator.
+
+So everything a sort knows comes through that one question. What must the code behind `<` promise for sorting to make sense? How does Python let us supply it? What actually happens when the promise is broken? And how can we prove that an unusual comparison keeps its promise?
 
 - Depends on: [Lesson 1 §06: strict weak orderings and tiers](lesson1.md); [Lesson 1 §05: the neighbour test](lesson1.md).
 
@@ -40,19 +42,19 @@ Only 1.0 and 2.2 are more than 1 apart, so the whole requirement is “1.0 somew
 <details>
 <summary>Answer and feedback</summary>
 
-- **(a)** ✓ correct. Yes. Look at the neighbours first: 2.2 and 1.5 are 0.7 apart, and 1.5 and 1.0 are 0.5 apart. So the rule relates neither neighbour pair, and neither can be out of order. But 2.2 and 1.0 are 1.2 apart, so 1.0 ≺ 2.2, and here 1.0 comes last. The 1.5 in the middle ties with both ends, and that’s how it hides the violation from the neighbour test.
-- **(b)** ✗. This row is genuinely sorted, so it can’t be the answer. The only pair the rule relates is 1.0 ≺ 2.2 (the other two pairs are less than 1 apart), and here 1.0 does come before 2.2. We want a row that fools the neighbour test, which means one that is *not* sorted.
+- **(a)** ✓ correct. Yes. Look at the neighbours first: 2.2 and 1.5 are 0.7 apart, and 1.5 and 1.0 are 0.5 apart. Both gaps are under 1, so the rule calls each neighbour pair a tie, and a tie can’t be the wrong way round. But 2.2 and 1.0 are 1.2 apart, so 1.0 ≺ 2.2, and here 1.0 comes last. The 1.5 in the middle ties with both ends, and that’s how it hides the violation from the neighbour test.
+- **(b)** ✗. This row is genuinely sorted, so it can’t be the answer. The rule makes only one demand, 1.0 ≺ 2.2 (the other two pairs are less than 1 apart, so they tie), and here 1.0 does come before 2.2. We want a row that fools the neighbour test, which means one that is *not* sorted.
 - **(c)** ✗. This row isn’t sorted, but it doesn’t fool the neighbour test either. 2.2 and 1.0 sit side by side, and they are 1.2 apart, so 1.0 ≺ 2.2. The test sees that neighbour pair out of order straight away. To slip past the test, the pair that is out of order can’t be neighbours.
-- **(d)** ✗. This one is sorted. The rule relates only 1.0 and 2.2 (1.0 ≺ 2.2), and 1.0 comes before 2.2 here. It doesn’t matter that 1.5 comes before 1.0: they are only 0.5 apart, so the rule says nothing about their order.
+- **(d)** ✗. This one is sorted. The rule makes only one demand, 1.0 ≺ 2.2, and 1.0 comes before 2.2 here. It doesn’t matter that 1.5 comes before 1.0: they are only 0.5 apart, so they tie, and either may go first.
 
 </details>
 
 <details>
 <summary>Worked solution</summary>
 
-Let’s first find out what “sorted” even asks for. The rule relates two numbers only when they are more than 1 apart. Among 1.0, 1.5 and 2.2 there are three pairs: 1.0 and 1.5 are 0.5 apart, 1.5 and 2.2 are 0.7 apart, and 1.0 and 2.2 are 1.2 apart. So the rule says exactly one thing, 1.0 ≺ 2.2. A row is sorted when 1.0 comes somewhere before 2.2; where 1.5 goes is free.
+Let’s first find out what “sorted” even asks for. The rule puts one number before another only when they are more than 1 apart. Among 1.0, 1.5 and 2.2 there are three pairs: 1.0 and 1.5 are 0.5 apart, 1.5 and 2.2 are 0.7 apart, and 1.0 and 2.2 are 1.2 apart. So the rule says exactly one thing, 1.0 ≺ 2.2. A row is sorted when 1.0 comes somewhere before 2.2; where 1.5 goes is free.
 
-Now, what does the neighbour test look at? Only pairs that sit side by side. It can catch the one possible violation, 2.2 before 1.0, only when 2.2 and 1.0 are neighbours. So a row that fools it must put 2.2 before 1.0 with 1.5 between them: 2.2, 1.5, 1.0. Its neighbour pairs, (2.2, 1.5) and (1.5, 1.0), are both less than 1 apart, so the test passes, yet 1.0 comes after 2.2.
+Now, what does the neighbour test look at? Only pairs that sit side by side. There is only one way to break the rule: put 2.2 somewhere before 1.0. The test can catch that only when 2.2 and 1.0 are neighbours. So a row that fools it must put 2.2 before 1.0 with 1.5 between them: 2.2, 1.5, 1.0. Its neighbour pairs, (2.2, 1.5) and (1.5, 1.0), are both less than 1 apart, so the test passes, yet 1.0 comes after 2.2.
 
 The other rows fail for different reasons. In 1.0, 1.5, 2.2 and in 1.5, 1.0, 2.2, 1.0 comes before 2.2, so they really are sorted. In 2.2, 1.0, 1.5 the violation is there, but 2.2 and 1.0 are neighbours, so the test catches it.
 
@@ -77,28 +79,28 @@ Think of request (B) from lesson 1: people by age, youngest first. What do the p
 <details>
 <summary>Hint 2</summary>
 
-Ana and Cy are both 30, so neither has to come before the other: they tie. Which option describes a group like {Ana, Cy}, and what does it say about how such groups compare with each other?
+Ana and Cy are both 30, so either of them may go first: they tie. Which option describes a group like {Ana, Cy}, and what does it say about how such groups compare with each other?
 
 </details>
 
 <details>
 <summary>Answer and feedback</summary>
 
-- **(a)** ✓ correct. Yes. A tier is a group of items that all tie with one another, like Ana and Cy (both 30) in request (B). And lesson 1’s Lemma 9 showed that the tiers line up one after another: every member of an earlier tier comes before every member of a later one. So ties live inside a tier, and any two items from different tiers are related.
-- **(b)** ✗. That describes a minimal element (lesson 1 §04), which is a single item, not a group. A tier is a whole group of items that tie with one another, and it can sit anywhere in the order. In request (B), {Ana, Cy} is the last tier, and both Ana and Cy have people below them.
-- **(c)** ✗. A chain is the opposite of a tier. In a chain every pair is related; inside a tier no pair is, because all its members tie. In request (B), Dee ≺ Ben ≺ Ana is a chain, and it takes one person from each tier.
-- **(d)** ✗. That set can contain related items, and then it can’t be a tier. In request (B), the people below Ana are Dee and Ben, and Dee ≺ Ben. A tier is defined by its members all tying with one another, not by which item they sit below.
+- **(a)** ✓ correct. Yes. A tier is a group of items that all tie with one another, like Ana and Cy (both 30) in request (B). And lesson 1’s Lemma 9 showed that the tiers line up one after another: every member of an earlier tier comes before every member of a later one. So ties live inside a tier, like Ana and Cy. Any two items from different tiers have a required order, like Dee before Ben, or Ben before Cy.
+- **(b)** ✗. That describes a minimal element (lesson 1 §04), which is a single item, not a group. A tier is a whole group of items that tie with one another, and it can sit anywhere in the order. In request (B), {Ana, Cy} is the last tier, and both Ana and Cy have people who must come before them: Dee and Ben.
+- **(c)** ✗. A chain is the opposite of a tier. In a chain every pair has a required order; inside a tier every pair ties. In request (B), Dee ≺ Ben ≺ Ana is a chain, and it takes one person from each tier.
+- **(d)** ✗. That set can contain two items with a required order between them, and then it can’t be a tier. In request (B), the people below Ana are Dee and Ben, and Dee must come before Ben, so they don’t tie. A tier is defined by its members all tying with one another, not by which item they sit below.
 
 </details>
 
 <details>
 <summary>Worked solution</summary>
 
-Let’s rebuild the idea from request (B): Ana (30), Ben (25), Cy (30), Dee (22), youngest first. Ana and Cy tie: neither must come before the other. In a strict weak ordering ties carry over, so “ties with” splits the items into groups in which everyone ties with everyone. Those groups are the tiers: here {Dee}, {Ben} and {Ana, Cy}.
+Let’s rebuild the idea from request (B): Ana (30), Ben (25), Cy (30), Dee (22), youngest first. Ana and Cy are both 30, so either of them may go first: they tie. In a strict weak ordering ties carry over, so “ties with” splits the items into groups in which everyone ties with everyone. Those groups are the tiers: here {Dee}, {Ben} and {Ana, Cy}.
 
-Two facts follow. Inside a tier no pair is related, because all its members tie. Between tiers everything is related, always in the same direction. Lesson 1’s Lemma 9 showed that every member of an earlier tier comes before every member of a later one. So the tiers themselves are totally ordered. That is exactly the first option.
+Two facts follow. Inside a tier every pair ties, like Ana and Cy. Between two tiers every pair has a required order, always in the same direction: Dee before Ben, Ben before Ana, Ben before Cy, and so on. Lesson 1’s Lemma 9 showed that every member of an earlier tier comes before every member of a later one. So the tiers themselves are totally ordered. That is exactly the first option.
 
-The other options describe different things. A minimal element is a single item with nothing below it (Dee, here). A chain such as Dee ≺ Ben ≺ Ana has every pair related, the opposite of a tier. And the set of people below Ana, {Dee, Ben}, contains the related pair Dee ≺ Ben, so it isn’t a tier either.
+The other options describe different things. A minimal element is a single item, such as Dee here: nobody has to come before Dee. A chain such as Dee ≺ Ben ≺ Ana has a required order for every pair, the opposite of a tier. And the set of people below Ana, {Dee, Ben}, contains Dee and Ben, and Dee must come before Ben, so it isn’t a tier either.
 
 </details>
 
@@ -106,7 +108,7 @@ The other options describe different things. A minimal element is a single item 
 
 ## 01 · The only question Python asks
 
-The code behind `<` matters only through what the sort does with its answers, so let’s start there. What does Python’s sort actually do with the items you give it? `sorted(xs)` and `xs.sort()` have exactly one way of finding out anything about your items: they ask `a < b`. Python’s documentation promises this: the sort routines use only `<` when comparing two objects. You can see it for yourself. A class that defines nothing but `__lt__` sorts without complaint:
+What `<` has to promise depends on what the sort does with its answers. So let’s watch the sort. What does Python’s sort actually do with the items you give it? `sorted(xs)` and `xs.sort()` have exactly one way of finding out anything about your items: they ask `a < b`. Python’s documentation promises this: the sort routines use only `<` when comparing two objects. You can see it for yourself. A class that defines nothing but `__lt__` sorts without complaint:
 
 **Listing 1.** *A class with only `__lt__` sorts without complaint.*
 
@@ -124,35 +126,39 @@ class Box:
 print(sorted([Box(3), Box(1), Box(2)]))   # [Box(1), Box(2), Box(3)]
 ```
 
-In lesson 1’s terms, this `<` is the rule $\prec$. But the sort meets that rule in a very different way. Lesson 1 handed us the whole list of pairs at once, like the five pairs for the ages in Table 1. The sort gets no list. It gets a function it can call on any two items it chooses, and it learns only the answers to the questions it asks.
+In lesson 1’s terms, this `<` is the rule $\prec$. But the sort meets that rule in a very different way. For the ages, lesson 1 handed us the whole list at once: Table 1’s five pairs, (Dee, Ben), (Dee, Ana), (Dee, Cy), (Ben, Ana) and (Ben, Cy). We could look up any pair. The sort gets no list. In Listing 1 it gets three boxes and the `__lt__` method, which it can call on any two boxes it chooses. To learn whether `Box(1)` goes before `Box(3)`, it has to call `Box(1) < Box(3)` and read the answer, `True`. It learns only the answers to the questions it asks.
 
-Does it ask about every pair? It could, and that would be safe, but it would be expensive. With $n$ items there are $n(n-1)/2$ pairs, about half a million for 1000 items. A good sort makes far fewer comparisons than that (lesson 3 counts exactly how many Python’s sort makes). So the sort asks about some pairs and draws conclusions about the rest. How can it conclude anything about a pair it never asked about? It lets answers carry over, and it does that with both kinds of answer. A “yes” carries over: if it learned that Dee is before Ben and that Ben is before Ana, it treats “Dee is before Ana” as known. A “no” carries over too. Suppose the row is Dee, Ben, Ana, and the sort has asked about the two neighbour pairs. It learned that Ben is not before Dee, and that Ana is not before Ben. Then it treats the whole row as having nothing out of order, without ever asking whether Ana is before Dee.
+Does it ask about every pair? It could, and that would be safe, but it would be expensive. With $n$ items there are $n(n-1)/2$ pairs, about half a million for 1000 items. A good sort makes far fewer comparisons than that (lesson 3 counts exactly how many Python’s sort makes). So the sort asks about some pairs and draws conclusions about the rest.
 
-Are those conclusions safe? Lesson 1 has already answered that, once for each kind of answer. Carrying a “yes” is just transitivity, and every strict partial order has it. Carrying a “no” is exactly what lesson 1’s neighbour test does, and lesson 1, §05 found where it breaks. A “no” only tells you “not out of order”. The two items might be the right way round, or the rule might not relate them at all. And ties, the pairs the rule doesn’t relate, need not chain together. The tasks of request (C) showed this with the row d, a, b, c. Tasks d and a are unrelated, and so are tasks a and b, yet b must come before d. The neighbour test passed that row, and the row is wrong.
+How can it conclude anything about a pair it never asked about? It lets answers carry over, and it does that with both kinds of answer. Take the row Dee, Ben, Ana, and suppose the sort never asks about Dee and Ana. Here is a “yes” carrying over. The sort asks “is Dee before Ben?” and hears yes. It asks “is Ben before Ana?” and hears yes. From those two answers it treats “Dee is before Ana” as known.
 
-When ties do carry over, acting on a “no” is safe. That happens exactly when the rule is a strict weak ordering, like ages. Then “no neighbour pair is out of order” really does guarantee “no pair is out of order” (lesson 1, Lemma 11). And a sort can’t avoid acting on “no” answers. Ask it about Ana and Cy, who are both 30, and both answers are “no”: Ana is not before Cy, and Cy is not before Ana. That is all a tie ever tells the sort, yet the sort still has to put one of the two in front. Acting on “no” answers is safe for a strict weak ordering, and it can mislead the sort for any other rule. So we should expect a sort to give a meaningful answer only when the `<` it is handed is a strict weak ordering `[intuition]`. (Exactly how a particular sort gets misled depends on which pairs it happens to ask about. In §05 we’ll catch Python’s sort acting on “no” answers in just this way.)
+Here is a “no” carrying over, on the same row. This time the sort checks the two neighbour pairs, each time asking whether the right-hand person should come before the left-hand one. “Is Ben before Dee?” No. “Is Ana before Ben?” No. So neither neighbour pair is the wrong way round, and the sort treats the whole row as right, Dee and Ana included. Both times the sort settled Dee and Ana without asking about them. From two yeses it concluded a third yes: Dee is before Ana. From two noes it concluded a third no: Ana and Dee are not the wrong way round.
+
+Are those conclusions safe? Lesson 1 has already answered that, once for each kind of answer. Carrying a “yes” is just transitivity, and every strict partial order has it. Carrying a “no” is exactly what lesson 1’s neighbour test does, and lesson 1, §05 found where it breaks. A “no” says less than it seems to. If “is Ben before Dee?” gets a no, it may be that Dee must come first, or it may be that the two tie and either can go first. And ties need not chain together. The tasks of request (C) showed this: d needs b, and c needs a and b. Take the row d, a, b, c and check its neighbours. d and a: neither needs the other, so they tie. a and b: they tie too. b and c: c needs b, and b is on the left, so that pair is fine. The neighbour test passes. Yet d needs b, and d stands first. The two ties, d with a and a with b, linked up a pair that is the wrong way round.
+
+When ties do carry over, acting on a “no” is safe. That happens exactly when the rule is a strict weak ordering, like ages. Then checking the neighbours really is enough (lesson 1, Lemma 11). In Dee, Ben, Ana, Cy the ages read 22, 25, 30, 30, never going down from one person to the next, and that guarantees that no pair anywhere in the row is the wrong way round. And a sort can’t avoid acting on “no” answers. Ask about Ana and Cy, who are both 30, and both questions get a no: “is Ana before Cy?” no, and “is Cy before Ana?” no. That is all a tie ever tells the sort, yet the sort still has to put one of the two in front. Acting on “no” answers is safe for a strict weak ordering, and it can mislead the sort for any other rule. So we should expect a sort to give a meaningful answer only when the `<` it is handed is a strict weak ordering `[intuition]`. (Exactly how a particular sort gets misled depends on which pairs it happens to ask about. In §05 we’ll catch Python’s sort acting on “no” answers in just this way.)
 
 And here is the catch: nobody checks. Python never tests whether your `<` is a strict weak ordering. It simply trusts it.
 
-So the question for the rest of the lesson is a concrete one. When we hand Python a way to compare, how can we be sure it is a strict weak ordering? Python accepts two kinds of comparison. A **key function** says *what* to compare, such as each person’s age. A **comparison function** says *how* two items compare, looking at both of them at once. Let’s take them in turn. Keys come first, because, as we’re about to see, keys are safe by construction.
+So the question for the rest of the lesson is a concrete one. When we hand Python a way to compare, how can we be sure it is a strict weak ordering? Python accepts two kinds of comparison, and they differ in what you write. Take sorting people by age. With a **key function**, you write something that looks at one person and returns a value: Dee gives 22, Ben gives 25. Python then compares those values with the numbers’ own `<`. With a **comparison function**, you write something that looks at two people at once and says which goes first: given Dee and Ben, it answers “Dee”. So a key describes one item at a time, and a comparison function judges a pair. Keys come first, because they turn out to be the safe kind.
 
 ---
 
 ## 02 · Keys always give a well-behaved order
 
-Real data are rarely bare numbers. They’re records: people, tasks, intervals. And we rarely want to sort “the record” itself; we want to sort by some property of it, such as age, deadline or length. That’s what Python’s `key=` parameter is for. `sorted(people, key=age)` computes `age(p)` once for each person and then compares those ages with `<`.
+Why should keys be the safe kind? Look at what Python does with one. Real data are rarely bare numbers. They’re records: people, tasks, intervals. And we rarely want to sort “the record” itself; we want to sort by some property of it, such as age, deadline or length. That’s what Python’s `key=` parameter is for. `sorted(people, key=age)` computes `age(p)` once for each person and then compares those ages with `<`.
 
-Notice what is actually being compared. Sorting people by age never compares two people; it compares two ages, which are just numbers. The order on people is *borrowed* from the order on numbers. We’ll reason about borrowed orders a lot, so let’s give them a name.
+Notice what is actually being compared. Sorting people by age never compares two people; it compares two ages, which are just numbers. To decide between Dee and Ben, it compares 22 with 25. The order on people is *borrowed* from the order on numbers. We’ll reason about borrowed orders a lot, so let’s give them a name. The usual word is *induced*: the order on the keys brings about, or induces, an order on the people.
 
 > **Definition (relation induced by a key)**
 >
 > Let $f$ map each element of $X$ to a set $K$ of keys that carries a strict total order $<$. The relation **induced by** $f$ is $x \prec_f y$ iff $f(x) < f(y)$.
 
-Request (B) from lesson 1 is exactly this kind of borrowed order, with the key “age”. Dee ≺ Ben because 22 < 25. Ana and Cy tie because their keys are equal: 30 = 30.
+Request (B) from lesson 1 is exactly this kind of borrowed order. In the definition’s letters, $X$ is the four people, $f$ is “age”, and $K$ is the numbers. Dee ≺ Ben because 22 < 25. Ana and Cy tie because their keys are equal: 30 = 30.
 
 And request (B) is a strict weak ordering: lesson 1 found its tiers, {Dee}, {Ben} and {Ana, Cy}. Is that a lucky accident of ages? Or is every borrowed order a strict weak ordering, the kind of rule §01 says a sort needs? If every one is, then `key=` is safe by construction, as §01 promised.
 
-We can also ask the question the other way round. Start from a strict weak ordering: is there always a key that produces it? Or are there well-behaved rules that no key could ever produce? This direction will turn out to be just as useful. Suppose every strict weak ordering does have a key. Then a comparison that looks nothing like a key might still be hiding one. And if we can find the hidden key, that proves the comparison is well behaved. Theorem 1 settles both directions: a borrowed order is always a strict weak ordering, and every strict weak ordering on a finite set is a borrowed order.
+We can also ask the question the other way round. So far the key came first: we knew the ages, and the order followed from them. Now start from the order instead. Suppose all we had were Table 1’s five pairs for the ages, with the ages themselves hidden. Could we invent a number for each person that gives exactly those five pairs? And can that always be done for a strict weak ordering, or are there well-behaved rules that no key could ever produce? This direction will turn out to be just as useful. Suppose every strict weak ordering does have a key. Then a comparison that looks nothing like a key might still be hiding one. If we can find the hidden key, that proves the comparison is well behaved. Theorem 1 settles both directions: a borrowed order is always a strict weak ordering, and every strict weak ordering on a finite set is a borrowed order.
 
 > **Theorem 1 (keys give exactly the strict weak orderings)**
 >
@@ -164,17 +170,17 @@ We can also ask the question the other way round. Start from a strict weak order
 >
 > (b) By lesson 1, Lemma 9, the tiers line up as $T_1, T_2, \ldots, T_k$, and $x \prec y$ holds exactly when $x$'s tier comes before $y$'s. So the key $f(x) = i$ for $x \in T_i$ induces $\prec$. ∎
 
-Let’s read that back slowly, because it is the whole reason `key=` is safe. Part (a) says that whatever key function you write, the order it produces is a strict weak ordering. There is one condition: *the key values themselves must be totally ordered by `<`*. Ages are plain numbers, so they are, and sorting people by age is safe. Part (a) also says what the tiers are: the groups of items with equal keys. For ages those are {Dee}, {Ben} and {Ana, Cy}, just as lesson 1 found. Hold on to that condition about the key values, though. §05 shows what goes wrong when it fails.
+Let’s read that back slowly, because it is the whole reason `key=` is safe. Part (a) says that whatever key function you write, the order it produces is a strict weak ordering. There is one condition: *the key values themselves must be totally ordered by `<`*. That means: for any two different key values, `<` says which one is smaller, and its answers carry over along chains. Ages are plain numbers, so they pass. Of 22 and 25, 22 is smaller; of 25 and 30, 25 is smaller; and then 22 is smaller than 30 too. So sorting people by age is safe. Part (a) also says what the tiers are: the groups of items with equal keys. For ages those are {Dee}, {Ben} and {Ana, Cy}, just as lesson 1 found. Hold on to that condition about the key values, though. §05 meets a value that breaks it, NaN, and shows what goes wrong then.
 
 Part (b) answers the other direction. Its proof builds the key out of the tiers: number the tiers 1, 2, 3, … from first to last, and give each item the number of its tier. For request (B) that gives Dee 1, Ben 2, and Ana and Cy both 3, and sorting by those numbers gives exactly the order by age. So nothing is lost by thinking of every well-behaved comparison as “compare some key”. In §06 that is what will let us prove that a strange-looking comparison is safe: we’ll go looking for its hidden key.
 
-Ties raise one more question. Lesson 1 showed that the members of a tier may stand in any order among themselves (Theorem 10). So Dee, Ben, Ana, Cy and Dee, Ben, Cy, Ana are both correct answers. Which one does Python pick? It keeps tied items in their input order. `sorted(["pear", "fig", "kiwi", "plum", "apple"], key=len)` returns `['fig', 'pear', 'kiwi', 'plum', 'apple']`. Pear, kiwi and plum all have 4 letters, so they tie, and they stay in the order they came in. Python guarantees this. It is called **stability**, because items that tie stay put relative to one another. Lesson 7 shows why anyone needs it.
+Ties raise one more question. Lesson 1 showed that the members of a tier may stand in any order among themselves (Theorem 10). So Dee, Ben, Ana, Cy and Dee, Ben, Cy, Ana are both correct answers. Which one does Python pick? It keeps tied items in their input order. If the input is Ana, Ben, Cy, Dee, with Ana listed before Cy, sorting by age gives Dee, Ben, Ana, Cy. If the input is Cy, Ben, Ana, Dee, with Cy listed first, the same sort gives Dee, Ben, Cy, Ana. The ages decide everything else; only the order of the tied pair, Ana and Cy, comes from the input. Words show the same thing. `sorted(["pear", "fig", "kiwi", "plum", "apple"], key=len)` returns `['fig', 'pear', 'kiwi', 'plum', 'apple']`. Pear, kiwi and plum all have 4 letters, so they tie, and they stay in the order they came in. Python guarantees this. It is called **stability**, because items that tie stay put relative to one another. Lesson 7 shows why anyone needs it.
 
 ---
 
 ## 03 · Several keys: lexicographic order
 
-Input order is a fine way to settle ties when you don’t care how they come out. Often, though, you do. Ana and Cy are both 30, and you might want them in alphabetical order, Ana before Cy, whoever happened to be listed first. Sorting by age alone can’t do that: it leaves Ana and Cy in input order. Sorting by name alone can’t do it either, because it forgets the ages and puts Ana, who is 30, ahead of Dee, who is 22. What you need is an order on pairs (age, name) that compares ages first and looks at names only when the ages are equal.
+Input order is a fine way to settle ties when you don’t care how they come out. Often, though, you do. Ana and Cy are both 30, and you might want them in alphabetical order, Ana before Cy, whoever happened to be listed first. Take the input Cy, Ben, Ana, Dee. Sorting by age alone gives Dee, Ben, Cy, Ana: the ages are right, but Cy stays ahead of Ana because Cy was listed first. Sorting by name alone gives Ana, Ben, Cy, Dee: alphabetical, but now Ana, who is 30, stands ahead of Dee, who is 22. What you want is Dee, Ben, Ana, Cy. That needs an order on pairs (age, name) that compares ages first and looks at names only when the ages are equal.
 
 You already know an order that works exactly like this: the one in a dictionary. The first letter decides: “bed” comes before “cat” because b comes before c. Only when the first letters agree does the second letter matter, and so on: “cab” comes before “cat” because, after the shared “ca”, b comes before t. The order is named after the dictionary: *lexicographic*, from “lexicon”. For pairs it reads:
 
@@ -182,7 +188,7 @@ You already know an order that works exactly like this: the one in a dictionary.
 >
 > Given strict total orders on the first and on the second coordinates, $(p, q) <_{\text{lex}} (p', q')$ iff $p < p'$, or $p = p'$ and $q < q'$.
 
-Is it safe to sort by this? Here’s a neat way to find out. Suppose we treat the whole pair as one key: Ana’s key is (30, "Ana"), Cy’s is (30, "Cy"), Dee’s is (22, "Dee"). Then Theorem 1 would make the borrowed order safe straight away. And Theorem 1 asks only one thing of its keys: that the keys themselves are compared by a strict total order. So the question becomes: are pairs, compared lexicographically, a strict total order?
+Is it safe to sort by this? Here’s a neat way to find out. Suppose we treat the whole pair as one key: Ana’s key is (30, "Ana"), Cy’s is (30, "Cy"), Dee’s is (22, "Dee"). Then Theorem 1 would make the borrowed order safe straight away. And Theorem 1 asks only one thing of its keys: that the keys themselves are compared by a strict total order. So the question becomes: are pairs, compared lexicographically, a strict total order? In plain words: given any two different pairs, such as (30, "Ana") and (30, "Cy"), does the comparison always say which one is smaller, and do its answers carry over along chains?
 
 > **Theorem 2 (lexicographic order is total)**
 >
@@ -196,11 +202,11 @@ Is it safe to sort by this? Here’s a neat way to find out. Suppose we treat th
 >
 > Total: two different pairs differ in the first coordinate, which decides, or agree there and differ in the second, which decides. ∎
 
-So the pair (age, name) is a safe key. Dee’s (22, "Dee") comes first, because 22 is the smallest age. Ana’s (30, "Ana") and Cy’s (30, "Cy") agree on the age, so the names decide, and Ana comes before Cy.
+So the pair (age, name) is a safe key. Dee’s (22, "Dee") comes first, because 22 is the smallest age, and Ben’s (25, "Ben") comes next. Ana’s (30, "Ana") and Cy’s (30, "Cy") agree on the age, so the names decide, and Ana comes before Cy. The input Cy, Ben, Ana, Dee now comes out as Dee, Ben, Ana, Cy, whatever order the names were listed in.
 
-What about three or more keys? A triple $(p, q, r)$ compared lexicographically behaves exactly like the pair $(p, (q, r))$. The second coordinate of that pair is itself a pair, $(q, r)$, compared lexicographically. Theorem 2 makes those inner pairs a strict total order. Applied once more, with the inner pairs as second coordinates, it makes the triples a strict total order too. Longer tuples work the same way, one coordinate at a time. Python compares tuples (and lists, and strings) in exactly this way: it finds the first position where they differ and compares there. If one tuple is the start of the other, as with (1, 2) and (1, 2, 5), the shorter one comes first. That keeps the order total even for tuples of different lengths. So `key=lambda r: (r.age, r.name)` really is a key whose values are totally ordered. By Theorem 1 the order it produces is a strict weak ordering. Its tiers are the records with equal age *and* equal name.
+What about three or more keys? Say each person also has a team number, and the key is (age, name, team). Python compares (30, "Ana", 2) with (30, "Ana", 5) one position at a time: the ages agree, the names agree, and then 2 < 5 decides. That is the same as comparing the pairs (30, ("Ana", 2)) and (30, ("Ana", 5)). Their first coordinates agree, so their second coordinates decide, and each second coordinate is itself a pair. In general, a triple $(p, q, r)$ compared lexicographically behaves exactly like the pair $(p, (q, r))$. Theorem 2 makes the inner pairs $(q, r)$ a strict total order. Applied once more, with the inner pairs as second coordinates, it makes the triples a strict total order too. Longer tuples work the same way, one coordinate at a time. Python compares tuples (and lists, and strings) in exactly this way: it finds the first position where they differ and compares there. If one tuple is the start of the other, as with (1, 2) and (1, 2, 5), the shorter one comes first. That keeps the order total even for tuples of different lengths. So `key=lambda r: (r.age, r.name)` really is a key whose values are totally ordered. By Theorem 1 the order it produces is a strict weak ordering. Its tiers are the records with equal age *and* equal name.
 
-What if you want one field in descending order? For a number, negate it: `key=lambda t: (-t[0], t[1])` sorts by score, highest first, and then by name. On `[(90, "Lee"), (85, "Ana"), (90, "Bo"), (70, "Cy")]` that gives `[(90, 'Bo'), (90, 'Lee'), (85, 'Ana'), (70, 'Cy')]`.
+What if you want one field in descending order? For a number, negate it: `key=lambda t: (-t[0], t[1])` sorts by score, highest first, and then by name. Negating turns the highest score, 90, into the smallest key, −90, so it comes first. On `[(90, "Lee"), (85, "Ana"), (90, "Bo"), (70, "Cy")]` that gives `[(90, 'Bo'), (90, 'Lee'), (85, 'Ana'), (70, 'Cy')]`.
 
 <details>
 <summary><b>Common question · How do I sort descending by a string?</b></summary>
@@ -213,7 +219,7 @@ You cannot negate a string. And `reverse=True` reverses the whole order, so it m
 >
 > Note
 >
-> Tuple keys compare later components **only on ties**. But when a tie does happen, those later components must support `<`. A heap or list of `(priority, record)` tuples works until two priorities are equal; then Python compares the records. If they are dictionaries, that raises `TypeError: '<' not supported between instances of 'dict' and 'dict'`. Exercise E2 below is this bug.
+> Tuple keys compare later components **only on ties**. But when a tie does happen, those later components must support `<`. A list of `(priority, record)` tuples, or any structure that keeps such tuples in priority order, works until two priorities are equal. Then Python compares the records. If they are dictionaries, that raises `TypeError: '<' not supported between instances of 'dict' and 'dict'`. Exercise E2 below is this bug.
 
 #### Checkpoint 1
 
@@ -297,7 +303,7 @@ The difficulty is that the two levels go in opposite directions, while a tuple k
 
 With the key (−score, name) on `[(90, "Lee"), (85, "Ana"), (90, "Bo"), (70, "Cy")]`, the keys are (−90, 'Lee'), (−85, 'Ana'), (−90, 'Bo') and (−70, 'Cy'). The two −90s come first and tie on that coordinate, so the names decide: Bo before Lee. Then −85 (Ana), then −70 (Cy). Result: `[(90, 'Bo'), (90, 'Lee'), (85, 'Ana'), (70, 'Cy')]`.
 
-Why not the others? `reverse=True` on `(t[0], t[1])` reverses the entire order, so it flips the names too and puts Lee before Bo. `key=t[0]` with `reverse=True` never consults the names, so the tied 90s stay in input order, which again puts Lee first. And `-t[1]` tries to negate a string, which Python refuses with a `TypeError`. (For a descending *string* field, see the common question in §03.)
+Why not the others? `reverse=True` on `(t[0], t[1])` reverses the entire order, so it flips the names too and puts Lee before Bo. `key=lambda t: t[0]` with `reverse=True` never consults the names, so the tied 90s stay in input order, which again puts Lee first. And `-t[1]` tries to negate a string, which Python refuses with a `TypeError`. (For a descending *string* field, see the common question in §03.)
 
 </details>
 
@@ -305,21 +311,27 @@ Why not the others? `reverse=True` on `(t[0], t[1])` reverses the entire order, 
 
 ## 04 · Comparators and their contract
 
-Keys are safe, so why would you ever want anything else? Because some rules are much easier to state about two items than about one. Lesson 1 met two of them. “Task c needs task a” is a fact about two tasks. “Rock beats scissors” is a fact about two hands, not a number attached to each one. Neither rule is a strict weak ordering, so by §01 Python’s sort can’t be trusted with them. But rules about pairs also turn up in perfectly reasonable problems. Here is one, which we’ll solve in §06. You want to arrange numbers so that writing them side by side gives the largest possible number. The natural way to decide between two numbers is to write them both ways round and keep the bigger result. For 5 and 34 that means comparing 534 with 345, so 5 goes first. In general, for two numbers $a$ and $b$ you compare the two concatenations $ab$ and $ba$. That is a rule about the pair, and there’s no obvious key in sight.
+Keys are safe, so why would you ever want anything else? Because some rules are much easier to state about two items than about one. Lesson 1 met two of them. “Task c needs task a” is a fact about two tasks. “Rock beats scissors” is a fact about two hands, not a number attached to each one. Neither rule is a strict weak ordering, so by §01 Python’s sort can’t be trusted with them. But rules about pairs also turn up in perfectly reasonable problems.
 
-For rules like this, Python accepts a comparison function through `functools.cmp_to_key(cmp)`. You write `cmp(a, b)` to return a negative number if a should come first, a positive number if b should, and 0 if it doesn’t matter. `cmp_to_key` wraps each item in a small object. When the sort asks one wrapped item “are you less than that one?”, the object answers by checking `cmp(a, b) < 0`. Since the sort only ever asks `<`, the rule the sort actually sees is
+Here is one, which we’ll solve in §06. You want to arrange numbers so that writing them side by side gives the largest possible number. Writing numbers side by side is called *concatenation*, from the Latin for “chaining together”. The natural way to decide between two numbers is to write them both ways round and keep the bigger result. For 5 and 34 that means comparing 534 with 345, so 5 goes first. In general, for two numbers $a$ and $b$ you compare the two concatenations $ab$ and $ba$. Set that beside a key. A key would give 5 a value of its own, give 34 a value of its own, and compare the two values. This rule gives neither number a value. It glues the two numbers together, both ways round, and compares the results. That is a rule about the pair, and there’s no obvious key in sight.
+
+For rules like this, Python accepts a comparison function. You write `cmp(a, b)` to return a negative number if a should come first, a positive number if b should, and 0 if it doesn’t matter. For the concatenation rule, `cmp("5", "34")` returns −1, because 534 beats 345, so "5" should come first. But `sorted` has no parameter for a comparison function; it only takes `key=`. So Python offers `functools.cmp_to_key(cmp)`, and its name says what it does: it turns a comparison function into something you can pass as a key. It wraps each item in a small object. When the sort asks the wrapped "5" “are you less than the wrapped "34"?”, the object answers by checking `cmp("5", "34") < 0`, which is true. So the wrapped items are not real keys with values of their own: every answer still comes from calling `cmp` on the pair. Since the sort only ever asks `<`, the rule the sort actually sees is
 
 $$
 a \prec b \iff \texttt{cmp}(a, b) < 0.
 $$
 
-What must that rule satisfy? §01 has already told us: it has to be a strict weak ordering. There is one more condition, and it’s worth seeing why we want it. The sort itself only ever looks at whether `cmp(a, b)` is negative. So as far as the sort is concerned, being a strict weak ordering is all that matters. But a comparison function makes promises with its other answers too. A positive value is supposed to mean “b first”, and zero “it doesn’t matter”. Suppose `cmp(5, 34)` said 0, “it doesn’t matter”, while `cmp(34, 5)` said −1, “34 first”. Then the function would be contradicting itself. Any code that reads those answers, yours or a library’s, would see a different order from the one the sort used. So we also ask that swapping the arguments flips the sign. Together, these two conditions make up the contract that every comparison function has to honour.
+What must that rule satisfy? §01 has already told us: it has to be a strict weak ordering. The sort itself only ever looks at whether `cmp(a, b)` is negative, so for the sort, that is all that matters. But a comparison function gives other answers too, and they make promises of their own. A positive value is supposed to mean “b first”, and zero “it doesn’t matter”. Suppose `cmp(5, 34)` said 0, “it doesn’t matter”, while `cmp(34, 5)` said −1, “34 first”. Then the function would be contradicting itself. Any code that reads those answers, yours or a library’s, would see a different order from the one the sort used. So we also ask that swapping the arguments flips the sign: if `cmp(5, 34)` is negative, `cmp(34, 5)` must be positive. Together, these two conditions are the promises every comparison function has to keep. They are called its *contract*, because the sort, and any other code that calls the function, relies on them, the way both sides of a contract rely on its terms.
 
 > **Definition (comparator contract)**
 >
 > A comparison function is **valid** if the relation $a \prec b \iff \texttt{cmp}(a,b) < 0$ is a strict weak ordering, and its signs agree: $\texttt{cmp}(a,b) < 0$ exactly when $\texttt{cmp}(b,a) > 0$.
 
-With a key, Theorem 1 does the checking for us: the order is a strict weak ordering as long as the key values are totally ordered. A comparison function has no such guarantee. That is what makes it risky: it can break its contract silently, and nothing in Python will warn you. So how could you find out? On a finite sample of values you can simply check the axioms by brute force: irreflexivity on every item, transitivity on every triple, and transitivity of ties on every triple. One item or one triple that breaks a rule is enough to prove that the comparison is broken. Passing on a sample is evidence about other values, but not a proof. Listing 2 is that check, and Fig. 1 runs it on seven comparisons, some sound and some broken.
+With a key, Theorem 1 does the checking for us, once and for all values: the order is a strict weak ordering as long as the key values are totally ordered. A comparison function has no such guarantee. That is what makes it risky: it can break its contract silently, and nothing in Python will warn you. Here is one that does. People often compare floats with a tolerance: call two numbers a tie when they are less than 1 apart, and otherwise put the smaller one first. Try it on 0.0, 0.6 and 1.2. 0.0 and 0.6 are 0.6 apart, so they tie. 0.6 and 1.2 are 0.6 apart, so they tie too. If ties carried over, 0.0 and 1.2 would tie as well. But they are 1.2 apart, so the comparison puts 0.0 first. Those three numbers prove that this comparison is not a strict weak ordering.
+
+So how could you find such a triple, if there is one? On a finite sample of values you can simply try every case, which is called checking by *brute force*. There are three kinds of question to ask. First, is any value before itself? On the sample 0.0, 0.6, 1.2, 1.8 that means four questions, “is 0.0 before 0.0?” and so on, and each answer must be no (irreflexivity). Second, do “before” answers carry over? For every triple: if the first is before the second, and the second is before the third, the first must be before the third (transitivity). Third, do ties carry over? For every triple: if the first ties the second, and the second ties the third, the first must tie the third (transitivity of ties). With four values there are 4 × 4 × 4 = 64 triples for each of the last two questions. One value or one triple that breaks a rule is called a *counterexample*, and it is enough to prove that the comparison is broken; for the tolerance comparison, 0.0, 0.6, 1.2 is one. Passing on a sample is evidence about other values, but not a proof: unlike Theorem 1, the check covers only the values it was given.
+
+Listing 2 is that check. It asks its questions through a function `before(x, y)` that answers “is x before y?”, so it tests the half of the contract the sort depends on, the strict weak ordering. Fig. 1 runs it on seven comparisons, some sound and some broken.
 
 **Listing 2.** *Checking a relation on a finite sample. Returns None, or the first counterexample.*
 
@@ -352,7 +364,7 @@ def check_strict_weak(values, before):
 
 ## 05 · What happens when the promise breaks
 
-Four of the seven comparisons in Fig. 1 fail the check. None of them is far-fetched; each is something people really write. There’s a tolerance for floats that are “close enough”, plain `<` on floats that include NaN, the cyclic “beats” of rock–paper–scissors, and `<` on sets. So what does Python do when it’s handed one of these? Let’s start with NaN, and make a prediction first.
+Four of the seven comparisons in Fig. 1 fail the check. None of them is far-fetched; each is something people really write. There’s the tolerance for floats that are “close enough”, which we just met, plain `<` on floats that include NaN, the cyclic “beats” of rock–paper–scissors, and `<` on sets. So what does Python do when it’s handed one of these? Let’s start with NaN, and make a prediction first.
 
 > **PREDICT FIRST.** Commit to an answer before opening the reveal.
 
@@ -376,9 +388,9 @@ Four of the seven comparisons in Fig. 1 fail the check. None of them is far-fetc
 <details>
 <summary><b>Reveal</b></summary>
 
-CPython returns the list **unchanged**: `[3.0, nan, 1.0, 2.0]` `[empirical]`. Here’s why. Every comparison involving NaN is false: `nan < x` and `x < nan` are both `False`. So, as far as the sort can tell, NaN ties with every number. That links any two numbers through NaN: 1.0 ∼ NaN and NaN ∼ 3.0, yet 1.0 < 3.0. So ties don’t carry over here, and lesson 1, [§06](lesson1.md) showed that the neighbour test can then be fooled.
+CPython returns the list **unchanged**: `[3.0, nan, 1.0, 2.0]` `[empirical]`. Here’s why. Every comparison involving NaN is false: `nan < 3.0` is `False`, and `3.0 < nan` is `False` too. So, as far as the sort can tell, NaN ties with every number. That links any two numbers through NaN: 1.0 ∼ NaN and NaN ∼ 3.0, yet 1.0 < 3.0. So ties don’t carry over here, and lesson 1, [§06](lesson1.md) showed that the neighbour test can then be fooled.
 
-And the neighbour test is exactly what fools the sort here. If you log the comparisons, you’ll find that CPython asks just three questions on this list, one for each neighbour pair. It is looking for a stretch that is already in order. The questions are: is nan < 3.0? is 1.0 < nan? is 2.0 < 1.0? Every answer is “no”, which means “not out of order”. So the sort concludes that the whole list is already sorted, and stops. It never asks about 3.0 and 1.0, the one pair that would have exposed the problem.
+And the sort falls into exactly that trap. If you log the comparisons, you’ll find that CPython asks just three questions on this list, one for each neighbour pair. It is looking for a stretch that is already in order. Each question asks whether the right-hand number of a neighbour pair should come before the left-hand one: is nan < 3.0? is 1.0 < nan? is 2.0 < 1.0? Every answer is “no”, so no neighbour pair looks the wrong way round. So the sort concludes that the whole list is already sorted, and stops. It never asks about 3.0 and 1.0, the one pair that would have exposed the problem.
 
 </details>
 
@@ -408,11 +420,13 @@ The other broken comparisons behave just like NaN: no error, and an answer that 
 
 In every run the output was at least a rearrangement of the input: nothing was lost or duplicated `[empirical]`. But Python’s documentation promises nothing about *which* rearrangement you get when the comparison is inconsistent. So don’t rely on any of these outputs.
 
-Why does a sort fall for this? We already watched it happen with NaN, and it is the failure §01 warned us about `[intuition]`. The sort never asks about every pair, and it acts on its “no” answers as if they carried over. When ties don’t carry over, a chain of “ties” can connect two items that are actually ordered. With NaN the chain was 1.0 ∼ NaN ∼ 3.0. The tolerance comparison builds a longer chain out of ordinary numbers. 3.0 ties 2.4, 2.4 ties 1.8, and so on down to 0.6, so the chain links 3.0 all the way to 0.6. Yet 3.0 and 0.6 are 2.4 apart, so they don’t tie at all. The sort never asks about that one pair, the pair that would give the game away. This is lesson 1’s “noticeably smaller” trap, and Python’s sort walks straight into it.
+Why does a sort fall for this? We already watched it happen with NaN, and it is the failure §01 warned us about `[intuition]`. The sort never asks about every pair, and it acts on its “no” answers as if they carried over. When ties don’t carry over, a chain of “ties” can connect two items that are actually ordered. With NaN the chain was 1.0 ∼ NaN ∼ 3.0. The tolerance comparison builds a longer chain out of ordinary numbers. 3.0 ties 2.4, 2.4 ties 1.8, and so on down to 0.6, so the chain links 3.0 all the way to 0.6. Yet 3.0 and 0.6 are 2.4 apart, so the comparison puts 0.6 first. The sort never asks about that one pair, the pair that would give the game away. This is lesson 1’s “noticeably smaller” trap, and Python’s sort walks straight into it.
 
-Rock–paper–scissors is broken more deeply. There even the “yes” answers don’t carry over: rock beats scissors and scissors beats paper, yet paper beats rock. That cycle means no arrangement of the three is sorted at all (lesson 1, Lemma 1), so every possible output is wrong. In every one of these cases, the algorithm isn’t at fault. It relies on being handed a strict weak ordering, and it wasn’t: its *precondition*, the condition it counts on before it starts, was violated. (Some languages detect some violations: Java’s library sort sometimes throws “Comparison method violates its general contract!”. Python doesn’t.)
+Rock–paper–scissors is broken more deeply. There even the “yes” answers don’t carry over. Rock beats scissors, and scissors beats paper, so carrying the yeses would put rock before paper. Yet paper beats rock. That cycle means no arrangement of the three is sorted at all (lesson 1, Lemma 1), so every possible output is wrong.
 
-So how do we repair a broken comparison? Theorem 1 points the way. Replace the comparison with a key whose values are totally ordered. Then the order is a strict weak ordering by construction, whatever the data.
+In every one of these cases, the algorithm isn’t at fault. It relies on being handed a strict weak ordering, and it wasn’t. A condition that an algorithm counts on before it starts is called its *precondition*, and here the precondition was violated. (Some languages detect some violations: Java’s library sort sometimes throws “Comparison method violates its general contract!”. Python doesn’t.)
+
+So how do we repair a broken comparison? Theorem 1 points the way. Replace the comparison with a key whose values are totally ordered. Then the order is a strict weak ordering by construction, whatever the data. Listing 3 does this for NaN and for the tolerance. On the same list, `[3.0, nan, 1.0, 2.0]`, plain `sorted` changed nothing, and the repaired key gives `[1.0, 2.0, 3.0, nan]`.
 
 **Listing 3.** *Repairs that turn a broken comparison into a key.*
 
@@ -428,7 +442,11 @@ def bucket(x, eps=1.0):
     return round(x / eps)
 ```
 
-Here is what those repairs do. The NaN key gives each ordinary number the key `(False, value)` and each NaN the key `(True, nan)`. `False` comes before `True`, so the NaNs all go last, and the ordinary numbers are compared by value. The NaNs all tie with one another, and that is perfectly consistent. The grid key is a genuine key too, so it’s safe. But notice that it changes the meaning. 0.49 and 0.51 land in different buckets, 0 and 1, even though they’re close. Meanwhile 0.51 and 1.49 land in the same bucket, 1, even though they are almost 1 apart. That trade-off can’t be avoided. In a strict weak ordering ties carry over, and “close” doesn’t: 3.0 is close to 2.4, and 2.4 is close to 1.8, but 3.0 and 1.8 are 1.2 apart. So no strict weak ordering can make “close” mean exactly “tie”.
+Here is what those repairs do. The NaN key gives each ordinary number the key `(False, value)` and each NaN the key `(True, nan)`. For `[3.0, nan, 1.0, 2.0]` the keys are `(False, 3.0)`, `(True, nan)`, `(False, 1.0)` and `(False, 2.0)`. `False` comes before `True`, so the NaNs all go last, and the ordinary numbers are compared by value. The NaNs all tie with one another, and that is perfectly consistent. So the numbers are compared just as before; what changed is that NaN now has a definite place, after every number.
+
+The grid key, `key=bucket`, is a genuine key too, so it’s safe. Set it beside the tolerance comparison on 3.0, 2.4, 1.8, 1.2, 0.6. The tolerance comparison asks a question about each pair: are these two less than 1 apart? The grid key asks a question about each number on its own: which whole number is it closest to? That gives buckets 3, 2, 2, 1, 1, and sorting by them gives `[1.2, 0.6, 2.4, 1.8, 3.0]`. Under the tolerance, 3.0 and 2.4 tied; under the grid key, 2.4 (bucket 2) comes before 3.0 (bucket 3). So the grid key changes the meaning of “tie”. 0.49 and 0.51 land in different buckets, 0 and 1, even though they’re close. Meanwhile 0.51 and 1.49 land in the same bucket, 1, even though they are almost 1 apart.
+
+That trade-off can’t be avoided. In a strict weak ordering ties carry over, and “close” doesn’t: 3.0 is close to 2.4, and 2.4 is close to 1.8, but 3.0 and 1.8 are 1.2 apart. Any strict weak ordering that calls 3.0 and 2.4 a tie, and 2.4 and 1.8 a tie, has to call 3.0 and 1.8 a tie as well. So no strict weak ordering can make “close” mean exactly “tie”.
 
 So each repair came down to finding a key. Here that was easy, because both broken comparisons were sloppy versions of the ordinary order on numbers, and the key was the number itself, tidied up. But what about a rule that is about pairs from the start, like “write 5 and 34 both ways round and keep the bigger”? There is no number in sight to use as a key. That is exactly the kind of rule §04 gave us comparison functions for. And we have just seen what we risk if such a rule quietly breaks its contract.
 
@@ -521,7 +539,7 @@ Let’s trace the call on line 6. `sorted` wraps each number with `cmp_to_key`, 
 
 Logging the calls shows that CPython asks exactly two questions. First: is 1 before 3? That runs line 4 with a = 1 and b = 3, which returns `1 < 3`, that is `True`. The wrapper then checks `True < 0`. `True` counts as 1, so the answer is `False`: “1 is not before 3”. Second: is 2 before 1? Line 4 returns `2 < 1`, that is `False`, which counts as 0, and `0 < 0` is `False` again.
 
-So the sort has checked both neighbour pairs and found neither out of order. As far as it can tell the list is already sorted, so it returns `[3, 1, 2]`. In fact no question could ever get a “yes”. A bool is never negative, so the rule the sort sees, $\texttt{cmp}(a,b) < 0$, relates no pair at all. Every number ties with every other, everything is one tier, and a stable sort keeps a single tier in input order.
+So the sort has checked both neighbour pairs and found neither out of order. As far as it can tell the list is already sorted, so it returns `[3, 1, 2]`. In fact no question could ever get a “yes”. A bool is never negative, so the test the sort sees, $\texttt{cmp}(a,b) < 0$, is false for every pair: “is 1 before 3?” gets no, and so does “is 3 before 1?”. Every number ties with every other, everything is one tier, and a stable sort keeps a single tier in input order.
 
 So the fault is on line 4: it gives a yes/no answer where a three-way answer is expected. Return a negative number, a positive number or 0, or better, use `key=`. Lines 1, 3 and 6 are all correct; with a valid comparator, the same call would sort the list.
 
@@ -561,11 +579,13 @@ $$
 a \prec b \iff ab > ba
 $$
 
-For example, $3 \prec 30$, because $330 > 303$. In code this is `a + b > b + a` on the decimal strings. (Comparing strings is fine here. The two strings `a + b` and `b + a` have the same length. And two digit strings of the same length compare as strings exactly as they compare as numbers. Both comparisons look for the first position where the digits differ, and there the larger digit wins. For numbers that is right because a larger digit in an earlier place outweighs everything that follows it. For instance, "330" and "303" first differ in the second place, where 3 beats 0, and indeed $330 > 303$.)
+For example, $3 \prec 30$, because $330 > 303$. Set the two comparisons side by side on 3 and 30. String order compares "3" with "30" as they stand, and puts 30 first. The concatenation rule compares the two numbers you would actually write, 330 and 303, and puts 3 first. So string order looks at the two numbers’ digits, and the rule looks at what you get by gluing them together.
 
-Before we sort by this rule, we want to know it honours the contract from §04. Otherwise, as §05 showed, Python could hand us garbage without a word. The checker in Fig. 1 found nothing wrong with it on the sample 3, 30, 34, 5, 9. But a pass on a sample is evidence, not proof, and we want to use the rule on every list of numbers. So let’s try to prove the axioms. Is it irreflexive? Yes: $aa > aa$ is false. Is it transitive? On examples it seems to be. 534 > 345 puts 5 before 34, and 343 > 334 puts 34 before 3; and sure enough, 53 > 35 puts 5 before 3. But why should that always happen? Suppose $ab > ba$ and $bc > cb$. Does $ac > ca$ follow? Try to see it directly and you’ll get stuck. Each comparison glues a different pair of numbers together, in both orders. There’s no obvious quantity that grows along the chain.
+In code the rule is `a + b > b + a` on the decimal strings. Comparing strings is fine here, because the two strings `a + b` and `b + a` have the same length. And two digit strings of the same length compare as strings exactly as they compare as numbers. Both comparisons look for the first position where the digits differ, and there the larger digit wins. For numbers that is right because a larger digit in an earlier place outweighs everything that follows it. For instance, "330" and "303" first differ in the second place, where 3 beats 0, and indeed $330 > 303$.
 
-Here is where Theorem 1(b) earns its keep. If the rule is a strict weak ordering, then some key produces it. And if we can find that key, Theorem 1(a) proves the rule safe immediately, without checking any cases at all. So let’s go looking for a number attached to each $a$ that gets bigger exactly when $a$ should come earlier.
+Before we sort by this rule, we want to know it honours the contract from §04. Otherwise, as §05 showed, Python could hand us garbage without a word. The checker in Fig. 1 found nothing wrong with it on the sample 3, 30, 34, 5, 9. But a pass on a sample is evidence, not proof, and we want to use the rule on every list of numbers. So let’s try to prove the axioms. Is it irreflexive? Is 3 before 3? That would need 33 > 33, which is false. The same goes for every number: $aa > aa$ is false. Is it transitive? On examples it seems to be. 534 > 345 puts 5 before 34, and 343 > 334 puts 34 before 3; and sure enough, 53 > 35 puts 5 before 3. But why should that always happen? Suppose $ab > ba$ and $bc > cb$. Does $ac > ca$ follow? Try to see it directly and you’ll get stuck. With ages, a chain like Dee before Ben before Ana was easy: the ages 22, 25, 30 grow along it. Here each comparison builds its own numbers. 5 and 34 gave 534 and 345; 34 and 3 gave 343 and 334; and the conclusion is about 53 and 35, numbers that appeared in neither comparison. So there’s no obvious quantity that grows along the chain.
+
+Here is where Theorem 1(b) earns its keep. It says that if the rule is a strict weak ordering, then some key produces it. So if the rule is safe, a hidden key exists, and looking for one isn’t hopeless. And if we do find that key, Theorem 1(a) proves the rule safe immediately, without checking any cases at all. So let’s go looking for a number attached to each $a$ on its own, one number for 5, one for 34, one for 3, that gets bigger exactly when $a$ should come earlier. Since 5 goes before 34, 5’s number has to be the bigger one.
 
 > **Theorem 3 (the hidden key)**
 >
@@ -585,9 +605,11 @@ Here is where Theorem 1(b) earns its keep. If the rule is a strict weak ordering
 >
 > Both $10^{|a|} - 1$ and $10^{|b|} - 1$ are positive, so dividing by their product keeps the direction: $ab > ba \iff f(a) > f(b)$. Ordering by $f$ in decreasing order is ordering by the key $-f(a)$, so Theorem 1(a) applies. ∎
 
-What is this mysterious $f$? Read it as a decimal: $f(a)$ is the value of $0.aaa\ldots$, the digits of $a$ repeated forever. $f(3) = 0.333\ldots = 1/3$, $f(30) = 0.3030\ldots = 30/99$, and $f(34) = 0.3434\ldots = 34/99$. So the question “which concatenation is bigger?” is secretly the question “which infinite repetition is bigger?”. Let’s check it on our example: $f(9) = 1$, $f(5) = 0.555\ldots$, $f(34) = 0.3434\ldots$, $f(3) = 0.333\ldots$, $f(30) = 0.3030\ldots$. Largest first, that is the order 9, 5, 34, 3, 30, and it spells `9534330`. Ties really happen, too: $f(12) = 12/99 = 4/33 = 1212/9999 = f(1212)$. And indeed, writing a bar where one number ends and the next begins, $12|1212 = 121212 = 1212|12$.
+What is this mysterious $f$? Read it as a decimal: $f(a)$ is the value of $0.aaa\ldots$, the digits of $a$ repeated forever. $f(3) = 0.333\ldots = 1/3$, $f(30) = 0.3030\ldots = 30/99$, and $f(34) = 0.3434\ldots = 34/99$. So the question “which concatenation is bigger?” is secretly the question “which infinite repetition is bigger?”.
 
-Knowing the rule is safe tells us that sorting by it is meaningful. But it doesn’t yet tell us that the sorted arrangement forms the *largest* number. That’s a different claim, and it needs its own argument.
+Let’s check it on our example: $f(9) = 1$, $f(5) = 0.555\ldots$, $f(34) = 0.3434\ldots$, $f(3) = 0.333\ldots$, $f(30) = 0.3030\ldots$. Largest first, that is the order 9, 5, 34, 3, 30, and it spells `9534330`. Ties really happen, too: $f(12) = 12/99 = 4/33 = 1212/9999 = f(1212)$. And indeed, writing a bar where one number ends and the next begins, $12|1212 = 121212 = 1212|12$.
+
+Knowing the rule is safe tells us that sorting by it is meaningful. Python will return 9, 5, 34, 3, 30, and in that row every pair is the right way round under the rule. But it doesn’t yet tell us that the sorted arrangement forms the *largest* number. Five numbers can be arranged in 120 ways, and we haven’t shown that 9534330 beats all the others. That’s a different claim, and it needs its own argument.
 
 > **Theorem 4 (sorting gives the maximum)**
 >
@@ -598,6 +620,8 @@ Knowing the rule is safe tells us that sorting by it is meaningful. But it doesn
 > Take an arrangement that is **not** sorted. Since $\prec$ is a strict weak ordering, lesson 1, Lemma 11 gives a neighbour pair out of order: $b$ immediately followed by $a$ with $a \prec b$, that is $ab > ba$. Swap them. The digits before and after the pair do not move, and the block $ba$ in the middle becomes $ab$: the same length, and larger. So the whole number grows: a non-sorted arrangement is never the largest.
 >
 > Among the finitely many arrangements one is the largest; by what we just showed it is sorted. Finally, all sorted arrangements give the same number. They differ only in the order inside tiers (lesson 1, Theorem 10). Elements of a tier sit next to each other, and for two elements $a, b$ of the same tier $ab = ba$. So swapping neighbours inside a tier never changes the digits. And any order of a tier can be reached from any other by such swaps: bring the element that should come first to the front of the block one neighbour swap at a time, then the next one, and so on. So every sorted arrangement gives the maximum. ∎
+
+Here is the first half of the proof on our numbers. Take the arrangement 9, 5, 3, 34, 30, which is not sorted: 34 should come before 3, because 343 > 334. It spells 9533430. 3 and 34 are neighbours, so swap them. The 95 in front and the 30 at the end stay where they are, and the block 334 in the middle becomes 343. The result, 9, 5, 34, 3, 30, spells 9534330, which is bigger. Every unsorted arrangement can be improved like this, so the largest one has to be sorted.
 
 This style of proof is called an **exchange argument**, because it works by exchanging two neighbours. You show that any solution that breaks the rule can be made strictly better by swapping two neighbours, so the best solution can’t break the rule. An exchange argument is the standard way to prove that a strategy of the form “sort by the right key, then take the items in order” is optimal. Such strategies are called *greedy*, because they take whatever looks best at each step without looking ahead. Exchange arguments come back in lesson 21.
 
@@ -625,7 +649,7 @@ print(largest_number([3, 30, 34, 5, 9]))   # 9534330
 print(largest_number([0, 0]))              # 0
 ```
 
-Theorem 3 also hands us a key directly, so we don’t even need `cmp_to_key`: `sorted(strs, key=lambda s: Fraction(int(s), 10 ** len(s) - 1), reverse=True)`, with `from fractions import Fraction`. Use `Fraction` rather than floats. A float keeps only about 16 significant digits, so for long numbers two different keys can round to the same float.
+Theorem 3 also hands us a key directly, so we don’t even need `cmp_to_key`: `sorted(strs, key=lambda s: Fraction(int(s), 10 ** len(s) - 1), reverse=True)`, with `from fractions import Fraction`. On `[3, 30, 34, 5, 9]` it puts the strings in the same order, 9, 5, 34, 3, 30. Use `Fraction`, which stores a fraction exactly, rather than floats. A float keeps only about 16 significant digits, so for long numbers two different keys can round to the same float.
 
 ---
 
@@ -811,13 +835,13 @@ That’s the proof. Writing the concatenations as arithmetic turns a question ab
 
 Let’s start from where the proof has to end up. Theorem 1 says that any order borrowed from a key is a strict weak ordering. So we want to show that “$ab > ba$” is the same as comparing a number worked out from $a$ alone with the same kind of number worked out from $b$ alone. Once we have that, we’re done. Every step should move us toward that.
 
-Step A turns the concatenations into arithmetic. Writing $a$ and then $b$ shifts $a$ left by as many places as $b$ has digits, so $ab = a \cdot 10^{|b|} + b$, and likewise $ba = b \cdot 10^{|a|} + a$. For example, $3|30 = 3 \cdot 100 + 30 = 330$.
+The first step, “As numbers, …”, turns the concatenations into arithmetic. Writing $a$ and then $b$ shifts $a$ left by as many places as $b$ has digits, so $ab = a \cdot 10^{|b|} + b$, and likewise $ba = b \cdot 10^{|a|} + a$. For example, $3|30 = 3 \cdot 100 + 30 = 330$.
 
-Step B subtracts $a + b$ from both sides of $ab > ba$, which leaves $a(10^{|b|} - 1) > b(10^{|a|} - 1)$. Each side still mixes the two numbers: $a$ is multiplied by something that depends on $b$.
+The second step subtracts $a + b$ from both sides of $ab > ba$, which leaves $a(10^{|b|} - 1) > b(10^{|a|} - 1)$. Each side still mixes the two numbers: $a$ is multiplied by something that depends on $b$.
 
-Step C separates them. Divide both sides by $(10^{|a|}-1)(10^{|b|}-1)$, which is positive, so the inequality keeps its direction. The left side becomes $a/(10^{|a|}-1) = f(a)$ and the right side $b/(10^{|b|}-1) = f(b)$. Now each side depends on one number only: $f$ is a key.
+The third step, “Dividing by the positive number …”, separates them. Divide both sides by $(10^{|a|}-1)(10^{|b|}-1)$, which is positive, so the inequality keeps its direction. The left side becomes $a/(10^{|a|}-1) = f(a)$ and the right side $b/(10^{|b|}-1) = f(b)$. Now each side depends on one number only: $f$ is a key.
 
-Step D cashes it in. $a \prec b$ exactly when $f(a) > f(b)$, so the rule is an order borrowed from the key $f$ (largest first). By Theorem 1 it is a strict weak ordering.
+The last step cashes it in. $a \prec b$ exactly when $f(a) > f(b)$, so the rule is an order borrowed from the key $f$ (largest first). By Theorem 1 it is a strict weak ordering.
 
 The other two steps are the shortcuts people reach for, and one pair refutes both. As numbers, 3 < 30, so “bigger number first” would put 30 first and give 303, but 330 is bigger. As strings, `'30' > '3'`, so string order also puts 30 first, with the same wrong result.
 

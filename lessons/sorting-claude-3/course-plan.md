@@ -17,7 +17,7 @@ figures drawn by code need a static rendering added to FIGURES in that script).
 
 ### ★★ RULE ZERO (highest weight; check this before anything else)
 
-**The reader understands every sentence on the first read, can picture it on one of the running examples, and always knows why it is there.** The user learns from these pages alone and has flagged the same five failures again and again in lessons 1–4, even after earlier fixes. They recur for one reason: the writer already knows the idea and writes it in its most compact correct form. The reader is meeting it for the first time. Write for that reader, every sentence, including reveals, feedback, hints and worked solutions.
+**The reader understands every sentence on the first read, can picture it on one of the running examples, and always knows why it is there.** The user learns from these pages alone and has flagged the same six failures again and again in lessons 1–4, even after earlier fixes. They recur for one reason: the writer already knows the idea and writes it in its most compact correct form. The reader is meeting it for the first time. Write for that reader, every sentence, including reveals, feedback, hints and worked solutions.
 
 | # | Failure | Flagged example | What to write instead |
 |---|---|---|---|
@@ -26,14 +26,16 @@ figures drawn by code need a static rendering added to FIGURES in that script).
 | F3 | **A new idea whose difference from the old one never comes out.** A shortcut, a repaired test, a second method or a new definition is introduced in passing, and the reader can't say what changed. | "It's tempting to cut corners. Why not look only at neighbours, and demand that each item come before the next one? Let's try that shortcut on (B)." (The reader could not tell what was being proposed or how it differed from the full check.) | Name both things ("the full check", "the neighbour shortcut") and use those names consistently. Put them side by side on the same concrete example: which pairs each one looks at, what question each one asks about a pair, and what verdict each gives. Then state the difference in one sentence. If two things change at once, say so and separate them. |
 | F4 | **Forcing instead of showing.** A conclusion is pushed through with logic words instead of reached through an example. | "So the only sensible meaning of 'the row follows the rule' is this: …" | Work a small example (a right row, then a wrong row) and let the reader see the conclusion; then name it. No "the only sensible", "it must be", "clearly", "obviously". |
 | F5 | **Dense sentences.** Several ideas in one sentence, chains of clauses, noun stacks, pronouns pointing far back. | "To find an item that nothing has to come before, you just ask the rule about that item and each of the others, one pair at a time. So that procedure uses nothing but verdicts on pairs." | One idea per sentence, concrete first: "To see that Dee could go first, we asked the rule about Dee and Ben, then Dee and Ana, then Dee and Cy." See PLAIN LANGUAGE. |
+| F6 | **A tool before its purpose.** A definition or property is introduced first, and only later (often inside a proof) does the reader see what problem it solves, so the chain of reasoning feels arbitrary. | §03 went "cycles are the enemy" → "look at the rows themselves" → irreflexive and transitive → definition, and only then did a proof show that these two properties rule out cycles. The user: "hard to understand … chain of reasoning to 2 properties". | Let the problem produce the tool. Try the failing case concretely and watch why it fails: put (D)'s cycle in a row; "before" carries over, so rock before scissors before paper gives rock before paper, and with paper before rock, rock before rock; nothing stands before itself. *Then* name the two facts that did the work and ask the rule to obey them, and say in one sentence why that kills every cycle, before the formal definition and proof. |
 
-**Four questions for every paragraph** (ask them in this order; any "no" means rewrite):
+**Five questions for every paragraph** (ask them in this order; any "no" means rewrite):
 1. What question is the reader holding right now, and does this paragraph's first sentence pick it up? (F1)
 2. Can I point to the running example that shows what each sentence says? (F2, F4)
 3. If this paragraph introduces anything new (a test, a shortcut, a method, a definition, a variant), can the reader say in one sentence how it differs from what they already had, and have they seen both on the same example? (F3)
-4. Would I say each sentence this way to a student sitting across the table, and would they follow it on first hearing? (F5)
+4. If this paragraph introduces a definition, property or tool, has the reader already seen the problem it solves, on an example, so that the tool feels forced by that problem? (F6)
+5. Would I say each sentence this way to a student sitting across the table, and would they follow it on first hearing? (F5)
 
-A lesson is not ready until every paragraph passes all four. When revising, fix the pattern everywhere in the lesson, not just the sentence that was pointed out.
+A lesson is not ready until every paragraph passes all five. When revising, fix the pattern everywhere in the lesson, not just the sentence that was pointed out.
 
 ### ★ THE NARRATIVE RULE: one continuous story (details for RULE ZERO F1, F4)
 

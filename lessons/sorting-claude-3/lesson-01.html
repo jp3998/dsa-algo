@@ -330,23 +330,31 @@
 
     <p>So now we have the full check, and it can judge any row under any rule. But it judges one row at a time. That brings us back to the first question from §02: which rules let at least one row pass? For (D) we could simply try every row. Rock, paper and scissors can stand in only six rows, and you can check that each one has a pair out of order. That’s fine for three items. But ten items can stand in over three million rows. And the question matters: a sorting program handed a rule with no answer could never succeed, however clever it is. So we want a better way. We want to look at the rule itself, without trying rows, and tell whether it has an answer.</p>
 
-    <p>Let’s look at (D) once more. What exactly made it fail? In §01 nothing could go first. In §02 its three verdicts clashed. Both come from the same shape. Follow the rule from rock: rock must come before scissors, scissors before paper, and paper before rock. We are back where we started. The requirements run in a loop. And on a loop, no item can go first. Try scissors: rock comes just before scissors on the loop, so rock would have to come earlier still. The same happens wherever we start. A loop like this is called a cycle.</p>
+    <p>Let’s look at (D) once more. What exactly made it fail? In §01 nothing could go first. In §02 its three verdicts clashed. Both come from the same shape. Follow the rule from rock: rock must come before scissors, scissors must come before paper, and paper must come before rock. We are back where we started. The requirements run in a loop. And on a loop, no item can go first. Try scissors: rock is required before scissors, so rock would have to stand earlier still. The same happens wherever we start.</p>
+
+    <p>A loop like this is called a <strong>cycle</strong>. In general, a cycle is a chain of requirements that comes back to where it started: the first item before the second, the second before the third, and so on, and then the last item before the first again. (D) is a cycle of three. The shortest possible cycle has two items: x before y, and also y before x.</p>
 
     <div class="callout def"><p class="callout-label">Definition (cycle)</p>
       <p>A <strong>cycle</strong> is a sequence of distinct elements \(x_1, x_2, \ldots, x_k\) with \(k \ge 2\) and \(x_1 \prec x_2 \prec \cdots \prec x_k \prec x_1\).</p></div>
 
-    <p>Is a cycle always fatal, or was (D) just unlucky? It’s always fatal, however many other items there are. The reason is the one we just saw:</p>
+    <p>Is a cycle always fatal, or was (D) just unlucky? It’s always fatal, however many other items there are. Here’s why. Put the items in any row you like, and look only at the items of the cycle. One of them stands earliest. Say it’s rock. On the cycle, some item is required just before rock: paper. But paper stands later than rock, because rock is the earliest of the three. So paper and rock are the wrong way round. Whichever cycle item stands earliest, the same thing happens: the item required just before it stands later. So every row has a pair out of order.</p>
 
     <div class="callout lemma" id="lem-cycle"><p class="callout-label">Lemma 1 (a cycle forbids order)</p>
       <p>If \(\prec\) has a cycle, no arrangement is sorted.</p></div>
 
     <div class="callout proof"><p class="callout-label">Proof</p>
-      <p>Take any arrangement and look at the elements of the cycle. One of them, say \(x_m\), sits at the earliest position among them. Its predecessor on the cycle (\(x_{m-1}\), or \(x_k\) if \(m = 1\)) satisfies \(x_{m-1} \prec x_m\) and sits at a later position. That is an out-of-order pair. Since the arrangement was arbitrary, none is sorted.</p></div>
+      <p>Take any arrangement. Among the elements of the cycle, let \(x_m\) be the one at the earliest position. The element just before it on the cycle is \(x_{m-1}\) (or \(x_k\) if \(m = 1\), since the cycle wraps around). That element is required before \(x_m\), yet it stands at a later position. So the two form an out-of-order pair. The arrangement was arbitrary, so no arrangement is sorted.</p></div>
 
-    <p>Take (D), for example. In any row, look at whichever of rock, paper and scissors stands earliest. The item that beats it stands later, and that pair is out of order. So cycles are the enemy. But hunting for loops in a big rule is a chore of its own. Is there some simple property that tells us a rule has no cycles?</p>
+    <p>So cycles are the enemy: a rule with a cycle has no answer. But spotting a cycle in a big rule means hunting for loops, and that is a chore of its own. Is there something simpler we could check on the rule, something that guarantees it has no cycle?</p>
 
-    <p>Where could such a property come from? Look at the rows themselves. Every answer is a row, and a row has its own “comes before”: whoever stands in position 2 comes before whoever stands in position 5. This “comes before” has two properties so familiar that we rarely say them. First, nothing comes before itself. Second, “before” carries over: position 2 is before 5, and 5 is before 7, so 2 is before 7. In general, if \(i\) comes before \(j\) and \(j\) comes before \(k\), then \(i\) comes before \(k\).</p>
-    <p>Shouldn’t a sensible rule have the same two properties? Take them one at a time. A rule that demanded Dee come before Dee could never be met by any row. So we lose nothing by forbidding that. And if a rule demands Dee before Ben and Ben before Ana, every row that obeys it puts Dee before Ana anyway. So we lose nothing by asking the rule to say “Dee before Ana” outright. These two properties have names, and so does a relation that has both.</p>
+    <p>To find it, let’s watch exactly how (D)’s cycle breaks when we try to put it in a row. We need one fact about rows: in a row, “before” carries over. If rock stands before scissors, and scissors stands before paper, then rock stands before paper. Now add the cycle’s last demand, paper before rock. Rock before paper, and paper before rock, carry over to: rock before rock. That’s impossible. In a row, nothing stands before itself.</p>
+
+    <p>So the cycle fails because of two plain facts about rows. “Before” carries over, and nothing comes before itself. That suggests a plan: ask the rule itself to obey the same two facts.</p>
+    <ul>
+      <li><strong>The rule never demands that an item come before itself.</strong> We lose nothing by asking this: a rule that demanded Dee before Dee could never be met by any row anyway.</li>
+      <li><strong>The rule’s demands carry over.</strong> Whenever it demands x before y and y before z, it also demands x before z. We lose nothing by asking this either: if the rule demands Dee before Ben and Ben before Ana, every row that obeys it puts Dee before Ana anyway. The rule just says so outright.</li>
+    </ul>
+    <p>A rule like that can’t have a cycle. Follow any cycle using the second fact, as we just did with rock, and the rule ends up demanding the first item before itself. The first fact forbids exactly that. These two properties have names, and so does a relation that has both.</p>
 
     <div class="callout def"><p class="callout-label">Definition (strict partial order)</p>
       <p>A relation \(\prec\) on \(X\) is a <strong>strict partial order</strong> if it is</p>
@@ -355,9 +363,9 @@
         <li><strong>transitive</strong>: \(x \prec y\) and \(y \prec z\) imply \(x \prec z\).</li>
       </ul></div>
 
-    <p>“Strict” because nothing comes before itself, as with \(&lt;\) rather than \(\le\). “Partial” because the rule is allowed to leave some pairs unconstrained, like Ana and Cy: it settles only part of the order.</p>
+    <p>Irreflexive is the first fact (“nothing before itself”), and transitive is the second (“demands carry over”). “Strict” because nothing comes before itself, as with \(&lt;\) rather than \(\le\). “Partial” because the rule is allowed to leave some pairs unconstrained, like Ana and Cy: it settles only part of the order.</p>
 
-    <p>Now let’s see what these two properties buy us. First, a small consequence: a rule like this can never demand both orders of the same pair. It can’t demand Dee before Ben and also Ben before Dee.</p>
+    <p>Now let’s make sure these two properties do what we wanted. First, a small consequence: a rule like this can never demand both orders of the same pair. It can’t demand Dee before Ben and also Ben before Dee, because transitivity would turn that into Dee before Dee.</p>
 
     <div class="callout lemma" id="lem-asym"><p class="callout-label">Lemma 2 (asymmetry)</p>
       <p>In a strict partial order, \(x \prec y\) and \(y \prec x\) never both hold.</p></div>
@@ -365,13 +373,13 @@
     <div class="callout proof"><p class="callout-label">Proof</p>
       <p>If both held, transitivity would give \(x \prec x\), which irreflexivity forbids.</p></div>
 
-    <p>And second, the one we were after: no cycles, of any length.</p>
+    <p>Second, the one we were after: no cycles, of any length. This is the rock argument, written for any cycle.</p>
 
     <div class="callout lemma" id="lem-nocycle"><p class="callout-label">Lemma 3 (no cycles)</p>
       <p>A strict partial order has no cycles.</p></div>
 
     <div class="callout proof"><p class="callout-label">Proof</p>
-      <p>Suppose \(x_1 \prec x_2 \prec \cdots \prec x_k \prec x_1\). Applying transitivity along the cycle gives \(x_1 \prec x_k\) (induction on \(j\) shows \(x_1 \prec x_j\) for every \(j \ge 2\)). With \(x_k \prec x_1\), transitivity once more gives \(x_1 \prec x_1\). Irreflexivity forbids it.</p></div>
+      <p>Suppose \(x_1 \prec x_2 \prec \cdots \prec x_k \prec x_1\). From \(x_1 \prec x_2\) and \(x_2 \prec x_3\), transitivity gives \(x_1 \prec x_3\). With \(x_3 \prec x_4\) it gives \(x_1 \prec x_4\), and so on along the cycle, until \(x_1 \prec x_k\). (Formally, induction on \(j\) shows \(x_1 \prec x_j\) for every \(j \ge 2\).) Together with \(x_k \prec x_1\), transitivity gives \(x_1 \prec x_1\). Irreflexivity forbids it.</p></div>
 
     <p>Do we really need both properties? Yes. Transitivity alone isn’t enough. Take the rule “every item comes before every item, itself included”. It is transitive, and it is full of cycles. Irreflexivity alone isn’t enough either. Rock–paper–scissors is irreflexive, since nothing beats itself, and it is one big cycle.</p>
 
