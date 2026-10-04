@@ -52,7 +52,7 @@ const html = 'file://' + path.resolve(__dirname, '../../lesson-01.html');
       { order: [2, 1, 3, 4], excl: [], flag: 2, want: 'doesn’t open with it' },
       { order: [1, 3, 2, 4], excl: [], flag: 3, want: 'needs two facts before it' },
       { order: [4, 1, 2, 3], excl: [], flag: 4, want: 'induction step comes last' },
-      { order: [1, 2, 3, 4], excl: [1], flag: 1, want: 'would stand later while being required earlier' },
+      { order: [1, 2, 3, 4], excl: [1], flag: 1, want: 'would stand later although it must come earlier' },
       { order: [1, 2, 3, 4], excl: [3], flag: 3, want: 'asymmetry forbids' },
       { order: [1, 2, 3, 4], excl: [], keepFalse: true, flag: 0, want: '7, 2, 9, 4' },
       { order: [1, 2, 3, 4], excl: [], flag: null, want: 'That’s the proof.' },

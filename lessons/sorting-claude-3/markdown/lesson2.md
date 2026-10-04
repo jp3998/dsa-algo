@@ -35,7 +35,7 @@ Before looking at the rows, work out what “sorted” asks for here. Which pair
 <details>
 <summary>Hint 2</summary>
 
-Only 1.0 and 2.2 are more than 1 apart, so the whole requirement is “1.0 somewhere before 2.2”. The neighbour test only looks at pairs that sit side by side. So what must a row that breaks the requirement do to get past the test?
+Only 1.0 and 2.2 are more than 1 apart, so all the rule says is “1.0 somewhere before 2.2”. The neighbour test only looks at pairs that sit side by side. So what must a row that breaks it do to get past the test?
 
 </details>
 
@@ -43,9 +43,9 @@ Only 1.0 and 2.2 are more than 1 apart, so the whole requirement is “1.0 somew
 <summary>Answer and feedback</summary>
 
 - **(a)** ✓ correct. Yes. Look at the neighbours first: 2.2 and 1.5 are 0.7 apart, and 1.5 and 1.0 are 0.5 apart. Both gaps are under 1, so the rule calls each neighbour pair a tie, and a tie can’t be the wrong way round. But 2.2 and 1.0 are 1.2 apart, so 1.0 ≺ 2.2, and here 1.0 comes last. The 1.5 in the middle ties with both ends, and that’s how it hides the violation from the neighbour test.
-- **(b)** ✗. This row is genuinely sorted, so it can’t be the answer. The rule makes only one demand, 1.0 ≺ 2.2 (the other two pairs are less than 1 apart, so they tie), and here 1.0 does come before 2.2. We want a row that fools the neighbour test, which means one that is *not* sorted.
+- **(b)** ✗. This row is genuinely sorted, so it can’t be the answer. The rule says only one thing, 1.0 ≺ 2.2 (the other two pairs are less than 1 apart, so they tie), and here 1.0 does come before 2.2. We want a row that fools the neighbour test, which means one that is *not* sorted.
 - **(c)** ✗. This row isn’t sorted, but it doesn’t fool the neighbour test either. 2.2 and 1.0 sit side by side, and they are 1.2 apart, so 1.0 ≺ 2.2. The test sees that neighbour pair out of order straight away. To slip past the test, the pair that is out of order can’t be neighbours.
-- **(d)** ✗. This one is sorted. The rule makes only one demand, 1.0 ≺ 2.2, and 1.0 comes before 2.2 here. It doesn’t matter that 1.5 comes before 1.0: they are only 0.5 apart, so they tie, and either may go first.
+- **(d)** ✗. This one is sorted. The rule says only one thing, 1.0 ≺ 2.2, and 1.0 comes before 2.2 here. It doesn’t matter that 1.5 comes before 1.0: they are only 0.5 apart, so they tie, and either may go first.
 
 </details>
 
@@ -86,10 +86,10 @@ Ana and Cy are both 30, so either of them may go first: they tie. Which option d
 <details>
 <summary>Answer and feedback</summary>
 
-- **(a)** ✓ correct. Yes. A tier is a group of items that all tie with one another, like Ana and Cy (both 30) in request (B). And lesson 1’s Lemma 9 showed that the tiers line up one after another: every member of an earlier tier comes before every member of a later one. So ties live inside a tier, like Ana and Cy. Any two items from different tiers have a required order, like Dee before Ben, or Ben before Cy.
+- **(a)** ✓ correct. Yes. A tier is a group of items that all tie with one another, like Ana and Cy (both 30) in request (B). And lesson 1’s Lemma 9 showed that the tiers line up one after another: every member of an earlier tier comes before every member of a later one. So ties live inside a tier, like Ana and Cy. Any two items from different tiers have a fixed order, like Dee before Ben, or Ben before Cy.
 - **(b)** ✗. That describes a minimal element (lesson 1 §04), which is a single item, not a group. A tier is a whole group of items that tie with one another, and it can sit anywhere in the order. In request (B), {Ana, Cy} is the last tier, and both Ana and Cy have people who must come before them: Dee and Ben.
-- **(c)** ✗. A chain is the opposite of a tier. In a chain every pair has a required order; inside a tier every pair ties. In request (B), Dee ≺ Ben ≺ Ana is a chain, and it takes one person from each tier.
-- **(d)** ✗. That set can contain two items with a required order between them, and then it can’t be a tier. In request (B), the people below Ana are Dee and Ben, and Dee must come before Ben, so they don’t tie. A tier is defined by its members all tying with one another, not by which item they sit below.
+- **(c)** ✗. A chain is the opposite of a tier. In a chain every pair has a fixed order; inside a tier every pair ties. In request (B), Dee ≺ Ben ≺ Ana is a chain, and it takes one person from each tier.
+- **(d)** ✗. That set can contain two items with a fixed order between them, and then it can’t be a tier. In request (B), the people below Ana are Dee and Ben, and Dee must come before Ben, so they don’t tie. A tier is defined by its members all tying with one another, not by which item they sit below.
 
 </details>
 
@@ -98,9 +98,9 @@ Ana and Cy are both 30, so either of them may go first: they tie. Which option d
 
 Let’s rebuild the idea from request (B): Ana (30), Ben (25), Cy (30), Dee (22), youngest first. Ana and Cy are both 30, so either of them may go first: they tie. In a strict weak ordering ties carry over, so “ties with” splits the items into groups in which everyone ties with everyone. Those groups are the tiers: here {Dee}, {Ben} and {Ana, Cy}.
 
-Two facts follow. Inside a tier every pair ties, like Ana and Cy. Between two tiers every pair has a required order, always in the same direction: Dee before Ben, Ben before Ana, Ben before Cy, and so on. Lesson 1’s Lemma 9 showed that every member of an earlier tier comes before every member of a later one. So the tiers themselves are totally ordered. That is exactly the first option.
+Two facts follow. Inside a tier every pair ties, like Ana and Cy. Between two tiers every pair has a fixed order, always in the same direction: Dee before Ben, Ben before Ana, Ben before Cy, and so on. Lesson 1’s Lemma 9 showed that every member of an earlier tier comes before every member of a later one. So the tiers themselves are totally ordered. That is exactly the first option.
 
-The other options describe different things. A minimal element is a single item, such as Dee here: nobody has to come before Dee. A chain such as Dee ≺ Ben ≺ Ana has a required order for every pair, the opposite of a tier. And the set of people below Ana, {Dee, Ben}, contains Dee and Ben, and Dee must come before Ben, so it isn’t a tier either.
+The other options describe different things. A minimal element is a single item, such as Dee here: nobody has to come before Dee. A chain such as Dee ≺ Ben ≺ Ana has a fixed order for every pair, the opposite of a tier. And the set of people below Ana, {Dee, Ben}, contains Dee and Ben, and Dee must come before Ben, so it isn’t a tier either.
 
 </details>
 
@@ -358,7 +358,7 @@ def check_strict_weak(values, before):
     return None
 ```
 
-**Fig. 1.** *Comparator checker. Pick a comparison and a sample. The table shows every answer to "is the row before the column?"; the verdict is the output of `check_strict_weak`, computed by a line-by-line port of Listing 2.*
+**Fig. 1.** *Comparator checker. Pick a comparison and a sample. The table shows every answer to "is the row before the column?"; the result below it is the output of `check_strict_weak`, computed by a line-by-line port of Listing 2.*
 
 ---
 
@@ -857,7 +857,7 @@ The other two steps are the shortcuts people reach for, and one pair refutes bot
 <details>
 <summary>Hint 1</summary>
 
-The proof needs “if an arrangement is not sorted, then some *neighbour* pair is out of order”. Which lesson 1 result says that, and what kind of rule does it require?
+The proof needs “if an arrangement is not sorted, then some *neighbour* pair is out of order”. Which lesson 1 result says that, and what kind of rule does it need?
 
 </details>
 

@@ -40,7 +40,7 @@ A promise “if P then Q” is broken only when the condition happens and the co
 
 - **(a)** ✓ correct. Yes. A promise of the form “for every x, if P(x) then Q(x)” is broken only by an x that meets the condition but misses the conclusion. One such x is enough to break it. Later in this lesson we’ll use counterexamples of exactly this shape, to show that a proof really needs one of its assumptions.
 - **(b)** ✗. That would actually make the statement true, not false. If no x meets the condition, the “if … then” is never put to the test, so it can’t fail anywhere (we say the statement is vacuously true). To break the statement you need an x where P holds and Q fails.
-- **(c)** ✗. That x doesn’t hurt the statement at all: when P(x) is false, “if P(x) then Q(x)” makes no demand on it. It’s easy to get the direction backwards; the breaking case is P true and Q false.
+- **(c)** ✗. That x doesn’t hurt the statement at all: when P(x) is false, “if P(x) then Q(x)” says nothing about it. It’s easy to get the direction backwards; the breaking case is P true and Q false.
 - **(d)** ✗. That’s far more than we know. One x with P(x) true and Q(x) false already makes the statement false, and it tells us nothing about Q at any other x.
 
 </details>
@@ -50,7 +50,7 @@ A promise “if P then Q” is broken only when the condition happens and the co
 
 Let’s read “for every x, if P(x) then Q(x)” as a promise about every x: whenever P holds, Q holds too. When is a promise like that broken? Only when we find an x where the condition P(x) holds but the conclusion Q(x) doesn’t. An x where P(x) is false can never break it, because the promise says nothing about such an x. So the statement is false exactly when at least one x has P(x) true and Q(x) false.
 
-Here is why each of the other options is wrong. If P(x) were false for every x, the promise would never be put to the test. Then the statement would be (vacuously) true, the opposite of what we were told. An x with Q(x) true and P(x) false has the direction backwards: the promise makes no demand on it. And “Q(x) is false for every x” claims far more than one broken case can tell us.
+Here is why each of the other options is wrong. If P(x) were false for every x, the promise would never be put to the test. Then the statement would be (vacuously) true, the opposite of what we were told. An x with Q(x) true and P(x) false has the direction backwards: the promise says nothing about it. And “Q(x) is false for every x” claims far more than one broken case can tell us.
 
 </details>
 
@@ -200,37 +200,37 @@ That leaves us with a puzzle. (D) answers every one of those two-item questions 
 
 Let’s look closely at what a request actually tells us. Read the four requests again, and think about pairs. “Increasing order” tells you, for any two numbers, which goes first: the smaller one. “Youngest first” tells you, for any two people, which goes first: the younger one. If they’re the same age, it doesn’t care. “Every task after the tasks it needs” tells you, for any two tasks, whether one has to come before the other, and which. “The winner first” tells you, for any two hand shapes, which goes first. That is all each request says. None of them says anything directly about three or four items at once. And none of them hands you the finished order.
 
-So, for any two items, a request gives one of three verdicts: *this one first*, *that one first*, or *it doesn’t matter*. Everything we did in §01 came down to these verdicts. So let’s give this part of a request a name: we’ll call it the request’s *rule*. The rule is simply what the request says about two items at a time.
+So, for any two items, a request tells you one of three things: *this one first*, *that one first*, or *it doesn’t matter*. Everything we did in §01 came down to these answers about pairs. So let’s give this part of a request a name: we’ll call it the request’s *rule*. The rule is simply what the request says about two items at a time.
 
 Now the puzzle becomes a question about rules. If a rule only ever tells us about two items at a time, is that enough to put all of them in order? For (A) it was. For (D) it wasn’t. To see why, let’s start with something easier than building a row: checking one. If someone hands us a whole row, how can the rule tell us whether it’s right?
 
 Let’s try it on a row we already know is right: Dee, Ben, Ana, Cy. The rule can only talk about two people at a time, so let’s ask it about the row two people at a time. Dee and Ben: Dee is younger and stands first. Good. Dee and Ana, then Dee and Cy: the same again, Dee is younger and stands first. Ben and Ana, then Ben and Cy: Ben is younger and stands first. Ana and Cy: they’re the same age, so the rule doesn’t mind which of them comes first. That’s every pair in the row, six of them, and the rule is happy with each one.
 
-Now a row that’s wrong: Ben, Dee, Ana, Cy. Ask about Ben and Dee, and the rule objects: Dee is younger, but stands second. That one pair is enough to make the row wrong. So this is what “the row follows the rule” means: *go through every pair in the row, and none of them is the wrong way round.* And that’s good news. Even though the rule only ever talks about two items at a time, it can check any row we show it.
+Now a row that’s wrong: Ben, Dee, Ana, Cy. Ask the rule about Ben and Dee, and it says Dee comes first: Dee is younger, but stands second. That one pair is enough to make the row wrong. So this is what “the row follows the rule” means: *go through every pair in the row, and none of them is the wrong way round.* And that’s good news. Even though the rule only ever talks about two items at a time, it can check any row we show it.
 
 But checking a row is not the same as building one. Can we build a right row using only what the rule says about pairs? We already did, back in §01. Each time, we asked “which items can go first?”. To see that Dee could go first, we asked the rule about Dee and Ben, then Dee and Ana, then Dee and Cy, and found that nobody had to come before Dee. Every step went like that, one pair at a time. So §01’s way of building a row only ever asks the rule about two items at a time.
 
 For (A), (B) and (C) it works: §01 built every one of their answers this way. And when this way of building gets all the way to the end, the row it builds really does pass the check. Think about why. When we put Dee down first, we had already checked that nobody had to come before Dee. So everyone who ended up after Dee was allowed to stand there. Then Ben went down, once nobody left had to come before Ben, so everyone after Ben was allowed there too. Every item went down the same way. So when the check goes through the pairs of the finished row, it finds none the wrong way round. For these three requests, what the rule says about pairs was enough to build a whole row.
 
-Then comes (D). Every pair in (D) has a perfectly clear verdict: rock before scissors, scissors before paper, paper before rock. Each one, on its own, is easy to satisfy. And yet our way of building gets stuck at the very first step: nothing can go first, and no row passes.
+Then comes (D). For every pair in (D), the rule says clearly which comes first: rock before scissors, scissors before paper, paper before rock. Each one, on its own, is easy to satisfy. And yet our way of building gets stuck at the very first step: nothing can go first, and no row passes.
 
-What went wrong? On paper, the three verdicts look separate. But once they have to live together in one row, they affect each other. If a row puts rock before scissors, and scissors before paper, then it has *already* put rock before paper, whether we like it or not. In a row, “before” carries over from one pair to the next. The rule of (D) demands the opposite, paper before rock. So each of the three verdicts is easy to meet on its own, but no row can meet all three at once.
+What went wrong? On paper, the three pairs look separate. But once they have to live together in one row, they affect each other. If a row puts rock before scissors, and scissors before paper, then it has *already* put rock before paper, whether we like it or not. In a row, “before” carries over from one pair to the next. But the rule of (D) says the opposite, paper before rock. So each of the three pairs is easy to satisfy on its own, but no row can satisfy all three at once.
 
-That solves our puzzle. When the rule’s verdicts fit together, as in (A), (B) and (C), they are enough to build a whole row. When they clash, as in (D), no row can satisfy them all. Whether they fit depends on the rule, not on how clearly it speaks. And when they do fit, the pairs where the rule says “it doesn’t matter” leave room to choose. That is why (B) and (C) have more than one answer.
+That solves our puzzle. When what the rule says about its pairs fits together, as in (A), (B) and (C), it is enough to build a whole row. When the pairs clash, as in (D), no row can satisfy them all. Whether they fit depends on the rule, not on how clearly it speaks. And when they do fit, the pairs where the rule says “it doesn’t matter” leave room to choose. That is why (B) and (C) have more than one answer.
 
 This leaves us with two questions, and the rest of the lesson answers them.
 
-The first: which rules have verdicts that fit together, so that at least one row passes? For our four requests we found out by trying. But we can’t try every rule there is. We want something we can check on the rule itself. §03 finds it.
+The first: for which rules do the pairs fit together, so that at least one row passes? For our four requests we found out by trying. But we can’t try every rule there is. We want something we can check on the rule itself. §03 finds it.
 
-The second: when the verdicts do fit together, how many rows pass, and when is there exactly one? In §01, every choice came from a pair where the rule said “it doesn’t matter”: Ana and Cy in (B), a and b in (C). So those pairs decide the count. §04 to §06 make this exact.
+The second: when the pairs do fit together, how many rows pass, and when is there exactly one? In §01, every choice came from a pair where the rule said “it doesn’t matter”: Ana and Cy in (B), a and b in (C). So those pairs decide the count. §04 to §06 make this exact.
 
 Both questions are about *every* rule, not just our four. So we can’t keep answering them by looking at examples. We need a way to write down any rule completely, in a form we can reason about.
 
-What is the simplest complete record of a rule? Everything a rule says is about two items at a time. So we can write each “this one first” verdict as a pair $(x, y)$, meaning “$x$ must come before $y$”, and collect the pairs in a list. For request (B) the list is
+What is the simplest complete record of a rule? Everything a rule says is about two items at a time. So we can write each “this one first” answer as a pair $(x, y)$, meaning “$x$ must come before $y$”, and collect the pairs in a list. For request (B) the list is
 
 > (Dee, Ben), (Dee, Ana), (Dee, Cy), (Ben, Ana), (Ben, Cy).
 
-Let’s check that nothing has been lost. Must Ben come before Cy? (Ben, Cy) is on the list, so yes. Must Cy come before Ben? (Cy, Ben) isn’t on the list, but (Ben, Cy) is, so no: Ben goes first. Must Ana come before Cy? Neither (Ana, Cy) nor (Cy, Ana) is on the list, so it doesn’t matter. All three verdicts can be read off the list. Notice, too, that the order inside each pair matters: (Ben, Ana) says Ben goes first, and (Ana, Ben) would say the opposite. So these are *ordered* pairs. Table 1 writes all four rules this way.
+Let’s check that nothing has been lost. Must Ben come before Cy? (Ben, Cy) is on the list, so yes. Must Cy come before Ben? (Cy, Ben) isn’t on the list, but (Ben, Cy) is, so no: Ben goes first. Must Ana come before Cy? Neither (Ana, Cy) nor (Cy, Ana) is on the list, so it doesn’t matter. All three kinds of answer can be read off the list. Notice, too, that the order inside each pair matters: (Ben, Ana) says Ben goes first, and (Ana, Ben) would say the opposite. So these are *ordered* pairs. Table 1 writes all four rules this way.
 
 **Table 1.** *The four rules, each written as its list of “must come before” pairs.*
 
@@ -254,11 +254,11 @@ Why the symbol $\prec$? It looks like a curved $<$, and that’s on purpose: it 
 - (C) $x \prec y$ iff $y$ needs $x$, directly or through other tasks. (“Through other tasks” matters when needs form a chain: if d needed c, then d would also need a, through c. In (C) there are no such chains: d needs b, c needs a and b, and a and b need nothing. So the list is exactly the three pairs of Table 1.)
 - (D) $x \prec y$ iff $x$ beats $y$.
 
-What about the third verdict, “it doesn’t matter”? On the list it shows up as a gap. Neither (Ana, Cy) nor (Cy, Ana) is there, because the rule doesn’t care which of the two comes first. We’ll call a pair like Ana and Cy **unconstrained**: the rule puts no constraint on its order. Tasks a and b are another unconstrained pair. In symbols, an unconstrained pair $p, q$ has neither $p \prec q$ nor $q \prec p$. Keep these pairs in mind. They are exactly where the choices in §01 came from.
+What about the third answer, “it doesn’t matter”? On the list it shows up as a gap. Neither (Ana, Cy) nor (Cy, Ana) is there, because the rule doesn’t care which of the two comes first. We’ll call a pair like Ana and Cy **unconstrained**: the rule puts no constraint on its order. Tasks a and b are another unconstrained pair. In symbols, an unconstrained pair $p, q$ has neither $p \prec q$ nor $q \prec p$. Keep these pairs in mind. They are exactly where the choices in §01 came from.
 
 Now we can say exactly what “the wrong way round” means. Take any two people in a row: one stands earlier, the other later. There are three possibilities:
 
-- **in the required order**: the rule wants the earlier one first, and so it is, like Dee before Ben. Fine.
+- **in the right order**: the rule says the earlier one comes first, and so it does, like Dee before Ben. Fine.
 - **unconstrained**: the rule doesn’t care, like Ana and Cy. Either order is fine.
 - **out of order**: the rule wants the later one first, like Ben before Dee: Dee is younger, but stands second. This is the only case that breaks the request.
 
@@ -305,7 +305,7 @@ The shortcut does no better on (C). There it asks, at each step, whether the nex
 
 </details>
 
-So what went wrong? In both examples the trouble came from the stricter question, not from looking at neighbours. The request never asked that each person be younger than the next. It only objects to a pair that is the wrong way round, like Ben before Dee. Ana next to Cy is fine for the request, because the rule doesn’t care about their order. The shortcut calls it a failure anyway.
+So what went wrong? In both examples the trouble came from the stricter question, not from looking at neighbours. The request never asked that each person be younger than the next. It only rejects a pair that is the wrong way round, like Ben before Dee. Ana next to Cy is fine for the request, because the rule doesn’t care about their order. The shortcut calls it a failure anyway.
 
 That suggests a repair: keep the cheap part and drop the strict part. Look only at neighbours, three checks instead of six, but ask each neighbour pair the request’s own question: is it the wrong way round? Let’s call this repaired version **the neighbour test**. Can it be trusted? The answer depends on the rule, and we’ll work it out in §05 and §06.
 
@@ -353,7 +353,7 @@ Take each number in turn and count the smaller numbers that stand somewhere afte
 <details>
 <summary>Worked solution</summary>
 
-Under $<$, a pair of positions is out of order when the later number is smaller than the earlier one. The smaller number is the one required to come first, and here it stands second. And the definition looks at every pair of positions, not just neighbours.
+Under $<$, a pair of positions is out of order when the later number is smaller than the earlier one. The smaller number is the one that must come first, and here it stands second. And the definition looks at every pair of positions, not just neighbours.
 
 A tidy way to be sure we see every pair is to take each number in turn and look at everything after it:
 
@@ -372,15 +372,15 @@ That makes 2 + 0 + 1 = 3 out-of-order pairs, the three red arcs of Fig. 2. If yo
 
 So now we have the full check, and it can judge any row under any rule. But it judges one row at a time. That brings us back to the first question from §02: which rules let at least one row pass? For (D) we could simply try every row. Rock, paper and scissors can stand in only six rows, and you can check that each one has a pair out of order. That’s fine for three items. But ten items can stand in over three million rows. And the question matters: a sorting program handed a rule with no answer could never succeed, however clever it is. So we want a better way. We want to look at the rule itself, without trying rows, and tell whether it has an answer.
 
-Let’s look at (D) once more. What exactly made it fail? In §01 nothing could go first. In §02 its three verdicts clashed. Both come from the same shape. Follow the rule from rock: rock must come before scissors, scissors must come before paper, and paper must come before rock. We are back where we started. The requirements run in a loop. And on a loop, no item can go first. Try scissors: rock is required before scissors, so rock would have to stand earlier still. The same happens wherever we start.
+Let’s look at (D) once more. What exactly made it fail? In §01 nothing could go first. In §02 its three pairs clashed. Both come from the same shape. Follow the rule from rock: rock must come before scissors, scissors must come before paper, and paper must come before rock. We are back where we started. The “must come before”s run in a loop. And on a loop, no item can go first. Try scissors: rock must come before scissors, so rock would have to stand earlier still. The same happens wherever we start.
 
-A loop like this is called a **cycle**. In general, a cycle is a chain of requirements that comes back to where it started: the first item before the second, the second before the third, and so on, and then the last item before the first again. (D) is a cycle of three. The shortest possible cycle has two items: x before y, and also y before x.
+A loop like this is called a **cycle**. In general, a cycle is a chain of “must come before”s that comes back to where it started: the first item before the second, the second before the third, and so on, and then the last item before the first again. (D) is a cycle of three. The shortest possible cycle has two items: x before y, and also y before x.
 
 > **Definition (cycle)**
 >
 > A **cycle** is a sequence of distinct elements $x_1, x_2, \ldots, x_k$ with $k \ge 2$ and $x_1 \prec x_2 \prec \cdots \prec x_k \prec x_1$.
 
-Is a cycle always fatal, or was (D) just unlucky? It’s always fatal, however many other items there are. Here’s why. Put the items in any row you like, and look only at the items of the cycle. One of them stands earliest. Say it’s rock. On the cycle, some item is required just before rock: paper. But paper stands later than rock, because rock is the earliest of the three. So paper and rock are the wrong way round. Whichever cycle item stands earliest, the same thing happens: the item required just before it stands later. So every row has a pair out of order.
+Is a cycle always fatal, or was (D) just unlucky? It’s always fatal, however many other items there are. Here’s why. Put the items in any row you like, and look only at the items of the cycle. One of them stands earliest. Say it’s rock. On the cycle, one item must come just before rock: paper. But paper stands later than rock, because rock is the earliest of the three. So paper and rock are the wrong way round. Whichever cycle item stands earliest, the same thing happens: the item that must come just before it stands later. So every row has a pair out of order.
 
 > **Lemma 1 (a cycle forbids order)**
 >
@@ -388,18 +388,23 @@ Is a cycle always fatal, or was (D) just unlucky? It’s always fatal, however m
 
 > **Proof**
 >
-> Take any arrangement. Among the elements of the cycle, let $x_m$ be the one at the earliest position. The element just before it on the cycle is $x_{m-1}$ (or $x_k$ if $m = 1$, since the cycle wraps around). That element is required before $x_m$, yet it stands at a later position. So the two form an out-of-order pair. The arrangement was arbitrary, so no arrangement is sorted. ∎
+> Take any arrangement. Among the elements of the cycle, let $x_m$ be the one at the earliest position. The element just before it on the cycle is $x_{m-1}$ (or $x_k$ if $m = 1$, since the cycle wraps around). That element must come before $x_m$, yet it stands at a later position. So the two form an out-of-order pair. The arrangement was arbitrary, so no arrangement is sorted. ∎
 
-So cycles are the enemy: a rule with a cycle has no answer. But spotting a cycle in a big rule means hunting for loops, and that is a chore of its own. Is there something simpler we could check on the rule, something that guarantees it has no cycle?
+So cycles are the enemy: a rule with a cycle has no answer. We could hunt for cycles in every rule we meet, but there’s a better way. Let’s first understand how a cycle forms. Then maybe we can stop it from forming at all.
 
-To find it, let’s watch exactly how (D)’s cycle breaks when we try to put it in a row. We need one fact about rows: in a row, “before” carries over. If rock stands before scissors, and scissors stands before paper, then rock stands before paper. Now add the cycle’s last demand, paper before rock. Rock before paper, and paper before rock, carry over to: rock before rock. That’s impossible. In a row, nothing stands before itself.
+Picture a rule with a chain of pairs: x1 before x2, x2 before x3, x3 before x4. On its own, the chain is harmless. The row x1, x2, x3, x4 follows all three. Now add one more pair to the rule, one that links the end of the chain back to its start: x4 before x1. That single pair closes the loop, and suddenly no row works. (D) has exactly this shape, only shorter: the chain is rock before scissors, scissors before paper, and the pair that closes it is paper before rock.
 
-So the cycle fails because of two plain facts about rows. “Before” carries over, and nothing comes before itself. That suggests a plan: ask the rule itself to obey the same two facts.
+So what exactly is wrong with that closing pair? Look at what the chain already forces. In any row that follows the chain, x1 stands before x2, x2 before x3, and x3 before x4. So x1 stands before x4. The chain never says “x1 before x4” in words, but every row that follows it does that anyway. The closing pair says the exact opposite. In (D), the chain forces rock before paper, and the closing pair says paper before rock. That is the whole cause of a cycle: the rule says something that clashes with what its own pairs already force.
 
-- **The rule never demands that an item come before itself.** We lose nothing by asking this: a rule that demanded Dee before Dee could never be met by any row anyway.
-- **The rule’s demands carry over.** Whenever it demands x before y and y before z, it also demands x before z. We lose nothing by asking this either: if the rule demands Dee before Ben and Ben before Ana, every row that obeys it puts Dee before Ana anyway. The rule just says so outright.
+Why doesn’t the rule notice the clash? Because the clash is hidden. The rule speaks about each pair separately. Its list says x1 before x2, x2 before x3, x3 before x4 and x4 before x1, and no two of those four pairs contradict each other directly. The pair that does clash, “x1 before x4”, isn’t on the list at all.
 
-A rule like that can’t have a cycle. Follow any cycle using the second fact, as we just did with rock, and the rule ends up demanding the first item before itself. The first fact forbids exactly that. These two properties have names, and so does a relation that has both.
+So the first step towards breaking the cycle is to bring the clash into the open. Ask the rule to write down what its chains force: whenever its list says x before y and y before z, it must also say x before z. Applied along our chain, this puts “x1 before x3” on the list, and then “x1 before x4”. Asking this costs nothing, because every row that follows the chain does it anyway. The rule just says so out loud. We’ll say that the rule’s pairs *carry over*.
+
+Now look at the list again. It says x1 before x4, and it also says x4 before x1. The clash is out in the open: the list has both orders of the same pair. And carrying over one more time makes it even plainer. x1 before x4, and x4 before x1, give x1 before x1: an item before itself. In (D) the same steps give rock before paper, and then rock before rock. Every cycle ends up like this. Follow it round, writing down what each step forces, and you come back to the start with the first item listed before itself.
+
+Now breaking the cycle is easy: forbid that one pair. The rule must never say that an item comes before itself. This costs nothing either, since no row can put Dee before Dee. And once the rule’s pairs carry over, this one small ban is enough. A cycle would force “x1 before x1”, which is banned, so the rule can’t contain a cycle. It can’t even list both orders of one pair, because that too would carry over to an item before itself.
+
+Notice that both properties are things every row already follows: in a row, “before” carries over, and nothing stands before itself. All we have done is ask the rule to follow them too. These two properties have names, and so does a relation that has both.
 
 > **Definition (strict partial order)**
 >
@@ -408,9 +413,9 @@ A rule like that can’t have a cycle. Follow any cycle using the second fact, a
 > - **irreflexive**: $x \prec x$ holds for no $x$;
 > - **transitive**: $x \prec y$ and $y \prec z$ imply $x \prec z$.
 
-Irreflexive is the first fact (“nothing before itself”), and transitive is the second (“demands carry over”). “Strict” because nothing comes before itself, as with $<$ rather than $\le$. “Partial” because the rule is allowed to leave some pairs unconstrained, like Ana and Cy: it settles only part of the order.
+Transitive is the first property (“pairs carry over”), and irreflexive is the second (“nothing before itself”). “Strict” because nothing comes before itself, as with $<$ rather than $\le$. “Partial” because the rule is allowed to leave some pairs unconstrained, like Ana and Cy: it settles only part of the order.
 
-Now let’s make sure these two properties do what we wanted. First, a small consequence: a rule like this can never demand both orders of the same pair. It can’t demand Dee before Ben and also Ben before Dee, because transitivity would turn that into Dee before Dee.
+Now let’s write down, carefully, what we just found. First, the small consequence we noticed on the way: a rule like this can never list both orders of the same pair. It can’t say Dee before Ben and also Ben before Dee, because transitivity would turn that into Dee before Dee.
 
 > **Lemma 2 (asymmetry)**
 >
@@ -420,7 +425,7 @@ Now let’s make sure these two properties do what we wanted. First, a small con
 >
 > If both held, transitivity would give $x \prec x$, which irreflexivity forbids. ∎
 
-Second, the one we were after: no cycles, of any length. This is the rock argument, written for any cycle.
+Second, the one we were after: no cycles, of any length. The proof is the argument we just made with x1, …, x4, written for a cycle of any length.
 
 > **Lemma 3 (no cycles)**
 >
@@ -432,7 +437,7 @@ Second, the one we were after: no cycles, of any length. This is the rock argume
 
 Do we really need both properties? Yes, and two small examples show why.
 
-**Transitivity alone isn’t enough.** Take just two people, Dee and Ben, and a rule whose list is (Dee, Ben), (Ben, Dee), (Dee, Dee), (Ben, Ben). Is it transitive? Check every place where two pairs chain together. (Dee, Ben) and (Ben, Dee) chain into “Dee before Dee”, and (Dee, Dee) is on the list. (Ben, Dee) and (Dee, Ben) chain into “Ben before Ben”, and that is on the list too. Any chain that uses (Dee, Dee) or (Ben, Ben) just gives back a pair we started with: (Dee, Dee) and (Dee, Ben) chain into (Dee, Ben) again. So every pair that transitivity asks for is already there, and the rule is transitive. Yet it has a cycle, Dee before Ben and Ben before Dee, and no row can obey it. Transitivity did its part: it followed the cycle round and produced “Dee before Dee”. What’s missing is a rule against that, and that is irreflexivity’s job.
+**Transitivity alone isn’t enough.** Take just two people, Dee and Ben, and a rule whose list is (Dee, Ben), (Ben, Dee), (Dee, Dee), (Ben, Ben). Is it transitive? Check every place where two pairs chain together. (Dee, Ben) and (Ben, Dee) chain into “Dee before Dee”, and (Dee, Dee) is on the list. (Ben, Dee) and (Dee, Ben) chain into “Ben before Ben”, and that is on the list too. Any chain that uses (Dee, Dee) or (Ben, Ben) just gives back a pair we started with: (Dee, Dee) and (Dee, Ben) chain into (Dee, Ben) again. So every pair that transitivity asks for is already there, and the rule is transitive. Yet it has a cycle, Dee before Ben and Ben before Dee, and no row can follow it. Transitivity did its part: it followed the cycle round and produced “Dee before Dee”. What’s missing is a rule against that, and that is irreflexivity’s job.
 
 **Irreflexivity alone isn’t enough either.** Rock–paper–scissors is irreflexive, since nothing beats itself. But it isn’t transitive: rock beats scissors and scissors beats paper, yet the rule doesn’t say rock beats paper. So nothing ever follows the cycle round to “rock before rock”, and irreflexivity has nothing to catch.
 
@@ -505,7 +510,7 @@ Notice that it doesn’t settle every pair: $\{1\}$ and $\{2\}$ are unrelated, a
 
 </details>
 
-**Q2.** Someone proposes to “fix” rock–paper–scissors by adding every pair that transitivity demands. What happens?
+**Q2.** Someone proposes to “fix” rock–paper–scissors by adding every pair that transitivity calls for. What happens?
 
 - **(a)** It becomes a strict partial order with exactly one sorted arrangement.
 - **(b)** Adding the implied pairs eventually forces rock ≺ rock, so it can never become a strict partial order.
@@ -515,7 +520,7 @@ Notice that it doesn’t settle every pair: $\{1\}$ and $\{2\}$ are unrelated, a
 <details>
 <summary>Hint 1</summary>
 
-Start from rock ≺ scissors and scissors ≺ paper. Which pair does transitivity demand, and how does that pair combine with paper ≺ rock?
+Start from rock ≺ scissors and scissors ≺ paper. Which pair does transitivity call for, and how does that pair combine with paper ≺ rock?
 
 </details>
 
@@ -529,8 +534,8 @@ Keep applying transitivity around the loop until you reach a pair of the form $x
 <details>
 <summary>Answer and feedback</summary>
 
-- **(a)** ✗. Adding pairs can never remove the cycle: rock ≺ scissors ≺ paper ≺ rock stays on the list. Following transitivity around it eventually demands rock ≺ rock. So the result isn’t even a strict partial order, let alone one with an answer.
-- **(b)** ✓ correct. That’s it. Rock ≺ scissors and scissors ≺ paper demand rock ≺ paper, and together with paper ≺ rock that demands rock ≺ rock. It’s exactly the argument in the proof of Lemma 3. Adding requirements can’t break a cycle; it only brings the contradiction into the open.
+- **(a)** ✗. Adding pairs can never remove the cycle: rock ≺ scissors ≺ paper ≺ rock stays on the list. Following transitivity around it eventually adds rock ≺ rock. So the result isn’t even a strict partial order, let alone one with an answer.
+- **(b)** ✓ correct. That’s it. Rock ≺ scissors and scissors ≺ paper call for rock ≺ paper, and together with paper ≺ rock that calls for rock ≺ rock. It’s exactly the argument in the proof of Lemma 3. Adding pairs can’t break a cycle; it only brings the contradiction into the open.
 - **(c)** ✗. It doesn’t become a strict partial order at all. Every pair you add still follows the loop, and going all the way round forces an item before itself, rock ≺ rock, which irreflexivity forbids.
 - **(d)** ✗. It does end up relating every pair, but in both directions, and each item to itself as well: all nine pairs of the three items. That breaks irreflexivity and asymmetry, so it isn’t an order of any kind.
 
@@ -541,12 +546,12 @@ Keep applying transitivity around the loop until you reach a pair of the form $x
 
 Let’s just do what the proposal says and watch what happens. We start with rock ≺ scissors, scissors ≺ paper and paper ≺ rock.
 
-- Rock ≺ scissors and scissors ≺ paper: transitivity demands rock ≺ paper, so we add it.
-- Rock ≺ paper and paper ≺ rock: transitivity now demands rock ≺ rock.
+- Rock ≺ scissors and scissors ≺ paper: transitivity calls for rock ≺ paper, so we add it.
+- Rock ≺ paper and paper ≺ rock: transitivity now calls for rock ≺ rock.
 
 And rock ≺ rock is exactly what irreflexivity forbids. Carrying on only makes things worse: in the end all nine pairs of the three items are on the list, each item with itself included. So no amount of adding implied pairs turns this rule into a strict partial order. That rules out every option that says it becomes one: with one answer, with several, or as a total order.
 
-The moral: a cycle can’t be repaired by adding requirements, because every new pair still follows the loop. The only way out is to remove a requirement and so break the loop.
+The moral: a cycle can’t be repaired by adding pairs, because every new pair still follows the loop. The only way out is to remove a pair and so break the loop.
 
 </details>
 
@@ -558,7 +563,7 @@ So here is where we stand. (A), (B) and (C) are strict partial orders, and each 
 
 First, though, a list of pairs is hard to read. Look at Table 1. Can you see at a glance which tasks are free to go first, or where the choices are? A picture can show both, and we’ll use pictures like it throughout the course.
 
-What should the picture leave out? The lists in Table 1 are repetitive. Look at (B): once the list has (Dee, Ben) and (Ben, Ana), it has to have (Dee, Ana) as well, by transitivity. Drawing that third pair adds nothing. In general, once a list contains $x \prec y$ and $y \prec z$, it contains $x \prec z$ too. So a good picture shows only the direct steps: pairs like Dee and Ben, where one item comes right after the other with nothing required in between. Dee and Ana is not a direct step, because Ben sits between them.
+What should the picture leave out? The lists in Table 1 are repetitive. Look at (B): once the list has (Dee, Ben) and (Ben, Ana), it has to have (Dee, Ana) as well, by transitivity. Drawing that third pair adds nothing. In general, once a list contains $x \prec y$ and $y \prec z$, it contains $x \prec z$ too. So a good picture shows only the direct steps: pairs like Dee and Ben, where one item comes right after the other with nothing that must come in between. Dee and Ana is not a direct step, because Ben sits between them.
 
 > **Definition (covering pair, Hasse diagram)**
 >
@@ -587,7 +592,7 @@ Now back to our two questions. Both are about the answers of a partial order. We
 
 For the tasks, $e(P) = 5$, and the five are listed under Fig. 3: the same five we found by hand in §01.
 
-So, does every strict partial order have at least one linear extension? (A), (B) and (C) do, but three examples aren’t a proof. The choice tree of §01 suggests how a proof might go: build the line-up by repeatedly choosing an item that can go first. An item can go first exactly when nothing is required before it, like a and b in (C). Such an item has a name.
+So, does every strict partial order have at least one linear extension? (A), (B) and (C) do, but three examples aren’t a proof. The choice tree of §01 suggests how a proof might go: build the line-up by repeatedly choosing an item that can go first. An item can go first exactly when nothing must come before it, like a and b in (C). Such an item has a name.
 
 > **Definition (minimal element)**
 >
@@ -613,7 +618,7 @@ Here is that walk on the tasks. Start at c. Task a is below c (so is b), so move
 
 > **Proof**
 >
-> Induction on the number of elements $n$. For $n \le 1$ there is nothing to prove. For $n \ge 2$, choose a minimal element $m$ (Lemma 4) and put it first. The remaining $n-1$ elements, with $\prec$ restricted to them, still form a strict partial order (restricting keeps irreflexivity and transitivity), so by induction they have a linear extension $L'$. The arrangement $m, L'$ is sorted: pairs inside $L'$ are fine, and no element of $L'$ is required before $m$ because $m$ is minimal. ∎
+> Induction on the number of elements $n$. For $n \le 1$ there is nothing to prove. For $n \ge 2$, choose a minimal element $m$ (Lemma 4) and put it first. The remaining $n-1$ elements, with $\prec$ restricted to them, still form a strict partial order (restricting keeps irreflexivity and transitivity), so by induction they have a linear extension $L'$. The arrangement $m, L'$ is sorted: pairs inside $L'$ are fine, and no element of $L'$ must come before $m$ because $m$ is minimal. ∎
 
 Read the proof again and you’ll find it is the procedure from §01, “repeatedly choose an item that can go first”, now shown to work for every partial order. The procedure comes back in lesson 35, where it becomes an algorithm.
 
@@ -627,50 +632,50 @@ Putting §03 and this section together, we can now fully answer the question §0
 
 > **Proof**
 >
-> If it has a cycle, Lemma 1. If it has no cycle, add every pair that transitivity demands. The result is transitive by construction, and irreflexive because $x \prec x$ could only arise from a cycle through $x$. By Theorem 5 it has a linear extension; that arrangement respects every original pair too, since the original pairs are among those added to. ∎
+> If it has a cycle, Lemma 1. If it has no cycle, add every pair that transitivity calls for. The result is transitive by construction, and irreflexive because $x \prec x$ could only arise from a cycle through $x$. By Theorem 5 it has a linear extension; that arrangement follows every original pair too, since the original pairs are among those added to. ∎
 
 Fig. 4 is a playground for all of this. Build your own partial orders and watch the count change.
 
-**Fig. 4 · Playground.** *Click an element, then another, to require the first before the second. The view keeps only covering lines, counts the orders still possible, and says when a new requirement adds nothing.*
+**Fig. 4 · Playground.** *Click an element, then another, to say the first must come before the second. The view keeps only covering lines, counts the orders still possible, and says when a new pair adds nothing.*
 
 *The playground is interactive in the HTML edition: click an element, then another, to require the first before the second, and watch e(P) change.*
 
-1. Add a requirement that is already implied (for example a ≺ b, b ≺ c, then a ≺ c). What does the count do?
+1. Add a pair that is already implied (for example a ≺ b, b ≺ c, then a ≺ c). What does the count do?
 2. Try to close a loop. What does the view do, and which result explains it?
-3. Get $e(P)$ down to 1 using as few requirements as possible. How many did you need?
+3. Get $e(P)$ down to 1 using as few pairs as possible. How many did you need?
 
 <details>
-<summary><b>Going deeper · The fewest requirements that leave one order</b></summary>
+<summary><b>Going deeper · The fewest pairs that leave one order</b></summary>
 
-Challenge 3 needs exactly $n - 1 = 4$ requirements for 5 elements `[proof]`. Four are enough: a chain $x_0 \prec x_1 \prec \cdots \prec x_4$. Why can’t fewer work? First, if $e(P) = 1$, every pair is related. To see why, suppose $x$ and $y$ were unrelated. Adding the requirement $x \prec y$ would create no cycle, because a cycle through the new pair would need $y \prec x$ to be there already. So by Corollary 6 some valid order puts $x$ before $y$. In the same way, some valid order puts $y$ before $x$. That is two orders, not one. So when $e(P) = 1$ the order settles every pair, and its Hasse diagram is a single chain with $n - 1$ covering pairs. A covering pair can never be implied by other pairs, because anything implying $x \prec y$ would need some $z$ between them. So each of those $n-1$ pairs had to be required directly. This “the picture needs $n-1$ lines” argument returns in lesson 5, where it becomes a lower bound on the cost of checking that an array is sorted.
+Challenge 3 needs exactly $n - 1 = 4$ pairs for 5 elements `[proof]`. Four are enough: a chain $x_0 \prec x_1 \prec \cdots \prec x_4$. Why can’t fewer work? First, if $e(P) = 1$, every pair is related. To see why, suppose $x$ and $y$ were unrelated. Adding the pair $x \prec y$ would create no cycle, because a cycle through the new pair would need $y \prec x$ to be there already. So by Corollary 6 some valid order puts $x$ before $y$. In the same way, some valid order puts $y$ before $x$. That is two orders, not one. So when $e(P) = 1$ the order settles every pair, and its Hasse diagram is a single chain with $n - 1$ covering pairs. A covering pair can never be implied by other pairs, because anything implying $x \prec y$ would need some $z$ between them. So each of those $n-1$ pairs had to be put in directly. This “the picture needs $n-1$ lines” argument returns in lesson 5, where it becomes a lower bound on the cost of checking that an array is sorted.
 
 </details>
 
 #### Checkpoint 2
 
-**Q3.** On $\{a, b, c\}$, require only $a \prec b$ and $a \prec c$. How many linear extensions are there?
+**Q3.** On $\{a, b, c\}$, the rule’s only pairs are $a \prec b$ and $a \prec c$. How many linear extensions are there?
 
 *Your answer:* ______
 
 <details>
 <summary>Hint 1</summary>
 
-Use the question from §01: which items can go first, that is, which items have nothing required before them?
+Use the question from §01: which items can go first, that is, which items have nothing that must come before them?
 
 </details>
 
 <details>
 <summary>Hint 2</summary>
 
-Only a can go first. Once a is placed, is anything required between b and c?
+Only a can go first. Once a is placed, does either of b and c still have to come before the other?
 
 </details>
 
 <details>
 <summary>Answer and feedback</summary>
 
-- **2** ✓ Right. Only a can go first, because a is required before both b and c. After that, b and c are unconstrained and can go in either order: a b c and a c b.
-- *If you answered 6:* 6 is the number of all arrangements of three items, as if there were no requirements. An arrangement that starts with b or c puts that item before a, which breaks a requirement. Four of the six start with b or c, so four are out.
+- **2** ✓ Right. Only a can go first, because a must come before both b and c. After that, b and c are unconstrained and can go in either order: a b c and a c b.
+- *If you answered 6:* 6 is the number of all arrangements of three items, as if the rule said nothing. An arrangement that starts with b or c puts that item before a, which breaks one of the rule’s pairs. Four of the six start with b or c, so four are out.
 - *If you answered 1:* Only one would mean everything is forced. a is forced to go first, but nothing relates b and c, so after a they can go in either order: two extensions.
 - *If you answered 3:* Try listing them. Since a ≺ b and a ≺ c, a must come first, and that leaves only the order of b and c to choose: two ways, not three.
 - *Any other answer:* Not quite. Ask the §01 question: which items can go first? Then count how many ways the rest can follow.
@@ -682,24 +687,24 @@ Only a can go first. Once a is placed, is anything required between b and c?
 
 Let’s build the choice tree, asking at each step which items can go first.
 
-- First position: b has a required before it, and so does c. Only a is free, so a goes first. No choice.
-- Second position: with a placed, nothing is required before b or before c, so either can go next. Two choices.
+- First position: a must come before b, and before c. Only a is free, so a goes first. No choice.
+- Second position: with a placed, nothing else must come before b or before c, so either can go next. Two choices.
 - Third position: whichever of b and c is left goes last. No choice.
 
 The tree splits once, into two paths, so there are 2 linear extensions: a b c and a c b.
 
-If you got 6, you counted all $3! = 6$ arrangements and ignored the requirements. The four that start with b or c put that item ahead of a, although a must come before both b and c. If you got 1, you treated b and c as forced too, but nothing relates them.
+If you got 6, you counted all $3! = 6$ arrangements and ignored the rule. The four that start with b or c put that item ahead of a, although a must come before both b and c. If you got 1, you treated b and c as forced too, but nothing relates them.
 
 </details>
 
-**Q4.** On $\{a, b, c, d\}$, require only $a \prec b$. How many linear extensions are there?
+**Q4.** On $\{a, b, c, d\}$, the rule’s only pair is $a \prec b$. How many linear extensions are there?
 
 *Your answer:* ______
 
 <details>
 <summary>Hint 1</summary>
 
-Forget the requirement for a moment: how many arrangements of four items are there? Then ask what fraction of them could have a before b.
+Forget the rule for a moment: how many arrangements of four items are there? Then ask what fraction of them could have a before b.
 
 </details>
 
@@ -714,7 +719,7 @@ Take any arrangement and swap a and b, leaving c and d where they are. That matc
 <summary>Answer and feedback</summary>
 
 - **12** ✓ Right, 12. Swapping a and b turns an arrangement with a before b into one with b before a: a c b d becomes b c a d, for example. So the swap pairs each arrangement with a before b with exactly one that has b before a. The 24 arrangements split evenly, and half of them, 12, have a before b.
-- *If you answered 24:* 24 counts every arrangement of four items, as if there were no requirement. Half of them put b before a, which a ≺ b forbids.
+- *If you answered 24:* 24 counts every arrangement of four items, as if the rule said nothing. Half of them put b before a, which a ≺ b forbids.
 - *If you answered 6:* 6 would be right if c and d also had to go in a fixed order (that’s Exercise 2 at the end). Here only a and b are constrained, so c and d can go either way round.
 - *If you answered 2:* That’s far too few: only one pair is constrained, and c and d can stand anywhere. Try comparing how many arrangements have a before b with how many have b before a.
 - *Any other answer:* Not quite. Pair each arrangement with the one where a and b trade places; exactly one of each pair is valid. How many pairs are there?
@@ -724,7 +729,7 @@ Take any arrangement and swap a and b, leaving c and d where they are. That matc
 <details>
 <summary>Worked solution</summary>
 
-Without any requirement, four items have $4! = 24$ arrangements. The requirement a ≺ b throws out exactly the ones with b before a. How many is that?
+Without any rule, four items have $4! = 24$ arrangements. The pair a ≺ b throws out exactly the ones with b before a. How many is that?
 
 Here’s a neat way to see it. Take any arrangement and swap the positions of a and b, leaving c and d where they are. If a was before b, now b is before a, and the other way round; swapping again gives back the original. So the swap sorts the 24 arrangements into 12 pairs, and each pair has exactly one arrangement with a before b. That gives 12 linear extensions.
 
@@ -734,7 +739,7 @@ You can also build the count directly. Choose the two positions that a and b wil
 
 **Q5.** Why must the first element of any sorted arrangement be minimal?
 
-- **(a)** Anything required before the first element would have to stand after it, and that pair would be out of order.
+- **(a)** Anything that must come before the first element would have to stand after it, and that pair would be out of order.
 - **(b)** Because a minimal element is the smallest element.
 - **(c)** It need not be; any element can go first.
 - **(d)** Because there is exactly one minimal element.
@@ -742,21 +747,21 @@ You can also build the count directly. Choose the two positions that a and b wil
 <details>
 <summary>Hint 1</summary>
 
-Suppose the first element were not minimal. Then some $x$ is required before it. Where does $x$ stand in the arrangement?
+Suppose the first element were not minimal. Then some $x$ must come before it. Where does $x$ stand in the arrangement?
 
 </details>
 
 <details>
 <summary>Hint 2</summary>
 
-Every other element stands after the first one. What do we call a pair in which the later item is required to come before the earlier one?
+Every other element stands after the first one. What do we call a pair in which the later item must come before the earlier one?
 
 </details>
 
 <details>
 <summary>Answer and feedback</summary>
 
-- **(a)** ✓ correct. Exactly. Everything else stands after the first element, so anything required before it would make an out-of-order pair. That’s why the construction in Theorem 5, and the counting in §04, always start with a minimal element.
+- **(a)** ✓ correct. Exactly. Everything else stands after the first element, so anything that must come before it would make an out-of-order pair. That’s why the construction in Theorem 5, and the counting in §04, always start with a minimal element.
 - **(b)** ✗. Careful: “minimal” only means that nothing is below it, not that it is below everything. In (C), a and b are both minimal and neither is below the other, so there isn’t a smallest task at all.
 - **(c)** ✗. Try putting c first in (C): a must come before c but now stands after it, which is an out-of-order pair. So not every element can go first.
 - **(d)** ✗. (C) has two minimal elements, a and b, and either can go first, so there needn’t be just one. A unique minimal element needs more than a partial order; §05 says what.
@@ -766,7 +771,7 @@ Every other element stands after the first one. What do we call a pair in which 
 <details>
 <summary>Worked solution</summary>
 
-Let’s see what would go wrong otherwise. Take a sorted arrangement and call its first element $f$. Suppose $f$ were not minimal: then there is some $x$ with $x \prec f$. But $f$ is first, so $x$ stands somewhere after it. In that pair the later item, $x$, is required before the earlier one, $f$: an out-of-order pair, and a sorted arrangement has none. So $f$ must be minimal.
+Let’s see what would go wrong otherwise. Take a sorted arrangement and call its first element $f$. Suppose $f$ were not minimal: then there is some $x$ with $x \prec f$. But $f$ is first, so $x$ stands somewhere after it. In that pair the later item, $x$, must come before the earlier one, $f$: an out-of-order pair, and a sorted arrangement has none. So $f$ must be minimal.
 
 The wrong options mix up “minimal” with something stronger. A minimal element is only one with nothing below it. It needn’t be below everything (that’s what “smallest” would mean), and there can be several. The tasks of (C) show both: a and b are both minimal, neither is below the other, and either can go first. “Any element can go first” fails on the same example: with c first, a stands after c, although a must come before c.
 
@@ -808,7 +813,7 @@ And there’s a bonus. Remember the strict shortcut from §02, which checks that
 
 That’s $n - 1$ checks instead of $n(n-1)/2$. For the four numbers of (A), it’s 3 checks instead of 6. It’s the first time transitivity saves us work, and it won’t be the last.
 
-What about rules that aren’t total? There the strict shortcut is hopeless, as §02 showed: two unconstrained neighbours, like Ana and Cy, already break it. So let’s bring back the neighbour test from §02. It still looks only at side-by-side pairs, but it asks each of them the request’s own question: is it the wrong way round? For a total order, the strict shortcut and the neighbour test always agree. There, any two different neighbours have a required order. So if the right one isn’t required first, the left one is. But does the neighbour test still work for a partial order like (C)?
+What about rules that aren’t total? There the strict shortcut is hopeless, as §02 showed: two unconstrained neighbours, like Ana and Cy, already break it. So let’s bring back the neighbour test from §02. It still looks only at side-by-side pairs, but it asks each of them the request’s own question: is it the wrong way round? For a total order, the strict shortcut and the neighbour test always agree. There, of any two different neighbours one must come first. So if it isn’t the right one, it’s the left one. But does the neighbour test still work for a partial order like (C)?
 
 > **PREDICT FIRST.** Commit to an answer before opening the reveal.
 
@@ -843,7 +848,7 @@ Find a **different** arrangement of a, b, c, d that passes the neighbour test bu
 <details>
 <summary>Hint 1</summary>
 
-The arrangement has to break one of the requirements a ≺ c, b ≺ c or b ≺ d. But the two items of the broken requirement must stand apart, so that no neighbour pair gives it away. Which requirement could you try to break?
+The arrangement has to break one of the pairs a ≺ c, b ≺ c or b ≺ d. But the two items of the broken pair must stand apart, so that no neighbour pair gives it away. Which pair could you try to break?
 
 </details>
 
@@ -857,16 +862,16 @@ Try putting c before a or b. The item right after c can’t be a or b, or the ne
 <details>
 <summary>Worked solution</summary>
 
-We need an arrangement that is invalid and yet has no neighbour pair out of order. First, let’s pin down what the neighbour test catches. The requirements are a ≺ c, b ≺ c and b ≺ d. So the test objects exactly when c is immediately followed by a or b, or when d is immediately followed by b. In particular, whenever c has a right-hand neighbour, it must be d.
+We need an arrangement that is invalid and yet has no neighbour pair out of order. First, let’s pin down what the neighbour test catches. The rule’s pairs are a ≺ c, b ≺ c and b ≺ d. So the test complains exactly when c is immediately followed by a or b, or when d is immediately followed by b. In particular, whenever c has a right-hand neighbour, it must be d.
 
 Now ask where c stands.
 
 - c first: d must follow it. After d, b isn’t allowed, so a comes next, and then b: c, d, a, b. It passes the test, but c stands before a (and before b), so it’s invalid. A trap.
 - c second: again d follows c, so the row is x, c, d, y. If x were a, the row would end d, b, and the test would catch it. So x is b: b, c, d, a. It passes, and c stands before a, so it’s invalid. A trap.
 - c third: d follows c, so a and b fill the first two places: a, b, c, d or b, a, c, d. Both are valid, so they’re no use here.
-- c last: c comes after a and b, so the only requirement left to break is b ≺ d, and d must stand before b without touching it. In the first three places that forces d, a, b, so the row is d, a, b, c: the example from the reveal.
+- c last: c comes after a and b, so the only pair left to break is b ≺ d, and d must stand before b without touching it. In the first three places that forces d, a, b, so the row is d, a, b, c: the example from the reveal.
 
-So exactly three arrangements fool the neighbour test: d a b c, b c d a and c d a b. Either of the last two answers the question. In each one, the broken pair is two items that never stand side by side. Every step between them is an unconstrained pair (a–b, a–d or c–d). A required pair hidden behind a chain of unconstrained steps is exactly what checking neighbours can’t see in a partial order.
+So exactly three arrangements fool the neighbour test: d a b c, b c d a and c d a b. Either of the last two answers the question. In each one, the broken pair is two items that never stand side by side. Every step between them is an unconstrained pair (a–b, a–d or c–d). A “must come before” pair hidden behind a chain of unconstrained steps is exactly what checking neighbours can’t see in a partial order.
 
 </details>
 
@@ -965,7 +970,7 @@ The difference lies in what “unrelated” means. In (B), two people are unrela
 
 In a rule like this, ties behave exactly like “same age”. Every item ties with itself; that follows from irreflexivity. A tie goes both ways: if Ana ties with Cy, Cy ties with Ana. And ties carry over, because that is what we assumed. These three properties are called reflexive, symmetric and transitive, and a relation with all three is called an **equivalence relation**. The name says that tied items count as equal, as far as the rule is concerned. An equivalence relation splits the items into groups, and inside each group everyone ties with everyone, just as “same age” splits people into age groups. In a strict weak ordering these groups are called **tiers**, a word for levels stacked one above another. In (B) the tiers are {Dee}, {Ben} and {Ana, Cy}.
 
-Notice how neatly the tiers of (B) line up by age: {Dee} (22), then {Ben} (25), then {Ana, Cy} (30). Dee comes before everyone in the later tiers, and Ben comes before both Ana and Cy. Is that luck, or is it always so? Could some tier be only partly before another, with some of its members required before the other tier and some not? The definition rules that out:
+Notice how neatly the tiers of (B) line up by age: {Dee} (22), then {Ben} (25), then {Ana, Cy} (30). Dee comes before everyone in the later tiers, and Ben comes before both Ana and Cy. Is that luck, or is it always so? Could some tier be only partly before another, with some of its members coming before the other tier and some not? The definition rules that out:
 
 > **Lemma 9 (tiers are totally ordered)**
 >
@@ -1163,7 +1168,7 @@ print(is_sorted_by("dabc", task_before))                 # False (b must precede
 
 noticeably = lambda x, y: y - x > 1
 print(is_sorted_neighbours([2.2, 1.5, 1.0], noticeably))  # True
-print(is_sorted_by([2.2, 1.5, 1.0], noticeably))          # False (1.0 before 2.2 required)
+print(is_sorted_by([2.2, 1.5, 1.0], noticeably))          # False (1.0 must come before 2.2)
 ```
 
 `count_sorted` tries all $n!$ arrangements. That is fine for $n \le 8$ or so, since $8!$ is 40 320, and hopeless beyond: $20!$ is over two billion billion. Lesson 4 asks what “trying every arrangement” would cost as a way to *sort*, and why it is hopeless.
@@ -1223,14 +1228,14 @@ The other lines are fine. Line 3 asks exactly the out-of-order question: is the 
 
 </details>
 
-**E2.** On $\{a, b, c, d\}$, require $a \prec b$ and $c \prec d$, nothing else. How many linear extensions?
+**E2.** On $\{a, b, c, d\}$, the rule’s only pairs are $a \prec b$ and $c \prec d$. How many linear extensions?
 
 *Your answer:* ______
 
 <details>
 <summary>Hint 1</summary>
 
-Start from the 24 arrangements of four items. What does each requirement do to the count? (Q4 did this for one requirement.)
+Start from the 24 arrangements of four items. What does each pair do to the count? (Q4 did this for one pair.)
 
 </details>
 
@@ -1245,8 +1250,8 @@ Or pick the two positions that will hold a and b. Once you’ve picked them, is 
 <summary>Answer and feedback</summary>
 
 - **6** ✓ Right, 6. Choose which 2 of the 4 positions hold a and b: there are $4 \cdot 3 / 2 = 6$ ways. Once you have, everything else is forced. a takes the earlier of the two positions and b the later, and c and d fill the other two positions with c first.
-- *If you answered 12:* 12 is the count with only $a \prec b$ (that was Q4). The second requirement, $c \prec d$, throws out half of those again: swapping c and d pairs them up.
-- *If you answered 24:* 24 counts every arrangement of four items, as if there were no requirements. Each of the two requirements rules out half of what’s left.
+- *If you answered 12:* 12 is the count with only $a \prec b$ (that was Q4). The second pair, $c \prec d$, throws out half of those again: swapping c and d pairs them up.
+- *If you answered 24:* 24 counts every arrangement of four items, as if the rule said nothing. Each of the two pairs rules out half of what’s left.
 - *If you answered 4:* The two chains can interleave in more ways than that: a c b d and c a d b are both valid, for example. Try counting the interleavings systematically.
 - *Any other answer:* Not quite. Try deciding which two positions a and b occupy. Once you have, is anything left to choose?
 
@@ -1294,21 +1299,21 @@ Where must b stand, given that a has to come before it and c after it?
 <details>
 <summary>Answer and feedback</summary>
 
-- **(a)** ✗. A rule can have an answer without being transitive. Corollary 6 says what matters is whether there is a cycle, and this rule has none. A missing pair only removes a requirement, so it makes the rule easier to satisfy, not harder.
-- **(b)** ✓ correct. Right. b has to stand after a and before c, so a, b, c is the only arrangement that respects both requirements. Adding the missing $a \prec c$ would change nothing, since a row with a before b and b before c already has a before c.
+- **(a)** ✗. A rule can have an answer without being transitive. Corollary 6 says what matters is whether there is a cycle, and this rule has none. A missing pair only takes something away from the rule, so it makes the rule easier to satisfy, not harder.
+- **(b)** ✓ correct. Right. b has to stand after a and before c, so a, b, c is the only arrangement that follows both pairs. Adding the missing $a \prec c$ would change nothing, since a row with a before b and b before c already has a before c.
 - **(c)** ✗. Which second arrangement would it be? b has to stand after a and before c, so b is in the middle, a first and c last: all three positions are fixed.
-- **(d)** ✗. Try listing all six arrangements and checking both requirements: only a, b, c puts a before b and b before c.
+- **(d)** ✗. Try listing all six arrangements and checking both pairs: only a, b, c puts a before b and b before c.
 
 </details>
 
 <details>
 <summary>Worked solution</summary>
 
-Does the missing pair $a \prec c$ cause trouble? Let’s just count. A sorted arrangement has no pair out of order, so a must stand before b, and b before c. Then b has something before it and something after it, so b is in the middle, with a first and c last: a, b, c. Every other arrangement of the three letters breaks at least one of the two requirements, so there is exactly one sorted arrangement.
+Does the missing pair $a \prec c$ cause trouble? Let’s just count. A sorted arrangement has no pair out of order, so a must stand before b, and b before c. Then b has something before it and something after it, so b is in the middle, with a first and c last: a, b, c. Every other arrangement of the three letters breaks at least one of the two pairs, so there is exactly one sorted arrangement.
 
-Notice what happened to $a \prec c$. In a row, a before b and b before c already puts a before c. So $a \prec c$ would have been satisfied anyway. That’s the observation from §03: asking a rule to include the pairs transitivity demands costs nothing.
+Notice what happened to $a \prec c$. In a row, a before b and b before c already puts a before c. So $a \prec c$ would have been satisfied anyway. That’s the observation from §03: asking a rule to include the pairs transitivity calls for costs nothing.
 
-So “none, because it is not a strict partial order” mixes up two questions. A rule has an answer exactly when it has no cycle (Corollary 6); it doesn’t have to be transitive. And leaving out a pair only removes a requirement. And “two” or “three” would need some freedom in where b goes, but b is pinned between a and c.
+So “none, because it is not a strict partial order” mixes up two questions. A rule has an answer exactly when it has no cycle (Corollary 6); it doesn’t have to be transitive. And leaving out a pair only takes something away from the rule. And “two” or “three” would need some freedom in where b goes, but b is pinned between a and c.
 
 </details>
 
@@ -1344,7 +1349,7 @@ Among the numbers left, only the smallest, $k$, and the next one, $k + 1$, can g
 <details>
 <summary>Worked solution</summary>
 
-Let’s count with the choice tree from §01, asking at each step which numbers can go first. A number can go first when nothing remaining is required before it, that is, when no remaining number is more than 1 below it. With all of 1, …, 5 waiting, 1 and 2 can go first, but 3 can’t, because 1 is more than 1 below 3. In general, if the smallest number left is $k$, the candidates are $k$ and $k + 1$, and nothing else. Every number from $k + 2$ up has $k$ more than 1 below it.
+Let’s count with the choice tree from §01, asking at each step which numbers can go first. A number can go first when nothing remaining must come before it, that is, when no remaining number is more than 1 below it. With all of 1, …, 5 waiting, 1 and 2 can go first, but 3 can’t, because 1 is more than 1 below 3. In general, if the smallest number left is $k$, the candidates are $k$ and $k + 1$, and nothing else. Every number from $k + 2$ up has $k$ more than 1 below it.
 
 - Pick $k$: then we face the same question for the numbers above $k$.
 - Pick $k + 1$: now $k$ is still waiting, and it is the only candidate. Everything else left is at least $k + 2$, more than 1 above $k$. So $k$ is forced next, and the pair goes $k + 1, k$. Then we face the same question for the numbers above $k + 1$.
@@ -1400,7 +1405,7 @@ That’s the proof. The first three steps force the first position: the first el
 
 Let’s rebuild the argument the way §05 does. We want to show there is only one sorted arrangement. The plan is to show that the first position is forced, then let induction take care of the rest.
 
-- First, narrow down what can go first: the first element of any sorted arrangement must be minimal (if something were below it, that something would stand later while being required earlier). This turns the question into a question about minimal elements.
+- First, narrow down what can go first: the first element of any sorted arrangement must be minimal (if something were below it, that something would stand later although it must come earlier). This turns the question into a question about minimal elements.
 - Next, use totality to see what a minimal element $m$ looks like. For any other $y$, either $y \prec m$ or $m \prec y$. Minimality rules out the first, so $m$ is below every other element.
 - Then, only one element can be below everything: two such elements would each be below the other, which asymmetry forbids. So the first position holds this one element, and it is forced.
 - Finally, remove that element. The other $n - 1$ elements still form a strict total order, so by induction their arrangement is forced too.
@@ -1417,7 +1422,7 @@ Strictly speaking, the first two true steps don’t depend on each other, so the
 
 **Established**
 
-- A rule only ever speaks about two items at a time, and a row follows the rule when every pair in the row does. The rule’s verdicts are enough to build a whole row exactly when they fit together; in (D) they don’t. A rule is written as a relation, its list of ‘must come before’ pairs. A correct answer is a sorted arrangement, with no pair out of order. The strict shortcut, ‘each item strictly before the next’, fails on ties. §02
+- A rule only ever speaks about two items at a time, and a row follows the rule when every pair in the row does. What the rule says about pairs is enough to build a whole row exactly when the pairs fit together; in (D) they don’t. A rule is written as a relation, its list of ‘must come before’ pairs. A correct answer is a sorted arrangement, with no pair out of order. The strict shortcut, ‘each item strictly before the next’, fails on ties. §02
 - A strict partial order (irreflexive, transitive) is asymmetric and has no cycles. `[proof]` §03
 - A relation has a sorted arrangement iff it has no cycle; every finite strict partial order has a linear extension, built by repeatedly removing a minimal element. `[proof]` §04
 - A strict total order has exactly one sorted arrangement; its first element is forced to be the minimum. `[proof]` §05

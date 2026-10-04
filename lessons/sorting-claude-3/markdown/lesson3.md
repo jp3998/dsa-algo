@@ -42,7 +42,7 @@ In a total order any two elements are related, so only one element is below all 
 <summary>Answer and feedback</summary>
 
 - **1** ✓ Yes, exactly one. In a total order every pair of elements is related. So exactly one element is below all the others, and that element has to go in the first slot. The same argument then fixes the second slot, and so on down the row. That’s lesson 1, Theorem 7.
-- *If you answered 120:* 120 is $5!$, the number of *all* arrangements of five elements, sorted or not. Almost all of them have some pair out of order. The question asks how many have no pair out of order, and in a total order that requirement pins down every slot.
+- *If you answered 120:* 120 is $5!$, the number of *all* arrangements of five elements, sorted or not. Almost all of them have some pair out of order. The question asks how many have no pair out of order, and in a total order that condition pins down every slot.
 - *If you answered 2:* It’s tempting to count both the increasing and the decreasing row. But a sorted row has no pair out of order. In the decreasing row, every one of its 10 pairs is out of order, because the later element always comes first in the order. Only the increasing row counts.
 - *Any other answer:* Not quite. Think about the first slot. Every other element will stand after it, so the element in the first slot has to come before all of them in the order. In a strict total order, how many elements come before all the others? Once that’s settled, ask the same about the second slot.
 
@@ -231,7 +231,7 @@ Let’s write both tests down precisely, with the second one in its position ver
 > 1. $b$ is **sorted**: there are no $i < j$ with $b_j < b_i$ (by lesson 1, Lemma 11, equivalently $b_{i+1} \not< b_i$ for every $i$);
 > 2. $b$ is a **permutation** of $a$: there is a bijection $\pi$ of $\{0, \ldots, n-1\}$ with $b_i = a_{\pi(i)}$ for every $i$.
 
-Let’s read that back in plain words. The precondition says the sort is handed a list and a comparison it can trust. Condition 1 is lesson 1’s “no pair out of order”. For $b = [10, 20, 30]$, read the values from left to right: 10, 20, 30. They never go down. Lesson 1’s full check would look at all three pairs. Lesson 1, Lemma 11 says the neighbour test gives the same verdict: look only at the side-by-side pairs, 10 then 20 and 20 then 30, and ask of each “is it the wrong way round?”.
+Let’s read that back in plain words. The precondition says the sort is handed a list and a comparison it can trust. Condition 1 is lesson 1’s “no pair out of order”. For $b = [10, 20, 30]$, read the values from left to right: 10, 20, 30. They never go down. Lesson 1’s full check would look at all three pairs. Lesson 1, Lemma 11 says the neighbour test gives the same answer: look only at the side-by-side pairs, 10 then 20 and 20 then 30, and ask of each “is it the wrong way round?”.
 
 Condition 2, “$b$ is a permutation of $a$”, is the part that four of the six fakes got wrong. It is the position version from above, written with a symbol, $\pi$. Think of $\pi$ as a set of instructions for building the output. Slot $i$ of $b$ receives the element that sat at position $\pi(i)$ of $a$. For example, to sort $a = [30, 10, 20]$ we use $\pi(0) = 1$, $\pi(1) = 2$ and $\pi(2) = 0$. So slot 0 receives $a_1 = 10$, slot 1 receives $a_2 = 20$, and slot 2 receives $a_0 = 30$, which gives $b = [10, 20, 30]$.
 
