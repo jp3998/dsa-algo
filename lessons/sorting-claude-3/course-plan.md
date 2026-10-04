@@ -7,15 +7,62 @@ section ("Spoilers"). Lesson titles, descriptions and the index page never name 
 
 Lesson files: `lesson-NN.html` + `lesson-NN.js` (pure Python ports and widget wiring), shared
 `assets/course.css` and `assets/course.js`. Verification scripts live in `verify/`.
+Every lesson also has a Markdown edition, `markdown/lessonN.md`, generated from the page with
+`python3 verify/to_markdown.py lesson-NN.html markdown/lessonN.md` (regenerate after every edit to the page;
+figures drawn by code need a static rendering added to FIGURES in that script).
 
 ---
 
 ## Authoring standards (user feedback, binding for every lesson)
 
-0. **MOST IMPORTANT: voice and reasoning.** Everything the reader reads (prose, captions, reveals, feedback, hints, worked solutions) is written as a tutor talking the reader through it: conversational, narrative, "we" and "you", asking the questions the reader would ask, honest about what has and has not been shown yet.
+### ★ THE NARRATIVE RULE: one continuous story, in plain words (read this first; it outranks everything below)
+
+A lesson is one story told by a tutor, not a stack of sections. Every paragraph is there because the paragraph before it made the reader want it, and it is said the way a friend would say it at a whiteboard. If a reader feels a jump, a restart, or a sentence that pushes them to a conclusion, the lesson has failed, however correct it is.
+
+1. **Every opening picks up a question the reader already has.** Before writing the first sentence of a section or paragraph, name the question the reader is holding after the one before: a puzzle, a failure, a surprising count, something they noticed in the running examples. The opening takes that up. If you can't name one, the gap is in the previous ending: fix that, not just the opening.
+2. **No agenda openings.** Never open on what the author plans to cover: "So what is a rule?", "Next: …", "Now let's look at X", "Here are the results as code", "We're almost ready to…". A question in an opening is allowed only if the reader would ask it themselves at that moment.
+3. **No bolted-on teasers.** Never set up the next section with a one-line promise at the end of this one ("But first we need to see what X is"). The end of section N and the start of N+1 are written together, as one passage.
+4. **No jumping back.** If a section ends on a figure, exercise or side topic, bring the reader back to the open question before the next section begins, so the next section never has to reach back several paragraphs.
+5. **No restarts.** When something was already shown, build on it ("that's exactly what §01's procedure did") instead of explaining it again as if it were new.
+6. **No needs without reasons.** Never write "we first need X" unless the reader can already feel why: show the moment where not having X gets in the way.
+7. **Plain words; let the reader arrive, don't force them.** Every sentence follows the PLAIN LANGUAGE rules below. Reach a conclusion by working a small example the reader can follow, so they see it for themselves; never push it through with "the only sensible meaning is", "so it must be", "clearly".
+
+**Failure and fix, from lesson 1 (seams).** Before: §01 ended "…But first we need to see clearly what a rule actually is." and §02 opened "So what is a rule?". Nothing in §01 had made the reader unsure what a rule is: it was the author's plan dressed up as a question. Fix: §01's walkthrough had already shown that every "which item can go first?" was settled by looking at two items, and that (D) answers every pair question clearly yet has no answer at all. §01 now ends on that puzzle, and §02 opens by taking it up.
+
+**Failure and fix, from lesson 1 (forcing).** Before: "The rule has a verdict on each of those six pairs, and there is nothing else in the row for it to have a verdict on. So the only sensible meaning of 'the row follows the rule' is this: every pair in the row is ordered the way the rule allows." Fix: take a row we know is right (Dee, Ben, Ana, Cy) and ask the rule about it two people at a time; every pair is fine. Then take a wrong row (Ben, Dee, Ana, Cy) and watch one bad pair spoil it. The meaning of "follows the rule" comes out of the example instead of being argued into place.
+
+### ★ PLAIN LANGUAGE: how every sentence is written (equal rank with THE NARRATIVE RULE)
+
+The reader should understand each sentence the first time they read it, without going back. Correct but dense prose is a failure. These rules apply to all prose, captions, predict reveals, feedback, hints and worked solutions. Formal callouts (definitions, theorems) may stay formal, but the read-back after each one must be plain.
+
+1. **Concrete first, general second.** When a running example fits, use its names: Dee, Ben, rock, task d, the row 7, 2, 9, 4. Do the concrete case, then state the general version in one short sentence ("Every step went like that, one pair at a time"). Never give only the abstract version ("an item", "that item", "each of the others") when a concrete one is available.
+2. **One idea per sentence.** Split any sentence that carries two ideas, or that needs a comma-separated chain of clauses to finish. A sentence over about 25 words is a warning sign: split it unless it is a simple list.
+3. **Verbs, not noun stacks.** Say what someone does: "we asked the rule about Dee and Ben". Avoid nouny phrases: "verdicts on pairs", "pair-by-pair content", "the procedure uses nothing but…", "the requirement structure". A course term (relation, minimal, out-of-order pair…) appears only after it has been introduced, and only where it helps.
+4. **Say it positively; avoid stacked negations.** "Nobody had to come before Dee" is fine once. "An item that nothing has to come before" or "no item placed later is ever required before an earlier one" makes the reader untangle negatives: say it positively, or show it on an example.
+5. **No riddles in the grammar.** Avoid clauses that end on a dangling preposition ("an item that nothing has to come before"), pronouns whose referent is two sentences back, and "this/that/it" standing for a whole idea. Repeat the noun instead.
+6. **Summaries in the reader's words.** End a step with what the reader now knows, in everyday words ("So §01's way of building a row only ever asks the rule about two items at a time"), not an abstract restatement ("So that procedure uses nothing but verdicts on pairs").
+7. **No forcing words.** Don't use "the only sensible meaning", "it must be", "necessarily", "clearly", "obviously", "it is easy to see", "there is nothing else for it to…". If the example is clear, the reader doesn't need to be told so; if it isn't, fix the example.
+8. **The read-aloud test.** Read each paragraph as if saying it to a student across a table. If you would stumble, pause to work out a clause, or reach for a simpler way to say it, write that simpler way.
+
+**Before → after (from lesson 1 §02).**
+
+| Hard | Plain |
+|---|---|
+| "To find an item that nothing has to come before, you just ask the rule about that item and each of the others, one pair at a time. So that procedure uses nothing but verdicts on pairs." | "To see that Dee could go first, we asked the rule about Dee and Ben, then Dee and Ana, then Dee and Cy, and found that nobody had to come before Dee. Every step went like that, one pair at a time. So §01's way of building a row only ever asks the rule about two items at a time." |
+| "The rule has a verdict on each of those six pairs, and there is nothing else in the row for it to have a verdict on. So the only sensible meaning of 'the row follows the rule' is this: every pair in the row is ordered the way the rule allows." | "Let's try it on a row we already know is right: Dee, Ben, Ana, Cy… That's every pair in the row, six of them, and the rule is happy with each one. Now a row that's wrong: Ben, Dee, Ana, Cy. Ask about Ben and Dee, and the rule objects… That one pair is enough to make the row wrong." |
+| "Since the items themselves played no part in §01, this pair-by-pair content is all there is to a request, and it deserves a name." | "Everything we did in §01 came down to these verdicts, so let's give this part of a request a name." |
+
+### Check before delivery (both ★ rules)
+
+Read every section boundary as one passage (last two paragraphs of N plus first two of N+1; Where we are → §01; last section → exercises and bridge), and every paragraph-to-paragraph step, asking: what question is the reader holding here, and does the next sentence pick it up? Then apply the PLAIN LANGUAGE read-aloud test to every paragraph, including reveals, feedback, hints and worked solutions.
+
+### Further standards
+
+0. **Voice and reasoning (second only to THE NARRATIVE RULE).** Everything the reader reads (prose, captions, reveals, feedback, hints, worked solutions) is written as a tutor talking the reader through it: conversational, narrative, "we" and "you", asking the questions the reader would ask, honest about what has and has not been shown yet.
    - **Never open cold.** No section or paragraph starts with a bare instruction or claim ("Start with the smallest case", "A relation is …"). First say what we are trying to find out, and why the next move helps answer it.
+   - **Seams and plain words:** see THE NARRATIVE RULE above.
    - **Convince, don't assert.** Every claim that matters is reached by a visible chain of reasoning the reader can follow and check, built up from the simplest case, with a concrete instance at each step. Wherever a reader could ask "why?" or "how does that follow?", the answer is in the text before moving on.
-   - *Worked example of the standard* (lesson 1 §02). Not "a rule for pairs decides whole rows", but: what each request actually says (verdicts on pairs only) → so what "a row follows the rule" must mean (every pair in it does) → how you would *build* such a row from pair verdicts alone (repeatedly pick an item nothing must precede) → try it (works for A–C, stuck on D) → why it can fail (in a row "before" carries over, so the verdicts must fit together) → the real answer (pair verdicts determine a whole order exactly when they fit together), which sets the agenda for the rest of the lesson.
+   - *Worked example of the standard* (lesson 1 §02). Not "a rule for pairs decides whole rows", but: what each request actually says (verdicts on pairs only) → check a known-good row pair by pair, then a wrong one, to see what "a row follows the rule" means (no pair is the wrong way round) → how you would *build* such a row from pair verdicts alone (repeatedly pick an item nothing must precede) → try it (works for A–C, stuck on D) → why it can fail (in a row "before" carries over, so the verdicts must fit together) → the real answer (pair verdicts determine a whole order exactly when they fit together), which sets the agenda for the rest of the lesson.
    - Formal definitions, theorems and proofs stay crisp inside their callouts; the prose leading into and out of each one is conversational and says why it is needed and what it means.
    - The bar is a correct and complete argument, not a shorter one: write more rather than skip a step.
 
@@ -28,7 +75,7 @@ Lesson files: `lesson-NN.html` + `lesson-NN.js` (pure Python ports and widget wi
 4. **Explain every answer, case by case.** Every predict-first reveal and every exercise solution says *why* each answer is what it is, simply, for each case asked about. Prefer one reusable question that explains all cases (e.g. "which items can go first?" explains 1 / 2 / 5 / 0 orders). Feedback that only restates the answer is not enough. (Retrofit of lessons 1–4 still pending: user asked to hold it for now.)
 5. **No logical leaps.** Every step must follow visibly from the one before. Start from the simplest case and show how it grows into the general one (e.g. ordering two items is easy → a row is many pairs at once → the pairs are not independent, which is where the difficulty lies). Never assert what is proved later: say what has been shown so far, and name the question still open. A result used in a proof must be stated in the text, not only in a checkpoint question.
 6. **Read as one text.** Revisions rewrite whole paragraphs so the lesson reads continuously; never insert patches that the surrounding prose does not lead into. Writing more is better than leaving a step out.
-7. **Review pass before delivery:** read the lesson's prose end to end as plain text (exercises removed). For every callout and new term, check items 1–3 against the two paragraphs before it; for every step, ask "why does this follow?" and check item 5.
+7. **Review pass before delivery:** read the lesson's prose end to end as plain text (exercises removed), then read every reveal, feedback, hint and worked solution against PLAIN LANGUAGE. For every callout and new term, check items 1–3 against the two paragraphs before it; for every step, ask "why does this follow?" and check item 5. Then read every section boundary (last two paragraphs of N, first two of N+1, and Where we are → §01, last section → bridge) as one passage and check it against THE NARRATIVE RULE.
 
 ---
 
