@@ -15,7 +15,27 @@ figures drawn by code need a static rendering added to FIGURES in that script).
 
 ## Authoring standards (user feedback, binding for every lesson)
 
-### ★ THE NARRATIVE RULE: one continuous story, in plain words (read this first; it outranks everything below)
+### ★★ RULE ZERO (highest weight; check this before anything else)
+
+**The reader understands every sentence on the first read, can picture it on one of the running examples, and always knows why it is there.** The user learns from these pages alone and has flagged the same five failures again and again in lessons 1–4, even after earlier fixes. They recur for one reason: the writer already knows the idea and writes it in its most compact correct form. The reader is meeting it for the first time. Write for that reader, every sentence, including reveals, feedback, hints and worked solutions.
+
+| # | Failure | Flagged example | What to write instead |
+|---|---|---|---|
+| F1 | **Author's agenda instead of the reader's question.** A section or paragraph opens on what the author plans to cover. | §01 ended "But first we need to see clearly what a rule actually is"; §02 opened "So what is a rule?" | Open on the question the reader is already holding after the previous paragraph (a puzzle, a failure, a surprising count). See THE NARRATIVE RULE. |
+| F2 | **Abstract or negated phrasing where a picture is possible.** Relations stated as double comparisons or negations ("no later … than an earlier …", "an item that nothing has to come before"). | "In Dee, Ben, Ana, Cy, no later person is younger than an earlier one, so the row is sorted." | Show it: "Read the ages from left to right: 22, 25, 30, 30. They never go down, so no pair is the wrong way round." Use names and numbers from the running examples; state the general version afterwards, in one short sentence. Formal phrasing ("\(x_j \prec x_i\) for some \(i < j\)") belongs in callouts only. |
+| F3 | **A new idea whose difference from the old one never comes out.** A shortcut, a repaired test, a second method or a new definition is introduced in passing, and the reader can't say what changed. | "It's tempting to cut corners. Why not look only at neighbours, and demand that each item come before the next one? Let's try that shortcut on (B)." (The reader could not tell what was being proposed or how it differed from the full check.) | Name both things ("the full check", "the neighbour shortcut") and use those names consistently. Put them side by side on the same concrete example: which pairs each one looks at, what question each one asks about a pair, and what verdict each gives. Then state the difference in one sentence. If two things change at once, say so and separate them. |
+| F4 | **Forcing instead of showing.** A conclusion is pushed through with logic words instead of reached through an example. | "So the only sensible meaning of 'the row follows the rule' is this: …" | Work a small example (a right row, then a wrong row) and let the reader see the conclusion; then name it. No "the only sensible", "it must be", "clearly", "obviously". |
+| F5 | **Dense sentences.** Several ideas in one sentence, chains of clauses, noun stacks, pronouns pointing far back. | "To find an item that nothing has to come before, you just ask the rule about that item and each of the others, one pair at a time. So that procedure uses nothing but verdicts on pairs." | One idea per sentence, concrete first: "To see that Dee could go first, we asked the rule about Dee and Ben, then Dee and Ana, then Dee and Cy." See PLAIN LANGUAGE. |
+
+**Four questions for every paragraph** (ask them in this order; any "no" means rewrite):
+1. What question is the reader holding right now, and does this paragraph's first sentence pick it up? (F1)
+2. Can I point to the running example that shows what each sentence says? (F2, F4)
+3. If this paragraph introduces anything new (a test, a shortcut, a method, a definition, a variant), can the reader say in one sentence how it differs from what they already had, and have they seen both on the same example? (F3)
+4. Would I say each sentence this way to a student sitting across the table, and would they follow it on first hearing? (F5)
+
+A lesson is not ready until every paragraph passes all four. When revising, fix the pattern everywhere in the lesson, not just the sentence that was pointed out.
+
+### ★ THE NARRATIVE RULE: one continuous story (details for RULE ZERO F1, F4)
 
 A lesson is one story told by a tutor, not a stack of sections. Every paragraph is there because the paragraph before it made the reader want it, and it is said the way a friend would say it at a whiteboard. If a reader feels a jump, a restart, or a sentence that pushes them to a conclusion, the lesson has failed, however correct it is.
 
@@ -31,7 +51,7 @@ A lesson is one story told by a tutor, not a stack of sections. Every paragraph 
 
 **Failure and fix, from lesson 1 (forcing).** Before: "The rule has a verdict on each of those six pairs, and there is nothing else in the row for it to have a verdict on. So the only sensible meaning of 'the row follows the rule' is this: every pair in the row is ordered the way the rule allows." Fix: take a row we know is right (Dee, Ben, Ana, Cy) and ask the rule about it two people at a time; every pair is fine. Then take a wrong row (Ben, Dee, Ana, Cy) and watch one bad pair spoil it. The meaning of "follows the rule" comes out of the example instead of being argued into place.
 
-### ★ PLAIN LANGUAGE: how every sentence is written (equal rank with THE NARRATIVE RULE)
+### ★ PLAIN LANGUAGE: how every sentence is written (details for RULE ZERO F2, F3, F5)
 
 The reader should understand each sentence the first time they read it, without going back. Correct but dense prose is a failure. These rules apply to all prose, captions, predict reveals, feedback, hints and worked solutions. Formal callouts (definitions, theorems) may stay formal, but the read-back after each one must be plain.
 
@@ -42,7 +62,9 @@ The reader should understand each sentence the first time they read it, without 
 5. **No riddles in the grammar.** Avoid clauses that end on a dangling preposition ("an item that nothing has to come before"), pronouns whose referent is two sentences back, and "this/that/it" standing for a whole idea. Repeat the noun instead.
 6. **Summaries in the reader's words.** End a step with what the reader now knows, in everyday words ("So §01's way of building a row only ever asks the rule about two items at a time"), not an abstract restatement ("So that procedure uses nothing but verdicts on pairs").
 7. **No forcing words.** Don't use "the only sensible meaning", "it must be", "necessarily", "clearly", "obviously", "it is easy to see", "there is nothing else for it to…". If the example is clear, the reader doesn't need to be told so; if it isn't, fix the example.
-8. **The read-aloud test.** Read each paragraph as if saying it to a student across a table. If you would stumble, pause to work out a clause, or reach for a simpler way to say it, write that simpler way.
+8. **Comparisons as pictures.** When a sentence compares items ("younger", "before", "smaller", "required first"), prefer what the reader would see: the ages read left to right, the arrow from one task to another, the two numbers side by side. Avoid "no later X is Y-er than an earlier one" and similar double comparisons.
+9. **New things side by side.** Whenever something new is offered as an alternative to something the reader already has, show both on the same example and say in one sentence what changed (RULE ZERO, F3).
+10. **The read-aloud test.** Read each paragraph as if saying it to a student across a table. If you would stumble, pause to work out a clause, or reach for a simpler way to say it, write that simpler way.
 
 **Before → after (from lesson 1 §02).**
 
@@ -51,8 +73,10 @@ The reader should understand each sentence the first time they read it, without 
 | "To find an item that nothing has to come before, you just ask the rule about that item and each of the others, one pair at a time. So that procedure uses nothing but verdicts on pairs." | "To see that Dee could go first, we asked the rule about Dee and Ben, then Dee and Ana, then Dee and Cy, and found that nobody had to come before Dee. Every step went like that, one pair at a time. So §01's way of building a row only ever asks the rule about two items at a time." |
 | "The rule has a verdict on each of those six pairs, and there is nothing else in the row for it to have a verdict on. So the only sensible meaning of 'the row follows the rule' is this: every pair in the row is ordered the way the rule allows." | "Let's try it on a row we already know is right: Dee, Ben, Ana, Cy… That's every pair in the row, six of them, and the rule is happy with each one. Now a row that's wrong: Ben, Dee, Ana, Cy. Ask about Ben and Dee, and the rule objects… That one pair is enough to make the row wrong." |
 | "Since the items themselves played no part in §01, this pair-by-pair content is all there is to a request, and it deserves a name." | "Everything we did in §01 came down to these verdicts, so let's give this part of a request a name." |
+| "Let's try it on (B). In Dee, Ben, Ana, Cy, no later person is younger than an earlier one, so the row is sorted." | "Let's try the definition on (B). Read the ages of Dee, Ben, Ana, Cy from left to right: 22, 25, 30, 30. They never go down, so no pair is the wrong way round, and the row is sorted." |
+| "It's tempting to cut corners. Why not look only at neighbours, and demand that each item come before the next one? Let's try that shortcut on (B)." | Name the two checks and show both on Dee, Ben, Ana, Cy: the full check looks at all six pairs and asks of each "is it the wrong way round?"; the neighbour shortcut looks only at the three side-by-side pairs and asks of each "is the left one younger?". Then say what changed: fewer pairs, and a stricter question. |
 
-### Check before delivery (both ★ rules)
+### Check before delivery (RULE ZERO and both ★ sections)
 
 Read every section boundary as one passage (last two paragraphs of N plus first two of N+1; Where we are → §01; last section → exercises and bridge), and every paragraph-to-paragraph step, asking: what question is the reader holding here, and does the next sentence pick it up? Then apply the PLAIN LANGUAGE read-aloud test to every paragraph, including reveals, feedback, hints and worked solutions.
 
